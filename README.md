@@ -1,2 +1,2 @@
-# edukid-spring-boot
+# edukid-api-spring-boot
  App for time management and academic stimulation with spring boot and react native
