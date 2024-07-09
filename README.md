@@ -1,2 +1,2 @@
-# tg-app-for-time-management-and-academic-stimulation
+# edu0kid-spring-boot
  App for time management and academic stimulation with spring boot and react native
