@@ -26,11 +26,14 @@ public class LoginService {
 	@Autowired
 	UserFatherRepository repository;
 	
+	@Autowired
+	HashSaltService hashSaltService;
+	
 	/* Registrar mensagens de log em uma aplicação Java.*/
 	Logger logger = Logger.getLogger(LoginService.class.getName());
 	
 	/**
-	 * METODO REALIZA A AUTHENTIFICAÇÃO DO LOGIN
+	 * METODO REALIZA A AUTHENTIFICAÇÃO DO LOGINS
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 9 de jul. de 2024
 	 * @param login
@@ -42,7 +45,7 @@ public class LoginService {
 			if(repository.countByEmail(login.getEmail()) > 0) {
 				
 				UserFather user = repository.findByEmail(login.getEmail());
-				if(user.getPassword().equals(login.getPassword())) {
+				if(hashSaltService.verifyHash(login.getPassword(), user.getPassword())) {
 					return ResponseEntity.ok("Authentiked");
 				}
 			}

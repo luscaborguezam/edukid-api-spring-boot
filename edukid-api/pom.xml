@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<dozer.version>7.0.0</dozer.version>
+		<securityCor.version>6.3.1</securityCor.version>
 	</properties>
 	<dependencies>
 	<!-- SPRING BOOT DEPÊNDENCIAS -->
@@ -78,6 +79,14 @@
 		    <artifactId>dozer-core</artifactId>
 		    <version>${dozer.version}</version>
 		</dependency>
+		
+		<!-- PARA UTILIZAR HASH E SALT https://mvnrepository.com/artifact/org.springframework.security/spring-security-core -->
+		<dependency>
+		    <groupId>org.springframework.security</groupId>
+		    <artifactId>spring-security-core</artifactId>
+		    <version>${securityCor.version}</version>
+		</dependency>
+
 
 		
 	</dependencies>

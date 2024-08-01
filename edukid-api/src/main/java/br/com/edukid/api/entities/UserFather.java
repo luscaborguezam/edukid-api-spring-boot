@@ -25,8 +25,6 @@ public class UserFather implements Serializable{
 	private String lastName;
 	@Column(name = "cpf", nullable = false, length = 11)
 	private String cpf;
-	@Column(name = "rg", nullable = false, length = 9)
-	private String rg;
 	@Column(name = "telefone", nullable = false, length = 13)
 	private String phone;
 	@Column(name = "email", nullable = false, length = 255)
@@ -66,14 +64,6 @@ public class UserFather implements Serializable{
 
 	public void setCpf(String cpf) {
 		this.cpf = cpf;
-	}
-
-	public String getRg() {
-		return rg;
-	}
-
-	public void setRg(String rg) {
-		this.rg = rg;
 	}
 
 	public String getPhone() {
