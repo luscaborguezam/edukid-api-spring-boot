@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import br.com.edukid.api.entities.UserFather;
-import br.com.edukid.api.mapper.DozerMapper;
+import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.unnitests.mapper.mocks.MockUserFather;
 import br.com.edukid.api.vo.v1.LoginVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
@@ -24,7 +24,7 @@ public class DozerConverterTest {
 
     @Test
     public void parseEntityToVOTest() {
-        UserFatherVO output = DozerMapper.parseObject(inputObject.mockEntity(), UserFatherVO.class);
+        UserFatherVO output = EdukidMapper.parseObject(inputObject.mockEntity(), UserFatherVO.class);
         assertEquals(0, output.getId());
         assertEquals("First Name Test0", output.getFirstName());
         assertEquals("Last Name Test0", output.getLastName());
@@ -36,7 +36,7 @@ public class DozerConverterTest {
 
     @Test
     public void parseEntityListToVOListTest() {
-        List<UserFatherVO> outputList = DozerMapper.parseListObjects(inputObject.mockEntityList(), UserFatherVO.class);
+        List<UserFatherVO> outputList = EdukidMapper.parseListObjects(inputObject.mockEntityList(), UserFatherVO.class);
         UserFatherVO outputZero = outputList.get(0);
         
         assertEquals(0, outputZero.getId());
@@ -70,7 +70,7 @@ public class DozerConverterTest {
 
     @Test
     public void parseVOToEntityTest() {
-        UserFather output = DozerMapper.parseObject(inputObject.mockVO(), UserFather.class);
+        UserFather output = EdukidMapper.parseObject(inputObject.mockVO(), UserFather.class);
         assertEquals(0, output.getId());
         assertEquals("First Name Test0", output.getFirstName());
         assertEquals("Last Name Test0", output.getLastName());
@@ -82,7 +82,7 @@ public class DozerConverterTest {
 
     @Test
     public void parserVOListToEntityListTest() {
-        List<UserFather> outputList = DozerMapper.parseListObjects(inputObject.mockVOList(), UserFather.class);
+        List<UserFather> outputList = EdukidMapper.parseListObjects(inputObject.mockVOList(), UserFather.class);
         UserFather outputZero = outputList.get(0);
         
         assertEquals(0, outputZero.getId());
@@ -116,14 +116,14 @@ public class DozerConverterTest {
     
     @Test
     public void parseEntityToLoginVOTest() {
-        LoginVO output = DozerMapper.parseObject(inputObject.mockEntity(), LoginVO.class);
+        LoginVO output = EdukidMapper.parseObject(inputObject.mockEntity(), LoginVO.class);
         assertEquals("Email Test0", output.getEmail());
         assertEquals("Password Test0", output.getPassword());
     }
 
     @Test
     public void parseEntityListToLoginVOListTest() {
-        List<LoginVO> outputList = DozerMapper.parseListObjects(inputObject.mockEntityList(), LoginVO.class);
+        List<LoginVO> outputList = EdukidMapper.parseListObjects(inputObject.mockEntityList(), LoginVO.class);
         LoginVO outputZero = outputList.get(0);
         
         assertEquals("Email Test0", outputZero.getEmail());

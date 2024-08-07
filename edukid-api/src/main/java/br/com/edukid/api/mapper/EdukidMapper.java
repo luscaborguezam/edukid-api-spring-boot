@@ -3,8 +3,10 @@ package br.com.edukid.api.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.dozermapper.core.DozerBeanMapperBuilder;
-import com.github.dozermapper.core.Mapper;
+import org.modelmapper.ModelMapper;
+
+//import com.github.dozermapper.core.DozerBeanMapperBuilder;
+//import com.github.dozermapper.core.Mapper;
 
 /**
  * CLASSE CRIADA PARA CONTER METODOS QUE FAZEM CONVERSÕES DE OBJETOS
@@ -12,9 +14,10 @@ import com.github.dozermapper.core.Mapper;
  * @Author LUCAS BORGUEZAM
  * @Sice 14 de jul. de 2024
  */
-public class DozerMapper {
+public class EdukidMapper {
 
-	private static Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+//	private static Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+	private static ModelMapper mapper = new ModelMapper();
 	
 	/**
 	 * METODO CONVERTE OBJETO DE ORIGEM NO OBJETO DE DESTINO, 
