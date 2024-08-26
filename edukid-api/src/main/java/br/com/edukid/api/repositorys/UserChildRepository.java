@@ -1,6 +1,7 @@
 package br.com.edukid.api.repositorys;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import br.com.edukid.api.entities.UserChild;
@@ -18,9 +19,9 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 7 de ago. de 2024
 	 * @param nickname
-	 * @return NUMERO DO TIPO LONG
+	 * @return boolean
 	 */
-	long countByNickname(String nickname);
+	boolean existsByNickname(String nickname);
 	
 	/**
 	 * METODO QUE BUSCA USERFATHER PELO EMAIL
@@ -29,5 +30,14 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 	 * @param nickname
 	 * @return ENTITY USERCHILD 
 	 */
-	UserFather findByNickname(@Param("nickname") String nickname);
+	UserChild findByNickname(@Param("nickname") String nickname);
+	
+    /**
+     * Verifica se existe um usuário filho com o mesmo nickname de um fkUserPai diferente do fkUserPai.
+     * @param nickname O e-nickname a ser verificado
+     * @param fkUserPai O FK do usuário pai que está sendo atualizado
+     * @return true se existir outro usuário com o mesmo e-mail, caso contrário false
+     */
+    @Query("SELECT COUNT(u) > 0 FROM UserChild u WHERE u.nickname = :nickname AND u.fkUserPai <> :fkUserPai")
+    boolean existsNicknameToUpdate(@Param("nickname") String nickname, @Param("fkUserPai") Integer fkUserPai);
 }

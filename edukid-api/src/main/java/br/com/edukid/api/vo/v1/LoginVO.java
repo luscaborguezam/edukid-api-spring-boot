@@ -11,22 +11,29 @@ import jakarta.validation.constraints.NotBlank;
 
 
 public class LoginVO {
-	@Email
-	private String email;
+	@Email @NotBlank
+	private String emailOrNickName;
 	@NotBlank
 	private String password;
+	private String codVerificacao;
 	
-	public String getEmail() {
-		return email;
+	public String getEmailOrNickName() {
+		return emailOrNickName;
 	}
-	public void setEmail(String email) {
-		this.email = email;
+	public void setEmailOrNickName(String emailOrNickName) {
+		this.emailOrNickName = emailOrNickName;
 	}
 	public String getPassword() {
 		return password;
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getCodVerificacao() {
+		return codVerificacao;
+	}
+	public void setCodVerificacao(String codVerificacao) {
+		this.codVerificacao = codVerificacao;
 	}
 	
 	

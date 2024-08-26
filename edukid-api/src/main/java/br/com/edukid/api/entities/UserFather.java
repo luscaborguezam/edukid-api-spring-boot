@@ -31,6 +31,11 @@ public class UserFather implements Serializable{
 	private String email;
 	@Column(name = "passwd", nullable = false, length = 255)
 	private String password;
+	@Column(name = "status_", nullable = false)
+	private String status;
+	@Column(name="cod_mudar_senha", nullable = false, length = 8)
+	private String codMudarSenha;
+	
 	
 	public UserFather() {}
 
@@ -92,7 +97,24 @@ public class UserFather implements Serializable{
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
-	};
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	public String getCodMudarSenha() {
+		return codMudarSenha;
+	}
+	
+	public void setCodMudarSenha(String codMudarSenha) {
+		this.codMudarSenha = codMudarSenha;
+	}
+	
 	
 	
 	

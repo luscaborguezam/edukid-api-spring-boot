@@ -8,7 +8,9 @@ import jakarta.validation.constraints.NotBlank;
  * @Sice 7 de ago. de 2024
  */
 public class UserChildVO {
-
+	
+	
+	private String id;
 	@NotBlank
 	private String firstName;
 	@NotBlank
@@ -17,7 +19,7 @@ public class UserChildVO {
 	private String nickname;
 	@NotBlank
 	private String password;
-	
+	@NotBlank
 	private String fkUserPai;
 	
 	
@@ -25,6 +27,12 @@ public class UserChildVO {
 	/*Getters and Setters*/
 	public String getFirstName() {
 		return firstName;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
 	}
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;

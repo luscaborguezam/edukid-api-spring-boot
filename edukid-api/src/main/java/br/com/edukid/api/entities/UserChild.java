@@ -36,7 +36,6 @@ public class UserChild implements Serializable{
 	private Integer fkUserPai;
 	
 	
-	
 	/*GETEERS AND SETTERS*/
 	public Integer getId() {
 		return id;
@@ -56,10 +55,10 @@ public class UserChild implements Serializable{
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	public String getEmail() {
+	public String getNickname() {
 		return nickname;
 	}
-	public void setEmail(String nickname) {
+	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
 	public String getPassword() {
@@ -77,6 +76,7 @@ public class UserChild implements Serializable{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
 	
 	
 	

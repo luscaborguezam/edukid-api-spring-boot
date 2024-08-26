@@ -2,18 +2,17 @@ package br.com.edukid.api.vo.v1;
 
 import org.hibernate.validator.constraints.br.CPF;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 /**
- * CLASSE REPRESENTA OS DADOS DO USUÁRIO PAI
+ * CLASSE REPRESENTA OS DADOS DO USUÁRIO PAI PARA CADASTRO (RECEBE O CAMPO SENHA)
  *  
  * @Author LUCAS BORGUEZAM
  * @Sice 7 de ago. de 2024
  */
 
-public class UserFatherVO {
+public class UserFatherCadastroVO {
 	
 	private String id;
 	@NotBlank
@@ -26,6 +25,8 @@ public class UserFatherVO {
 	private String phone;
 	@Email
 	private String email;
+	@NotBlank
+	private String password;
 	
 	private String status;
 	
@@ -66,13 +67,17 @@ public class UserFatherVO {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	public String getStatus() {
 		return status;
 	}
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
-	
-	
+
 }

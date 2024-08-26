@@ -11,7 +11,8 @@ import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.unnitests.mapper.mocks.MockUserFather;
 import br.com.edukid.api.vo.v1.LoginVO;
-import br.com.edukid.api.vo.v1.UserFatherVO;
+import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
+import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 
 public class DozerConverterTest {
     
@@ -24,7 +25,7 @@ public class DozerConverterTest {
 
     @Test
     public void parseEntityToVOTest() {
-        UserFatherVO output = EdukidMapper.parseObject(inputObject.mockEntity(), UserFatherVO.class);
+    	UserFatherCadastroVO output = EdukidMapper.parseObject(inputObject.mockEntity(), UserFatherCadastroVO.class);
         assertEquals(0, output.getId());
         assertEquals("First Name Test0", output.getFirstName());
         assertEquals("Last Name Test0", output.getLastName());
@@ -36,8 +37,8 @@ public class DozerConverterTest {
 
     @Test
     public void parseEntityListToVOListTest() {
-        List<UserFatherVO> outputList = EdukidMapper.parseListObjects(inputObject.mockEntityList(), UserFatherVO.class);
-        UserFatherVO outputZero = outputList.get(0);
+        List<UserFatherCadastroVO> outputList = EdukidMapper.parseListObjects(inputObject.mockEntityList(), UserFatherCadastroVO.class);
+        UserFatherCadastroVO outputZero = outputList.get(0);
         
         assertEquals(0, outputZero.getId());
         assertEquals("First Name Test0", outputZero.getFirstName());
@@ -47,7 +48,7 @@ public class DozerConverterTest {
         assertEquals("Email Test0", outputZero.getEmail());
         assertEquals("Password Test0", outputZero.getPassword());
         
-        UserFatherVO outputSeven = outputList.get(7);
+        UserFatherCadastroVO outputSeven = outputList.get(7);
       
         assertEquals(7, outputSeven.getId());
         assertEquals("First Name Test7", outputSeven.getFirstName());
@@ -57,7 +58,7 @@ public class DozerConverterTest {
         assertEquals("Email Test7", outputSeven.getEmail());
         assertEquals("Password Test7", outputSeven.getPassword());
         
-        UserFatherVO outputTwelve = outputList.get(12);
+        UserFatherCadastroVO outputTwelve = outputList.get(12);
         
         assertEquals(12, outputTwelve.getId());
         assertEquals("First Name Test12", outputTwelve.getFirstName());
@@ -117,7 +118,7 @@ public class DozerConverterTest {
     @Test
     public void parseEntityToLoginVOTest() {
         LoginVO output = EdukidMapper.parseObject(inputObject.mockEntity(), LoginVO.class);
-        assertEquals("Email Test0", output.getEmail());
+        assertEquals("Email Test0", output.getEmailOrNickName());
         assertEquals("Password Test0", output.getPassword());
     }
 
@@ -126,17 +127,17 @@ public class DozerConverterTest {
         List<LoginVO> outputList = EdukidMapper.parseListObjects(inputObject.mockEntityList(), LoginVO.class);
         LoginVO outputZero = outputList.get(0);
         
-        assertEquals("Email Test0", outputZero.getEmail());
+        assertEquals("Email Test0", outputZero.getEmailOrNickName());
         assertEquals("Password Test0", outputZero.getPassword());
         
         LoginVO outputSeven = outputList.get(7);
         
-        assertEquals("Email Test7", outputSeven.getEmail());
+        assertEquals("Email Test7", outputSeven.getEmailOrNickName());
         assertEquals("Password Test7", outputSeven.getPassword());
         
         LoginVO outputTwelve = outputList.get(12);
 
-        assertEquals("Email Test12", outputTwelve.getEmail());
+        assertEquals("Email Test12", outputTwelve.getEmailOrNickName());
         assertEquals("Password Test12", outputTwelve.getPassword());
     }
 }

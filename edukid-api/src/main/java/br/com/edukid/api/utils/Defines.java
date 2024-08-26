@@ -7,4 +7,6 @@ package br.com.edukid.api.utils;
  */
 public class Defines {
 
+	public static final String STATUS_ATIVO_ACCOUNT_USER_FATHER = "ativo";
+	public static final String STATUS_DESATIVADO_ACCOUNT_USER_FATHER = "desativado";
 }

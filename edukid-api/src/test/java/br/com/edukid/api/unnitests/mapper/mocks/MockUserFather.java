@@ -5,7 +5,7 @@ import java.util.List;
 
 import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.vo.v1.LoginVO;
-import br.com.edukid.api.vo.v1.UserFatherVO;
+import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 
 public class MockUserFather {
 
@@ -14,7 +14,7 @@ public class MockUserFather {
         return mockEntity(0);
     }
     
-    public UserFatherVO mockVO() {
+    public UserFatherCadastroVO mockVO() {
         return mockVO(0);
     }
     
@@ -30,8 +30,8 @@ public class MockUserFather {
         return persons;
     }
 
-    public List<UserFatherVO> mockVOList() {
-        List<UserFatherVO> persons = new ArrayList<>();
+    public List<UserFatherCadastroVO> mockVOList() {
+        List<UserFatherCadastroVO> persons = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
             persons.add(mockVO(i));
         }
@@ -58,9 +58,9 @@ public class MockUserFather {
         return userFather;
     }
 
-    public UserFatherVO mockVO(Integer number) {
-    	UserFatherVO userFather = new UserFatherVO();
-    	userFather.setId(number);
+    public UserFatherCadastroVO mockVO(Integer number) {
+    	UserFatherCadastroVO userFather = new UserFatherCadastroVO();
+    	userFather.setId(String.valueOf(number));
     	userFather.setFirstName("First Name Test" + number);
     	userFather.setLastName("Last Name Test" + number);
     	userFather.setCpf("CPF Test" + number);
@@ -72,7 +72,7 @@ public class MockUserFather {
     
     public LoginVO mockLoginVO(Integer number) {
     	LoginVO login = new LoginVO();
-    	login.setEmail("Email Test" + number);
+    	login.setEmailOrNickName("Email Test" + number);
     	login.setPassword("Password Test" + number);
         return login;
     }
