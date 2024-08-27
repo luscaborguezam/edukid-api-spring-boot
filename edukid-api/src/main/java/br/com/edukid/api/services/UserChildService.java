@@ -10,6 +10,7 @@ import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.exceptions.ResourceNotFoundException;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.UserChildRepository;
+import br.com.edukid.api.utils.StringServices;
 import br.com.edukid.api.utils.UtilsService;
 import br.com.edukid.api.vo.v1.LoginVO;
 import br.com.edukid.api.vo.v1.UserChildVO;
@@ -26,6 +27,8 @@ public class UserChildService {
 	UserChildRepository childRepository;
 	@Autowired
 	HashSaltService hashSaltService;
+	@Autowired
+	StringServices stringService;
 	
 	/**
 	 * 
@@ -35,7 +38,7 @@ public class UserChildService {
 	 * @param dataAccount
 	 * @return
 	 */
-	public ResponseEntity<?> registerUserChild(@Valid UserChildVO data) {
+	public ResponseEntity<?> registerUserChild(@Valid UserChildVO data) {		
 		/*Faz o Hash da senha do usuario*/
 		data.setPassword(hashSaltService.hash(data.getPassword()));
 		

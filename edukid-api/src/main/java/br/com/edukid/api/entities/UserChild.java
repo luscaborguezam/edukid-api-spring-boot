@@ -1,6 +1,7 @@
 package br.com.edukid.api.entities;
 
 import java.io.Serializable;
+import java.sql.Time;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,9 +33,16 @@ public class UserChild implements Serializable{
 	private String nickname;
 	@Column(name = "passwd", nullable = false, length = 255)
 	private String password;
+	@Column(name="ano_escolar")
+	private Integer schoolYear;
+	@Column(name="qtd_pergunta")
+	private Integer questionsQuantity;
+	@Column(name="horario_quiz")
+	private Time timeOfQuiz; //formato aceitado HH:mm:ss exemplo 14:30:00
+	@Column(name="qtd_notificacao")
+	private Integer notificationQuantity;
 	@Column(name = "id_user_pai", nullable = false)
 	private Integer fkUserPai;
-	
 	
 	/*GETEERS AND SETTERS*/
 	public Integer getId() {
@@ -67,15 +75,38 @@ public class UserChild implements Serializable{
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	public Integer getSchoolYear() {
+		return schoolYear;
+	}
+	public void setSchoolYear(Integer schoolYear) {
+		this.schoolYear = schoolYear;
+	}
+	public Integer getQuestionsQuantity() {
+		return questionsQuantity;
+	}
+	public void setQuestionsQuantity(Integer questionsQuantity) {
+		this.questionsQuantity = questionsQuantity;
+	}
+	public Time getTimeOfQuiz() {
+		return timeOfQuiz;
+	}
+	public void setTimeOfQuiz(Time timeOfQuiz) {
+		this.timeOfQuiz = timeOfQuiz;
+	}
+	public Integer getNotificationQuantity() {
+		return notificationQuantity;
+	}
+	public void setNotificationQuantity(Integer notificationQuantity) {
+		this.notificationQuantity = notificationQuantity;
+	}
 	public Integer getFkUserPai() {
 		return fkUserPai;
 	}
 	public void setFkUserPai(Integer fkUserPai) {
 		this.fkUserPai = fkUserPai;
 	}
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
+
+	
 
 	
 	

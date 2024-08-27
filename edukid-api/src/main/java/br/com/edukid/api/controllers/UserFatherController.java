@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edukid.api.services.UserFatherService;
 import br.com.edukid.api.vo.v1.LoginVO;
+import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
 import br.com.edukid.api.vo.v1.UserChildVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
@@ -93,7 +94,7 @@ public class UserFatherController {
 	 * @return
 	 */
 	@PostMapping(path="change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> changePassword(@RequestBody @Valid LoginVO dataAccount) {
+	public ResponseEntity<?> changePassword(@RequestBody @Valid SolicitarMudancaSenhaVO dataAccount) {
 			return fatherService.changePassword(dataAccount);
 	}
 }

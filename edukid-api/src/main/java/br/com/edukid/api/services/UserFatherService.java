@@ -21,6 +21,7 @@ import br.com.edukid.api.utils.Defines;
 import br.com.edukid.api.utils.EmailService;
 import br.com.edukid.api.utils.UtilsService;
 import br.com.edukid.api.vo.v1.LoginVO;
+import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
 import jakarta.validation.Valid;
@@ -161,20 +162,20 @@ public class UserFatherService {
 	 * METODO REALIZA A TROCA DE SENHA
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 9 de jul. de 2024
-	 * @param login
+	 * @param data
 	 * @return STATUS CODE HTTP + DESCRICAO
 	 */
-	public ResponseEntity<?> changePassword(LoginVO login) {
+	public ResponseEntity<?> changePassword(SolicitarMudancaSenhaVO data) {
 		logger.info("Change password");
-		logger.info(login.getEmailOrNickName()+" "+ login.getPassword());
+		logger.info(data.getEmail()+" ");
 		
-			if(fatherRepository.existsByEmail(login.getEmailOrNickName())) {
+			if(fatherRepository.existsByEmail(data.getEmail())) {
 				/*Buscar registro*/				
-				UserFather user = fatherRepository.findByEmail(login.getEmailOrNickName());
+				UserFather user = fatherRepository.findByEmail(data.getEmail());
 				/*Gerar código de verificação*/
 				user.setCodMudarSenha(RandomStringUtils.randomAlphanumeric(8));
 				/*Enviar email*/
-				emailService.sendEmailChangePasword(login.getEmailOrNickName(), user.getCodMudarSenha());
+				emailService.sendEmailChangePasword(data.getEmail(), user.getCodMudarSenha());
 				/*Cadastrar codigo de troca de senha*/
 				fatherRepository.save(user);
 				
