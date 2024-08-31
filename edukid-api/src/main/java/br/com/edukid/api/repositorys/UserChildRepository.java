@@ -14,6 +14,7 @@ import br.com.edukid.api.entities.UserFather;
  */
 
 public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
+	
 	/**
 	 * METODO BUSCA A QUANTIDADE DE REGISTRO COM UM APELIDO ESPECÍFICO
 	 * @Author LUCAS BORGUEZAM
@@ -24,7 +25,7 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 	boolean existsByNickname(String nickname);
 	
 	/**
-	 * METODO QUE BUSCA USERFATHER PELO EMAIL
+	 * METODO QUE BUSCA USERCHILD PELO NICKNAME
  	 * @Author LUCAS BORGUEZAM
 	 * @Sice 7 de ago. de 2024
 	 * @param nickname

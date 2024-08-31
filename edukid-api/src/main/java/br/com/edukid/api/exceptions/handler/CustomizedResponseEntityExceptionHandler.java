@@ -77,7 +77,6 @@ public class CustomizedResponseEntityExceptionHandler {
 	
 	/**
 	 * METODO TRATA EXCECOES DO TIPO DataIntegrityViolationException
-	 * METODO 
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 10 de ago. de 2024
 	 * @param ex

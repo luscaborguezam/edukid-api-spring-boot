@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.edukid.api.services.ConfigurationQuizService;
 import br.com.edukid.api.services.UserFatherService;
 import br.com.edukid.api.vo.v1.LoginVO;
 import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
@@ -21,6 +22,7 @@ import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -31,6 +33,8 @@ public class UserFatherController {
 
 	@Autowired
 	UserFatherService fatherService;
+	@Autowired
+	ConfigurationQuizService configurationQuizService;
 	
 	/**
 	 * METODO FAZ O REGISTRO DO USUARIO PAI
@@ -50,7 +54,7 @@ public class UserFatherController {
 	}
 	
 	/**
-	 * METODO ALTERA UM REGISTRO JÁ CADASTRADO
+	 * METODO ALTERA UM REGISTRO JÁ CADASTRADO DO USUARIO PAI
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 7 de ago. de 2024
 	 * @param dataAccount
@@ -97,4 +101,6 @@ public class UserFatherController {
 	public ResponseEntity<?> changePassword(@RequestBody @Valid SolicitarMudancaSenhaVO dataAccount) {
 			return fatherService.changePassword(dataAccount);
 	}
+	
+
 }

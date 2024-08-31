@@ -1,7 +1,6 @@
 package br.com.edukid.api.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,7 +25,7 @@ public class UserChildController {
 	UserChildService childService;
 
 	/**
-	 * METODO FAZ REGISTRO DO USUÁRIO FILHO
+	 * METODO FAZ REGISTRO DO USUARIO FILHO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 7 de ago. de 2024
 	 * @param dataAccount
@@ -38,7 +37,7 @@ public class UserChildController {
 	}
 	
 	/**
-	 * METODO ALTERA UM REGISTRO JÁ CADASTRADO
+	 * METODO ALTERA UM REGISTRO JA CADASTRADO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 7 de ago. de 2024
 	 * @param dataAccount
@@ -50,7 +49,7 @@ public class UserChildController {
 	}
 	
 	/**
-	 * METODO DELETA A CONTA DO USUÁRIO FILHO
+	 * METODO DELETA A CONTA DO USUARIO FILHO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 7 de ago. de 2024
 	 * @param id
@@ -58,13 +57,8 @@ public class UserChildController {
 	 * @throws Exception
 	 */
 	@DeleteMapping(value = "account/{id}")
-	public ResponseEntity<?> deleteUserChild(@PathVariable @Valid @NotBlank String id) throws Exception {
-		try {
+	public ResponseEntity<?> deleteUserChild(@PathVariable @Valid @NotBlank String id) throws Exception {		
 			return childService.deleteUserChild(Integer.parseInt(id));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro no servidor");
-		}
 	}
 	
 	/**
@@ -76,11 +70,7 @@ public class UserChildController {
 	 */
 	@PostMapping(path="login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> loginUserChild(@RequestBody @Valid LoginVO dataAccount) {
-		try {
 			return childService.authenticateLogin(dataAccount);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro no servidor");
-		}
+
 	}
 }
