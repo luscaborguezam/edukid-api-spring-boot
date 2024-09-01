@@ -38,10 +38,17 @@ public class ConfQuizController {
 			return configurationQuizService.getSubjectAndTheme(Integer.parseInt(yearHighSchool));
 	}
 	
-	@PostMapping(path="subject-and-theme", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path="/subject-and-theme", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> registerSubjectAndThemeRelacionedWithUserChild(@RequestBody  @Valid MateriasETemasVO data) {		
 		return configurationQuizService.registerConfQuiz(data);
 	}
 	
+	@GetMapping(path="/quiz/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> toGeneratedQuiz(@PathVariable @Valid @NotBlank 
+			@Pattern(regexp = "^-?\\d+$", message = "Key 'fkUserPai' must be a string with the value of a valid integer") 
+			String idUserChild){
+		
+		return configurationQuizService.toGenerateQuiz(Integer.parseInt(idUserChild));
+	}
 
 }

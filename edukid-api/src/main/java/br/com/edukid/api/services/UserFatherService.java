@@ -138,7 +138,14 @@ public class UserFatherService {
 				UserFather user = fatherRepository.findByEmail(login.getEmailOrNickName());
 				logger.info(user.getCodMudarSenha());
 				/*Verificar confrimação de cadastro*/
-				if(user.getCodMudarSenha() != null)
+				if(user.getCodMudarSenha() != null) {
+					
+					/*Verificar se passou o código no json*/
+					if(login.getCodVerificacao()==null)
+						return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
+								body("Credênciais inválidas, codVerificacao não pode ser nulo em caso de confirmação de conta ou troca de senha");
+						
+					
 			    	/*Verificar código de confirmação*/
 			    	if(login.getCodVerificacao().equals(user.getCodMudarSenha())) {
 			    		/*Mudar password, cod_mudar_senha para null e salvar*/
@@ -149,10 +156,12 @@ public class UserFatherService {
 			    		return ResponseEntity.status(HttpStatus.OK).body(EdukidMapper.parseObject(user, UserFatherVO.class));
 			    	} else
 			    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas, utilize o código de verificação enviádo em seu email de cadastrado");			    		
+				}
 				/*Login normal*/	
 			    if (hashSaltService.verifyHash(login.getPassword(), user.getPassword())) {
 			        UserFatherVO userFather = EdukidMapper.parseObject(user, UserFatherVO.class);
 			        return ResponseEntity.status(HttpStatus.OK).body(userFather);
+			    
 			    }
 			}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas");

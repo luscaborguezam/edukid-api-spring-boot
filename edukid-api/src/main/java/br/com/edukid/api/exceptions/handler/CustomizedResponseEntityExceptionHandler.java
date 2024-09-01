@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import br.com.edukid.api.exceptions.ExceptionsResponse;
 import br.com.edukid.api.exceptions.ResourceNotFoundException;
@@ -90,6 +91,26 @@ public class CustomizedResponseEntityExceptionHandler {
 				ex.getMessage(), 
 				request.getDescription(false),
 				"invalid json format");
+		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+		
+	}
+	
+	
+	/**
+	 * METODO TRATA EXCECOES DO TIPO NoResourceFoundException
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 10 de ago. de 2024
+	 * @param ex
+	 * @param request
+	 * @return
+	 */
+	@ExceptionHandler(NoResourceFoundException.class)
+	public final ResponseEntity<ExceptionsResponse> handlerHttpMessageNoResourceFoundException(Exception ex, WebRequest request){
+		ExceptionsResponse exceptionResponse = new ExceptionsResponse(
+				new Date(), 
+				ex.getMessage(), 
+				request.getDescription(false),
+				"invalid uri.");
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
 		
 	}
