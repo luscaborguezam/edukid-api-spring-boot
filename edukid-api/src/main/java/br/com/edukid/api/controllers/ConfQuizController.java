@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edukid.api.services.ConfigurationQuizService;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
+import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -39,7 +40,7 @@ public class ConfQuizController {
 	}
 	
 	/**
-	 * METODO CADASTRA MATERIA E TEMAS RELACIONADO A UM USER CHILDS
+	 * METODO CADASTRA MATERIA E TEMAS RELACIONADO A UM USER CHILD
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 8 de set. de 2024
 	 * @param data
@@ -59,10 +60,22 @@ public class ConfQuizController {
 	 */
 	@GetMapping(path="/quiz/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> toGeneratedQuiz(@PathVariable @Valid @NotBlank 
-			@Pattern(regexp = "^-?\\d+$", message = "'fkUserPai' deve ser uma string numérica de valor inteiro") 
-			String idUserChild){
-		
+		@Pattern(regexp = "^-?\\d+$", message = "'fkUserPai' deve ser uma string numérica de valor inteiro") String idUserChild)
+	{
 		return configurationQuizService.toGenerateQuiz(Integer.parseInt(idUserChild));
 	}
+	
+	/**
+	 * METODO iNICIA O REGISTRO DE UM QUIZ REALIZADO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 11 de set. de 2024
+	 * @param quizREalized
+	 * @return
+	 */
+	@PostMapping("/quiz")
+	public ResponseEntity<?> registerQuizRealized(@RequestBody QuizVO quizRealized) {
+		return configurationQuizService.registerQuizRealized(quizRealized);
+	}
+	
 
 }

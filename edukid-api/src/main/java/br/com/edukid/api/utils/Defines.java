@@ -7,6 +7,18 @@ package br.com.edukid.api.utils;
  */
 public class Defines {
 
+	/**
+	 * CONSTANTES SOBRE SITUAÇÃO DA CONTA PAI
+	 */
 	public static final String STATUS_ATIVO_ACCOUNT_USER_FATHER = "ativo";
 	public static final String STATUS_DESATIVADO_ACCOUNT_USER_FATHER = "desativado";
+	
+	/**
+	 * CONSTANTES SOBRE A SITUAÇÃO DO QUIZ CRIADO
+	 */
+	public static final int QUIZ_EM_ABERTO = 0;
+	public static final int QUIZ_FINALIZADO = 1;
+	public static final int QUIZ_FINALIZADO_E_INCOMPLETO = 2;
+	public static final int QUIZ_NAO_REALIZADO = 3;
+	
 }

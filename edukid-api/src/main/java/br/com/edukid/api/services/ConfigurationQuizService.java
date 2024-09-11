@@ -1,5 +1,6 @@
 package br.com.edukid.api.services;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,11 +16,13 @@ import org.springframework.stereotype.Service;
 
 import br.com.edukid.api.entities.Materia;
 import br.com.edukid.api.entities.Pergunta;
+import br.com.edukid.api.entities.Quiz;
 import br.com.edukid.api.entities.UserChild;
 import br.com.edukid.api.entities.field.ConfigurationUserChild;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.MateriaRepository;
 import br.com.edukid.api.repositorys.PerguntaRepository;
+import br.com.edukid.api.repositorys.QuizRepository;
 import br.com.edukid.api.repositorys.TemaAprendizagemRepository;
 import br.com.edukid.api.repositorys.UserChildRepository;
 import br.com.edukid.api.utils.JsonService;
@@ -45,6 +48,8 @@ public class ConfigurationQuizService {
 	JsonService jsonService;
 	@Autowired
 	PerguntaRepository perguntaRepository;
+	@Autowired
+	QuizRepository quizRepository;
 	
 	/**
 	 * METODO BUSCA MATERIAS E TEMAS RELACIONADO AO ANO DO ENSINO MÉDIO DO USUARIO FILHO
@@ -112,11 +117,20 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	public ResponseEntity<?> toGenerateQuiz(Integer idUserChild){
+		/*Verificar se existe um quiz criado na data atual*/
+		if(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now())) {
+			return ResponseEntity.status(HttpStatus.OK).body("Quiz já foi criado");
+		}
+		
 	/*Buscar as configurações do quiz*/
 		Optional<UserChild> OpuserChild = childRepository.findById(idUserChild);
 		UserChild userChild = OpuserChild.get();
 		/*Transformar json de configuração em objeto*/
 		ConfigurationUserChild confQuiz = jsonService.fromJson(userChild.getConfiguration(), ConfigurationUserChild.class);
+		
+		if(confQuiz == null) 
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado, para criar o quiz primeiro vocÊ deve cadastrar as configurações do quiz");
+		
 		
 		/*Buscar o quiz de cada matéria e temas relcionados a matéria segundo a configuração cadastrada para o usuário filho*/
 		List<QuizMateriaVO> quizMateriaVOs = getQuizForSubject(confQuiz);
@@ -127,11 +141,14 @@ public class ConfigurationQuizService {
 		/*Adicionar ao quiz a quantidade de questões definida nas configurações do user child*/
 		QuizVO quiz = new QuizVO();
 		quiz.setMaterias(quizMateriaVOs);
-		//quiz.setQuiz(perguntasVO.subList(0, Math.min(userChild.getQuestionsQuantity(), copiaLista.size())) );
-
 		
-        return ResponseEntity.status(HttpStatus.OK).body(quizMateriaVOs);
+		/*Cadastrar quiz*/
+		Quiz quizEntity = new Quiz(jsonService.toJson(quiz), userChild);
+		quizRepository.save(quizEntity);
+		
+        return ResponseEntity.status(HttpStatus.OK).body(quiz);
 	}
+	
 	
 	/**
 	 * METODO CRIA QUIZ POR MATÉRIAS E TEMAS SALVOS NAS CONFIGURAÇÃO DO USUÁRIO 
@@ -191,6 +208,18 @@ public class ConfigurationQuizService {
 		}
 		
 		return perguntasVO;
+	}
+
+	/**
+	 * METODO REALIZA CADASTRO DO QUIZ REALIZADO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 11 de set. de 2024
+	 * @param quizRealized
+	 * @return
+	 */
+	public ResponseEntity<?> registerQuizRealized(QuizVO quizRealized) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
