@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * CLASSE REPRESENTA OS DADOS DO USUÁRIO PAI PARA CADASTRO (RECEBE O CAMPO SENHA)
@@ -22,7 +23,8 @@ public class UserFatherCadastroVO {
 	@CPF
 	private String cpf;
 	@NotBlank
-	private String phone;
+	@Pattern(regexp = "\\d{13}", message = "O número de telefone deve ser uma string numérica ter exatamente 13 dígitos. Exemplo 5511900000000")
+    private String phone;
 	@Email
 	private String email;
 	@NotBlank

@@ -3,6 +3,8 @@ package br.com.edukid.api.vo.v1.configquiz;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
 public class MateriaVO {
 	
@@ -10,6 +12,10 @@ public class MateriaVO {
 	private String id;
 	@NotBlank
 	private String name;
+	@NotBlank
+	@Pattern(regexp = "^-?\\d+$", message = "Key 'questionsQuantity' must be a string with the value of a valid integer")
+	private String questionsQuantity;//Numerico
+	private String quantityQuestons;
 	private List<TemaAprendizagemVO> temas;
 	
 	public void addTemaAprendizagemVO(TemaAprendizagemVO temaAprendizagemVO) {
@@ -28,6 +34,14 @@ public class MateriaVO {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public String getQuantityQuestons() {
+		return quantityQuestons;
+	}
+
+	public void setQuantityQuestons(String quantityQuestons) {
+		this.quantityQuestons = quantityQuestons;
+	}
+
 	public List<TemaAprendizagemVO> getTemas() {
 		return temas;
 	}

@@ -32,20 +32,34 @@ public class ConfQuizController {
 	 */
 	@GetMapping(path="/subject-and-theme/{yearHighSchool}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getSubjectAndTheme(@PathVariable @Valid @NotBlank 
-			@Pattern(regexp = "^[1-9]$", message = "'yearHighSchool' deve ser uma string numérica com valores entre 1 e 9")
-			String yearHighSchool
+			@Pattern(regexp = "^[1-9]$", message = "'yearSchool' deve ser uma string numérica com valores entre 1 e 9")
+			String yearSchool
 	) {
-			return configurationQuizService.getSubjectAndTheme(Integer.parseInt(yearHighSchool));
+			return configurationQuizService.getSubjectAndTheme(Integer.parseInt(yearSchool));
 	}
 	
+	/**
+	 * METODO CADASTRA MATERIA E TEMAS RELACIONADO A UM USER CHILDS
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 8 de set. de 2024
+	 * @param data
+	 * @return
+	 */
 	@PostMapping(path="/subject-and-theme", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> registerSubjectAndThemeRelacionedWithUserChild(@RequestBody  @Valid MateriasETemasVO data) {		
 		return configurationQuizService.registerConfQuiz(data);
 	}
 	
+	/**
+	 * METODO BUSCA O QUIZ MONTADO DE ACORDO COM AS MATERIAS E TEMAS CONFIGURADOS PARA O USUARIO FILHO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 8 de set. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
 	@GetMapping(path="/quiz/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> toGeneratedQuiz(@PathVariable @Valid @NotBlank 
-			@Pattern(regexp = "^-?\\d+$", message = "Key 'fkUserPai' must be a string with the value of a valid integer") 
+			@Pattern(regexp = "^-?\\d+$", message = "'fkUserPai' deve ser uma string numérica de valor inteiro") 
 			String idUserChild){
 		
 		return configurationQuizService.toGenerateQuiz(Integer.parseInt(idUserChild));

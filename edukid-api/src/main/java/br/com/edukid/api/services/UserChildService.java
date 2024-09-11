@@ -1,5 +1,8 @@
 package br.com.edukid.api.services;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,11 +13,14 @@ import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.exceptions.ResourceNotFoundException;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.UserChildRepository;
+import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.utils.StringServices;
 import br.com.edukid.api.utils.UtilsService;
 import br.com.edukid.api.vo.v1.LoginVO;
 import br.com.edukid.api.vo.v1.UserChildVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
+import br.com.edukid.api.vo.v1.configquiz.MateriaVO;
+import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
@@ -29,7 +35,8 @@ public class UserChildService {
 	HashSaltService hashSaltService;
 	@Autowired
 	StringServices stringService;
-	
+	@Autowired
+	JsonService jsonService;
 	/**
 	 * 
 	 * METODO CADASTRA DADOS DO USUARIO FILHO
@@ -105,6 +112,29 @@ public class UserChildService {
 					return ResponseEntity.status(HttpStatus.OK).body(userChild);
 				}
 			}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais invalidas.");
+	}
+
+	/**
+	 * METODO BUSCA USER CHILD PELO SEU ID
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 10 de set. de 2024
+	 * @param int1
+	 * @return
+	 */
+	public ResponseEntity<?> getUserChild(Integer id) {
+		if(childRepository.existsById(id)) {
+			
+			Optional<UserChild> userOptional = childRepository.findById(id);
+			UserChild user = userOptional.get();
+			MateriasETemasVO conf = jsonService.fromJson(user.getConfiguration(), MateriasETemasVO.class);
+			
+			UserChildVO userChild = EdukidMapper.parseObject(user, UserChildVO.class);
+			userChild.setConfiguration(conf.getMaterias());
+			return ResponseEntity.status(HttpStatus.OK).body(userChild);
+			
+		}
+		
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais invalidas.");
 	}
 

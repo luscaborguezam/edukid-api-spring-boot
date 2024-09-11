@@ -56,7 +56,7 @@ public class UserFatherService {
 	 * @return STATUS CODE OK + OBJETO CADASRADO
 	 */
 	public ResponseEntity<?> registerUserFather(UserFatherCadastroVO data) {		
-		/*Verificar se o email já foi cadastrado*/
+		/*Verificar se o email e cpf já foi cadastrado*/
 		if(fatherRepository.existsByEmail(data.getEmail()))
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email já está em uso.");
 		if(fatherRepository.existsByCpf(data.getCpf()))
@@ -191,6 +191,30 @@ public class UserFatherService {
 				return ResponseEntity.status(HttpStatus.OK).body("Um e-mail com o código de verifiação foi enviado ao seu e-mail, "
 																+ "ultilize-o para realizar o login");
 			    }
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas");
+	}
+
+	/**
+	 * METODO VERIFICA SE HÁ ALGUM CODIGO DE VERIFICAÇÃO CADASTRADO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 7 de set. de 2024
+	 * @param solicitacaoMudancaSenha
+	 * @return
+	 */
+	public ResponseEntity<?> isVerifyAccount(String email) {
+		logger.info("Is verify account?");
+		
+		/*Verificar se o email passado já está cadastrado*/
+		if(fatherRepository.existsByEmail(email)) {
+			/*Buscar registro*/				
+			UserFather user = fatherRepository.findByEmail(email);
+			/*Verificar confrimação de cadastro*/
+			if(user.getCodMudarSenha() != null) {
+					return ResponseEntity.status(HttpStatus.OK).body("True");
+			}else {
+				return ResponseEntity.status(HttpStatus.OK).body("False");
+			}
+		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas");
 	}	
 

@@ -35,8 +35,6 @@ public class UserChild implements Serializable{
 	private String password;
 	@Column(name="ano_escolar")
 	private Integer schoolYear;
-	@Column(name="qtd_pergunta")
-	private Integer questionsQuantity;
 	@Column(name="horario_quiz")
 	private Time timeOfQuiz; //formato aceitado HH:mm:ss exemplo 14:30:00
 	@Column(name="qtd_notificacao")
@@ -82,12 +80,6 @@ public class UserChild implements Serializable{
 	}
 	public void setSchoolYear(Integer schoolYear) {
 		this.schoolYear = schoolYear;
-	}
-	public Integer getQuestionsQuantity() {
-		return questionsQuantity;
-	}
-	public void setQuestionsQuantity(Integer questionsQuantity) {
-		this.questionsQuantity = questionsQuantity;
 	}
 	public Time getTimeOfQuiz() {
 		return timeOfQuiz;

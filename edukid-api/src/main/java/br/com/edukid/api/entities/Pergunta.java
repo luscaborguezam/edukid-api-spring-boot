@@ -18,8 +18,8 @@ public class Pergunta {
 	    @Column(name = "id_pergunta")
 	    private Integer id;
 
-	    @Column(name = "pergunta", length = 500)
-	    private String pergunta;
+	    @Column(name = "info_pergunta", length = 500)
+	    private String infoPergunta;
 
 	    @Column(name = "dificuldade")
 	    private Integer dificuldade;
@@ -37,15 +37,15 @@ public class Pergunta {
 	        this.id = id;
 	    }
 
-	    public String getPergunta() {
-	        return pergunta;
-	    }
+	    public String getInfoPergunta() {
+			return infoPergunta;
+		}
 
-	    public void setPergunta(String pergunta) {
-	        this.pergunta = pergunta;
-	    }
+		public void setInfoPergunta(String infoPergunta) {
+			this.infoPergunta = infoPergunta;
+		}
 
-	    public Integer getDificuldade() {
+		public Integer getDificuldade() {
 	        return dificuldade;
 	    }
 

@@ -9,15 +9,15 @@ public class TemaAprendizagemVO {
 	
 	private String id;
 	@NotEmpty
-	@Pattern(regexp = "^-?\\d+$", message = "Key 'schoolYear' must be a string with the value of a valid integer")
+	@Pattern(regexp = "^-?\\d+$", message = "A chave 'idSubject' deve ser uma string com o valor de um inteiro válido")
 	private String idSubject;
 	@NotEmpty
-	@Pattern(regexp = "^-?\\d+$", message = "Key 'schoolYear' must be a string with the value of a valid integer")
+	@Pattern(regexp = "^-?\\d+$", message = "A chave 'idSuperTheme' deve ser uma string com o valor de um inteiro válido")
 	private String idSuperTheme;
 	@NotBlank
 	private String theme;
 	@NotEmpty
-	@Pattern(regexp = "^[1-9]$", message = "Key 'yearHighScool' must be a numeric string with the value equals or between 1 and 9")
+	@Pattern(regexp = "^[1-9]$", message = "A chave 'yearHighScool' deve ser uma string numérica com valor igual ou entre 1 e 9")
 	private String yearHighScool;
 	
 	public String getId() {

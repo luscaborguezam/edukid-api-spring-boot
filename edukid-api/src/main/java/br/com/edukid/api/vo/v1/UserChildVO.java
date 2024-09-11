@@ -1,7 +1,8 @@
 package br.com.edukid.api.vo.v1;
 
-import java.sql.Time;
+import java.util.List;
 
+import br.com.edukid.api.vo.v1.configquiz.MateriaVO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -26,14 +27,13 @@ public class UserChildVO {
 	@NotEmpty
 	@Pattern(regexp = "^-?\\d+$", message = "Key 'schoolYear' must be a string with the value of a valid integer")
 	private String schoolYear;//Numerico
-	@NotEmpty
-	@Pattern(regexp = "^-?\\d+$", message = "Key 'questionsQuantity' must be a string with the value of a valid integer")
-	private String questionsQuantity;//Numerico
 	@Pattern(regexp = "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$", message = "Invalid time format for key 'timeOfQuiz' . Expected format is HH:mm:ss")
 	private String timeOfQuiz; //formato aceitado HH:mm:ss exemplo 14:30:00
 	@NotEmpty
 	@Pattern(regexp = "^-?\\d+$", message = "Key 'timeOfQuiz' must be a string with the value of a valid integer")
-	private String notificationQuantity;//Numerico
+	private String notificationQuantity;//Numerico	
+	@NotEmpty
+	private List<MateriaVO> configuration;
 	@NotBlank
 	@Pattern(regexp = "^-?\\d+$", message = "Key 'fkUserPai' must be a string with the value of a valid integer")
 	private String fkUserPai;//Numerico
@@ -75,12 +75,6 @@ public class UserChildVO {
 	public void setSchoolYear(String schoolYear) {
 		this.schoolYear = schoolYear;
 	}
-	public String getQuestionsQuantity() {
-		return questionsQuantity;
-	}
-	public void setQuestionsQuantity(String questionsQuantity) {
-		this.questionsQuantity = questionsQuantity;
-	}
 	public String getTimeOfQuiz() {
 		return timeOfQuiz;
 	}
@@ -92,6 +86,12 @@ public class UserChildVO {
 	}
 	public void setNotificationQuantity(String notificationQuantity) {
 		this.notificationQuantity = notificationQuantity;
+	}
+	public List<MateriaVO> getConfiguration() {
+		return configuration;
+	}
+	public void setConfiguration(List<MateriaVO> configuration) {
+		this.configuration = configuration;
 	}
 	public String getFkUserPai() {
 		return fkUserPai;

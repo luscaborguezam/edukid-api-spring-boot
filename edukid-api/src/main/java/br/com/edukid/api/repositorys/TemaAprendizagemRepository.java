@@ -16,6 +16,6 @@ public interface TemaAprendizagemRepository extends JpaRepository<TemaAprendizag
 	 * @param yearHighScool
 	 * @return
 	 */
-	List<TemaAprendizagem> findByYearHighScool(Integer yearHighScool);
+	List<TemaAprendizagem> findByYearHighScoolAndIdSubject(Integer yearHighScool, Integer idSubject);
 	
 }

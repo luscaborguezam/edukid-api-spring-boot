@@ -21,6 +21,7 @@ import br.com.edukid.api.vo.v1.UserChildVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
@@ -73,7 +74,7 @@ public class UserFatherController {
 	 * @return
 	 * @throws Exception
 	 */
-	@DeleteMapping(value = "account/{id}")
+	@DeleteMapping(value = "/account/{id}")
 	public ResponseEntity<?> desactivteUserFather(@PathVariable @Valid @NotBlank String id) throws Exception {
 			return fatherService.desactivteUserFather(Integer.parseInt(id));
 	}
@@ -85,7 +86,7 @@ public class UserFatherController {
 	 * @param dataAccount
 	 * @return
 	 */
-	@PostMapping(path="login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> loginUserFather(@RequestBody @Valid LoginVO dataAccount) {
 			return fatherService.authenticateLogin(dataAccount);
 	}
@@ -97,10 +98,21 @@ public class UserFatherController {
 	 * @param dataAccount
 	 * @return
 	 */
-	@PostMapping(path="change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path="/change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> changePassword(@RequestBody @Valid SolicitarMudancaSenhaVO dataAccount) {
 			return fatherService.changePassword(dataAccount);
 	}
 	
 
+	/**
+	 * METODO VERIFICA SE O LOGIN PRECISA DE VERIFICAÇÃO DE CONTA
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 7 de set. de 2024
+	 * @param dataAccount
+	 * @return
+	 */
+	@GetMapping(path="/is-verify-account/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> isVerifyAccount(@PathVariable @Valid @NotBlank String email) {
+			return fatherService.isVerifyAccount(email);
+	}
 }
