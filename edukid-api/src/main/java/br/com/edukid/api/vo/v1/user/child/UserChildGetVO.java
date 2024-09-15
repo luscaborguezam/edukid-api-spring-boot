@@ -1,8 +1,9 @@
-package br.com.edukid.api.vo.v1;
+package br.com.edukid.api.vo.v1.user.child;
 
 import java.util.List;
 
 import br.com.edukid.api.vo.v1.configquiz.MateriaVO;
+import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
@@ -12,31 +13,23 @@ import jakarta.validation.constraints.Pattern;
  * @Author LUCAS BORGUEZAM
  * @Sice 7 de ago. de 2024
  */
-public class UserChildVO {
+public class UserChildGetVO {
 	
 	
 	private String id;
-	@NotBlank
 	private String firstName;
-	@NotBlank
 	private String lastName;
-	@NotBlank
 	private String nickname;
-	@NotBlank
 	private String password;
-	@NotEmpty
-	@Pattern(regexp = "^-?\\d+$", message = "Key 'schoolYear' must be a string with the value of a valid integer")
-	private String schoolYear;//Numerico
-	@Pattern(regexp = "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$", message = "Invalid time format for key 'timeOfQuiz' . Expected format is HH:mm:ss")
-	private String timeOfQuiz; //formato aceitado HH:mm:ss exemplo 14:30:00
-	@NotEmpty
-	@Pattern(regexp = "^-?\\d+$", message = "Key 'timeOfQuiz' must be a string with the value of a valid integer")
-	private String notificationQuantity;//Numerico	
-	@NotEmpty
+	private String schoolYear;
+	private String timeOfQuiz;
+	private String notificationQuantity;
 	private List<MateriaVO> configuration;
-	@NotBlank
-	@Pattern(regexp = "^-?\\d+$", message = "Key 'fkUserPai' must be a string with the value of a valid integer")
-	private String fkUserPai;//Numerico
+	private String fkUserPai;
+	
+	
+	
+	
 	
 	/*Getters and Setters*/
 	public String getId() {

@@ -39,8 +39,8 @@ public class UserChild implements Serializable{
 	private Time timeOfQuiz; //formato aceitado HH:mm:ss exemplo 14:30:00
 	@Column(name="qtd_notificacao")
 	private Integer notificationQuantity;
-	@Column(name="configuracao")
-	private String configuration;
+//	@Column(name="configuracao", columnDefinition = "json")
+//	private String configuration;
 	@Column(name = "id_user_pai", nullable = false)
 	private Integer fkUserPai;
 	
@@ -93,12 +93,12 @@ public class UserChild implements Serializable{
 	public void setNotificationQuantity(Integer notificationQuantity) {
 		this.notificationQuantity = notificationQuantity;
 	}
-	public String getConfiguration() {
-		return configuration;
-	}
-	public void setConfiguration(String configuration) {
-		this.configuration = configuration;
-	}
+//	public String getConfiguration() {
+//		return configuration;
+//	}
+//	public void setConfiguration(String configuration) {
+//		this.configuration = configuration;
+//	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}

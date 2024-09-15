@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edukid.api.services.ConfigurationQuizService;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
+import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -31,8 +33,9 @@ public class ConfQuizController {
 	 * @param dataAccount
 	 * @return
 	 */
-	@GetMapping(path="/subject-and-theme/{yearHighSchool}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getSubjectAndTheme(@PathVariable @Valid @NotBlank 
+	@GetMapping(path="/subject-and-theme/{yearSchool}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getSubjectAndTheme(@PathVariable 
+			@Valid @NotBlank 
 			@Pattern(regexp = "^[1-9]$", message = "'yearSchool' deve ser uma string numérica com valores entre 1 e 9")
 			String yearSchool
 	) {
@@ -72,8 +75,8 @@ public class ConfQuizController {
 	 * @param quizREalized
 	 * @return
 	 */
-	@PostMapping("/quiz")
-	public ResponseEntity<?> registerQuizRealized(@RequestBody QuizVO quizRealized) {
+	@PutMapping(path="/quiz", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> registerQuizRealized(@RequestBody @Valid QuizVO quizRealized) {
 		return configurationQuizService.registerQuizRealized(quizRealized);
 	}
 	

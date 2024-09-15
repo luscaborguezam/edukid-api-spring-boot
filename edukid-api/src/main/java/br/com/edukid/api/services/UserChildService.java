@@ -1,6 +1,5 @@
 package br.com.edukid.api.services;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,21 +7,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.UserChild;
-import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.exceptions.ResourceNotFoundException;
 import br.com.edukid.api.mapper.EdukidMapper;
+import br.com.edukid.api.repositorys.ConfigurationRepository;
 import br.com.edukid.api.repositorys.UserChildRepository;
 import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.utils.StringServices;
 import br.com.edukid.api.utils.UtilsService;
 import br.com.edukid.api.vo.v1.LoginVO;
-import br.com.edukid.api.vo.v1.UserChildVO;
-import br.com.edukid.api.vo.v1.UserFatherVO;
-import br.com.edukid.api.vo.v1.configquiz.MateriaVO;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
+import br.com.edukid.api.vo.v1.user.child.UserChildGetVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildVO;
 
 @Service
 public class UserChildService {
@@ -37,6 +34,9 @@ public class UserChildService {
 	StringServices stringService;
 	@Autowired
 	JsonService jsonService;
+	@Autowired
+	ConfigurationRepository configurationRepository;
+	
 	/**
 	 * 
 	 * METODO CADASTRA DADOS DO USUARIO FILHO
@@ -45,7 +45,7 @@ public class UserChildService {
 	 * @param dataAccount
 	 * @return
 	 */
-	public ResponseEntity<?> registerUserChild(@Valid UserChildVO data) {		
+	public ResponseEntity<?> registerUserChild(UserChildVO data) {		
 		/*Faz o Hash da senha do usuario*/
 		data.setPassword(hashSaltService.hash(data.getPassword()));
 		
@@ -70,13 +70,15 @@ public class UserChildService {
 	 * @param dataAccount
 	 * @return
 	 */
-	public ResponseEntity<?> updateUserChild(@Valid UserChildVO data) {
+	public ResponseEntity<?> updateUserChild(UserChildVO data) {
 		/*Verificar se existe o novo nickname*/
 		if(childRepository.existsNicknameToUpdate(data.getNickname(), Integer.parseInt(data.getFkUserPai())))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email já está em uso.");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nickname já está em uso.");
 		
-		UserChild entityUpdate = EdukidMapper.parseObject(data, UserChild.class);
-		var entity = childRepository.save(entityUpdate);
+		Optional<UserChild> optional = childRepository.findById(Integer.parseInt(data.getId()));
+		UserChild userEntity = optional.get();
+		userEntity = EdukidMapper.parseObject(data, UserChild.class);
+		var entity = childRepository.save(userEntity);
 		
 		return ResponseEntity.status(HttpStatus.OK).body("Alterado com sucesso.");
 	}
@@ -88,7 +90,7 @@ public class UserChildService {
 	 * @param id
 	 * @return
 	 */
-	public ResponseEntity<?> deleteUserChild(@Valid @NotBlank Integer id) {
+	public ResponseEntity<?> deleteUserChild(Integer id) {
 		var entity = childRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Esse ID não foi encontrado."));
 		childRepository.delete(entity);
@@ -127,10 +129,17 @@ public class UserChildService {
 			
 			Optional<UserChild> userOptional = childRepository.findById(id);
 			UserChild user = userOptional.get();
-			MateriasETemasVO conf = jsonService.fromJson(user.getConfiguration(), MateriasETemasVO.class);
 			
-			UserChildVO userChild = EdukidMapper.parseObject(user, UserChildVO.class);
-			userChild.setConfiguration(conf.getMaterias());
+			Optional<Configuration> opConfEntity = configurationRepository.findById(id);
+			Configuration confEntity = opConfEntity.get();
+			
+			
+			MateriasETemasVO conf = jsonService.fromJson(confEntity.getConfiguration(), MateriasETemasVO.class);
+			
+			UserChildGetVO userChild = EdukidMapper.parseObject(user, UserChildGetVO.class);
+			if(conf != null)
+				userChild.setConfiguration(conf.getMaterias());
+			
 			return ResponseEntity.status(HttpStatus.OK).body(userChild);
 			
 		}

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edukid.api.services.UserChildService;
 import br.com.edukid.api.vo.v1.LoginVO;
-import br.com.edukid.api.vo.v1.UserChildVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

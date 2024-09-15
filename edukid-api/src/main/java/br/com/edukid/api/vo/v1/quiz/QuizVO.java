@@ -1,49 +1,75 @@
 package br.com.edukid.api.vo.v1.quiz;
 
-import java.util.List;
-
-import br.com.edukid.api.entities.Pergunta;
-import br.com.edukid.api.vo.v1.configquiz.PerguntaVO;
+import br.com.edukid.api.entities.Quiz;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 
+/**
+ * REPRESENTA O VALOR DE UM REGISTRO DA TABELA QUIZ 
+ * @Author LUCAS BORGUEZAM
+ * @Sice 14 de set. de 2024
+ */
 public class QuizVO {
-	
+
 	@NotBlank
-	@Pattern(regexp = "^[+-]?([0-9]*[.])?[0-9]+$", message = "'score' deve ser uma string com formato float válido")
-	private String score;
+	private String id;
+	private String startDate; // yyyy-MM-dd'T'HH:mm:ss exemplo: 2024-09-11T15:30:45
 	@NotBlank
-	@Pattern(regexp = "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$", message = "'totalTime' deve ser uma string com formato de tempo, experado HH:mm:ss")
-	private String totalTime;
+	private String  endDate; // yyyy-MM-dd'T'HH:mm:ss exemplo: 2024-09-11T15:30:45
 	@NotBlank
-	private List<QuizMateriaVO> materias;
+	private String isFinalized;
+	@NotBlank
+	private String idUserChild;
 
-	public List<QuizMateriaVO> getMaterias() {
-		return materias;
-	}
-
-	public void setMaterias(List<QuizMateriaVO> materias) {
-		this.materias = materias;
-	}
-
-	public String getScore() {
-		return score;
-	}
-
-	public void setScore(String score) {
-		this.score = score;
-	}
-
-	public String getTotalTime() {
-		return totalTime;
-	}
-
-	public void setTotalTime(String totalTime) {
-		this.totalTime = totalTime;
+	private FieldQuizVO quiz;
+	
+	public QuizVO() {}
+	
+	public QuizVO(Quiz quizEntity, FieldQuizVO quiz) {
+		id = quizEntity.getId().toString();
+		startDate = quizEntity.getStartDate().toString();
+		endDate = (quizEntity.getEndDate()!=null)?quizEntity.getEndDate().toString():null;
+		isFinalized = quizEntity.getIsfinalized().toString();
+		idUserChild = quizEntity.getIdUserChild().toString();
+		this.quiz = quiz;
+		
 	}
 	
-	
-	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public FieldQuizVO getQuiz() {
+		return quiz;
+	}
+	public void setQuiz(FieldQuizVO quiz) {
+		this.quiz = quiz;
+	}
+	public String getStartDate() {
+		return startDate;
+	}
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+	public String getEndDate() {
+		return endDate;
+	}
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
+	}
+	public String getIsFinalized() {
+		return isFinalized;
+	}
+	public void setIsFinalized(String isFinalized) {
+		this.isFinalized = isFinalized;
+	}
+	public String getIdUserChild() {
+		return idUserChild;
+	}
+	public void setIdUserChild(String idUserChild) {
+		this.idUserChild = idUserChild;
+	}
 	
 	
 }

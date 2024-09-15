@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import br.com.edukid.api.utils.JsonService;
-import br.com.edukid.api.vo.v1.quiz.QuizVO;
+import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,7 +24,7 @@ private static final long serialVersionUID = 1L;
 	
 	@Column(name = "id_quiz")
 	private Integer id;
-	@Column(name = "quiz", nullable = false)
+	@Column(name = "quiz", columnDefinition = "json",nullable = false)
 	private String quiz;
 	@Column(name = "data_inicio", nullable = false)
 	private LocalDateTime startDate; // yyyy-MM-dd'T'HH:mm:ss exemplo: 2024-09-11T15:30:45
@@ -36,19 +36,22 @@ private static final long serialVersionUID = 1L;
 	private Integer idUserChild;
 	
 	
+	public Quiz() {}
 	/**
 	 * Cria objeto carregando informações necessárias para o cadastro
 	 * @param quiz
 	 * @param userChild
 	 */
-	public Quiz(String quiz, UserChild userChild) {
+	public Quiz(String quiz, Configuration confUserChild) {
 		this.quiz = quiz;
 		this.startDate = LocalDateTime.now();
-		this.idUserChild = userChild.getId();
+		this.idUserChild = confUserChild.getId();
 		this.isFinalized = 0;
 	}
 	
 	
+
+
 	public Integer getId() {
 		return id;
 	}
@@ -85,8 +88,5 @@ private static final long serialVersionUID = 1L;
 	public void setIdUserChild(Integer idUserChild) {
 		this.idUserChild = idUserChild;
 	}
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}	
 	
 }

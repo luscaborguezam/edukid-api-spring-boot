@@ -18,7 +18,7 @@ public class Pergunta {
 	    @Column(name = "id_pergunta")
 	    private Integer id;
 
-	    @Column(name = "info_pergunta", length = 500)
+	    @Column(name = "info_pergunta", columnDefinition = "json")
 	    private String infoPergunta;
 
 	    @Column(name = "dificuldade")

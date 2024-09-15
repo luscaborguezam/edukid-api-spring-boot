@@ -14,7 +14,6 @@ public class MateriaVO {
 	private String name;
 	@NotBlank
 	@Pattern(regexp = "^-?\\d+$", message = "Key 'questionsQuantity' must be a string with the value of a valid integer")
-	private String questionsQuantity;//Numerico
 	private String quantityQuestons;
 	private List<TemaAprendizagemVO> temas;
 	

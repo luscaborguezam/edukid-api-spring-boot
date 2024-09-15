@@ -3,27 +3,22 @@ package br.com.edukid.api.vo.v1.configquiz;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import br.com.edukid.api.entities.Pergunta;
-import br.com.edukid.api.utils.JsonService;
 import jakarta.validation.constraints.NotBlank;
 
 public class PerguntaVO {
-	@Autowired
-	JsonService jsonService;
 
 	@NotBlank
-	private Integer id;
+	private String id;
 
 	@NotBlank
     private List<InfoPergunta> infoPerguntas;
 
 	@NotBlank
-    private Integer dificuldade;
+    private String dificuldade;
 
 	@NotBlank
-    private Integer idTema;
+    private String idTema;
 
 
 	
@@ -34,25 +29,25 @@ public class PerguntaVO {
 	
 	
 	public PerguntaVO(Pergunta p) {
-		this.id = p.getId();
-		this.dificuldade = p.getDificuldade();
-		this.idTema = p.getIdTema();
+		this.id = p.getId().toString();
+		this.dificuldade = p.getDificuldade().toString();
+		this.idTema = p.getIdTema().toString();
 		this.infoPerguntas = new ArrayList<>(); 
 	}
 	
 	public PerguntaVO(TemaAprendizagemVO theme) {
-		this.idTema = Integer.parseInt(theme.getId());
+		this.idTema = theme.getId();
 	}
 
 	public PerguntaVO() {}
 
 
 
-	public Integer getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -64,19 +59,19 @@ public class PerguntaVO {
 		this.infoPerguntas = infoPergunta;
 	}
 
-	public Integer getDificuldade() {
+	public String getDificuldade() {
 		return dificuldade;
 	}
 
-	public void setDificuldade(Integer dificuldade) {
+	public void setDificuldade(String dificuldade) {
 		this.dificuldade = dificuldade;
 	}
 
-	public Integer getIdTema() {
+	public String getIdTema() {
 		return idTema;
 	}
 
-	public void setIdTema(Integer idTema) {
+	public void setIdTema(String idTema) {
 		this.idTema = idTema;
 	}
 
