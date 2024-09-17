@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
+import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -49,7 +50,20 @@ private static final long serialVersionUID = 1L;
 		this.isFinalized = 0;
 	}
 	
-	
+	/**
+	 * METODO ATUALIZA OBJETO COM DADOS DO QUIZ REALIZADO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 17 de set. de 2024
+	 * @param quizRegistred
+	 * @param quiz
+	 */
+	public void updateDataWithQuizRealized(QuizVO quizRegistred, String quiz) {
+		this.quiz = quiz;
+		this.endDate = LocalDateTime.parse(quizRegistred.getEndDate());
+		//this.endDate = LocalDateTime.now();
+		this.isFinalized = Integer.parseInt(quizRegistred.getIsFinalized());
+		
+	}
 
 
 	public Integer getId() {
@@ -88,5 +102,6 @@ private static final long serialVersionUID = 1L;
 	public void setIdUserChild(Integer idUserChild) {
 		this.idUserChild = idUserChild;
 	}
+
 	
 }

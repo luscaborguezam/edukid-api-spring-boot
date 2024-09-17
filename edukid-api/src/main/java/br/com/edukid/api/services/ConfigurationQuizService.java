@@ -1,6 +1,7 @@
 package br.com.edukid.api.services;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -230,20 +231,28 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	public ResponseEntity<?> registerQuizRealized(QuizVO quizRealized) {
+		/*Verificar se existe um quiz criado na data atual*/
+		if(!quizRepository.existsQuizOpenByIdUserChild(Integer.parseInt(quizRealized.getIdUserChild()), LocalDate.now()))
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Não há nenhum quiz criado na data de hoje ("+LocalDate.now()+")");
+		
 		/*Buscar quiz na base de dados e trasformar em objeto QuizVO*/
 		Optional<Quiz> opQuizEntity = quizRepository.findById(Integer.parseInt(quizRealized.getId()));
 		Quiz quizEntity = opQuizEntity.get();
 		
 		
 		QuizVO quizRegistred = new QuizVO(quizEntity, jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class));
-		//Map<String, String> map = validationQuizRegistredWithQuizSended(quizRegistred, quizRealized);
-		//if(map.get("Verification").equals("Ok")) {
+		Map<String, String> map = validationQuizRegistredWithQuizSended(quizRegistred, quizRealized);
+		if(map.get("Verification").equals("OK")) {
 			/*Adicionar os dados necessários quando finalizados*/
-			/*Transformar objeto de volta em Quiz(Entity) e atualizar registro*/
+			quizRegistred = updateDataWithQuizRealizedData(quizRegistred, quizRealized);
+			/*Transformar objeto de volta em Quiz(Entity)*/
+			quizEntity.updateDataWithQuizRealized(quizRegistred, jsonService.toJson(quizRealized.getQuiz()));
+			/*atualizar registro*/
+			quizRepository.save(quizEntity);
 	
 			return ResponseEntity.status(HttpStatus.OK).body(quizRegistred);
-	//	}
-		//return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(map.get("Verification"));
+		}
+		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(map.get("Verification"));
 		
 		
 		
@@ -262,6 +271,18 @@ public class ConfigurationQuizService {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("Verification", "OK");
 		
+		String regex = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?$";
+        if(quizRealized.getEndDate()==null || !quizRealized.getEndDate().matches(regex)) {
+			map.put("Verification", "Campo 'endDate' inválido, deve ser uma string no formato 'yyyy-MM-ddTHH:mm:ss.SSSSSSSSS' exemplo: 2024-09-11T15:30:45.01");
+			return map;
+        }
+        
+        LocalDateTime dataQuizRealized = LocalDateTime.parse(quizRealized.getEndDate());
+        if (!dataQuizRealized.toLocalDate().isEqual(LocalDate.now())){
+        	map.put("Verification", "'endDate' não pode ser uma data diferente da data atual. Data atual: "+LocalDate.now());
+			return map;
+        }
+            
 		if(quizRealized.getIsFinalized().equals("0")) {
 			map.put("Verification", "isRealized do quiz enviado não pode ser igual a '0'(status aberto) ");
 			return map;
@@ -274,7 +295,7 @@ public class ConfigurationQuizService {
 		
 		FieldQuizVO quizRz = quizRealized.getQuiz();
 		
-			String regex = "^[+-]?([0-9]*[.])?[0-9]+$";
+			regex = "^[+-]?([0-9]*[.])?[0-9]+$";
 			if(quizRz.getScore() == null|| !quizRz.getScore().matches(regex)) {
 				map.put("Verification", "'score' inválido, uma string com formato float válido");
 				return map;				
@@ -296,7 +317,7 @@ public class ConfigurationQuizService {
 				QuizByMateriaVO quizByMateriaRz = quizRz.getMaterias().get(i);
 				QuizByMateriaVO quizByMateriaRg = quizRegistred.getQuiz().getMaterias().get(i);
 
-				if(!quizByMateriaRg.getId().equals(quizByMateriaRz.getClass())) {
+				if(!quizByMateriaRg.getId().equals(quizByMateriaRz.getId())) {
 					map.put("Verification", "id da matéria(subject) do quiz enviado é diferente do quiz criado");
 					return map;					
 				}
@@ -305,16 +326,16 @@ public class ConfigurationQuizService {
 				/*Verificar cada perguntaVO*/
 				for(int c=0; c < quizByMateriaRg.getQuiz().size(); c++) {
 					
-					if(!quizByMateriaRg.getQuiz().get(i).getId().equals(quizByMateriaRz.getQuiz().get(i).getId())) {
+					if(!quizByMateriaRg.getQuiz().get(c).getId().equals(quizByMateriaRz.getQuiz().get(c).getId())) {
 						map.put("Verification", "id da questão do quiz enviado é diferente do quiz criado");
 						return map;						
 					}
 					/*Verificar informaç~eos da pergunta*/
-					for(int l=0; l < quizByMateriaRg.getQuiz().get(i).getInfoPerguntas().size(); l++) {
-						InfoPergunta infoPerguntaRz =  quizByMateriaRz.getQuiz().get(i).getInfoPerguntas().get(l);
-						InfoPergunta infoPerguntaRg =  quizByMateriaRg.getQuiz().get(i).getInfoPerguntas().get(l);
+					for(int l=0; l < quizByMateriaRg.getQuiz().get(c).getInfoPerguntas().size(); l++) {
+						InfoPergunta infoPerguntaRz =  quizByMateriaRz.getQuiz().get(c).getInfoPerguntas().get(l);
+						InfoPergunta infoPerguntaRg =  quizByMateriaRg.getQuiz().get(c).getInfoPerguntas().get(l);
 						
-						if(!infoPerguntaRg.getQuestion().equals(infoPerguntaRz.getOptions())) {
+						if(!infoPerguntaRg.getQuestion().equals(infoPerguntaRz.getQuestion())) {
 							map.put("Verification", "'question' do quiz enviado é diferente do quiz criado");
 							return map;							
 						}
@@ -333,4 +354,37 @@ public class ConfigurationQuizService {
 		return map;
 	}
 	
+	private QuizVO updateDataWithQuizRealizedData(QuizVO quizRegistred, QuizVO quizRealized) {
+		//Adicionar endDate
+		quizRegistred.setEndDate(quizRealized.getEndDate());
+		//Adicionar isFinalized
+		quizRegistred.setIsFinalized(quizRealized.getIsFinalized());
+		
+		/*Objeto FieldQuiz*/
+			//Adicionar score
+			quizRegistred.getQuiz().setScore(quizRealized.getQuiz().getScore());
+			//Adicionar totaltime
+			quizRegistred.getQuiz().setTotalTime(quizRealized.getQuiz().getTotalTime());
+			
+			/*List de materias (QuizByMateriaVO)*/
+			for(int i=0; i < quizRegistred.getQuiz().getMaterias().size() ; i++ ) {//QuizByMateriaVO m: quizRz.getMaterias()
+				QuizByMateriaVO quizByMateriaRz = quizRealized.getQuiz().getMaterias().get(i);
+				QuizByMateriaVO quizByMateriaRg = quizRegistred.getQuiz().getMaterias().get(i);
+
+				/*Lista de PerguntaVO*/
+				for(int c=0; c < quizByMateriaRg.getQuiz().size(); c++) {
+					
+					/*Lista de InfoPergunta*/
+					for(int l=0; l < quizByMateriaRg.getQuiz().get(c).getInfoPerguntas().size(); l++) {
+						InfoPergunta infoPerguntaRz =  quizByMateriaRz.getQuiz().get(c).getInfoPerguntas().get(l);
+						InfoPergunta infoPerguntaRg =  quizByMateriaRg.getQuiz().get(c).getInfoPerguntas().get(l);
+						//Adicionar selectedAnswer
+						quizRegistred.getQuiz().getMaterias().get(i).getQuiz().get(c).getInfoPerguntas().get(l).setSelectedAnswer(infoPerguntaRz.getSelectedAnswer());
+						
+					}//for(infoPerguntas)
+				}//for(Quiz)
+			}//for(meterias)
+		return quizRegistred;	
+	}//fim updateDataWithQuizRealizedData
+
 }

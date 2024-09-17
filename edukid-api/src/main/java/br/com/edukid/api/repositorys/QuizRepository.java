@@ -3,11 +3,13 @@ package br.com.edukid.api.repositorys;
 import java.time.LocalDate;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import br.com.edukid.api.entities.Quiz;
 import br.com.edukid.api.utils.Defines;
+import jakarta.transaction.Transactional;
 
 public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	
@@ -41,4 +43,16 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	        + "AND DATE(q.startDate) = DATE(:currentDate)")
 	Quiz FindQuizOpenByIdUserChild(@Param("idUserChild") Integer idUserChild, @Param("currentDate") LocalDate currentDate);
 	
+	/**
+	 * METODO ATUALIZA O STATUS DE FINALIZAÇÃO DO QUIZ, PARA QUIZ_NAO_REALIZADO, DOS QUIZES QUE ESTÃO EM ABERTO 
+	 * E QUE A DATA DE INICIO SEJA MENOR DO QUE A DATA ATUAL.
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 17 de set. de 2024
+	 */
+	@Transactional
+	@Modifying
+	@Query("UPDATE Quiz q set q.isFinalized = "+Defines.QUIZ_NAO_REALIZADO+" "
+			+ "where q.isFinalized = "+Defines.QUIZ_EM_ABERTO+" "
+			+ "AND DATE(q.startDate) < CURRENT_DATE")
+	void updateIsFinalized();
 }
