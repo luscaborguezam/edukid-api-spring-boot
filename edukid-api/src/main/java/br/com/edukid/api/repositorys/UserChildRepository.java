@@ -1,5 +1,7 @@
 package br.com.edukid.api.repositorys;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -42,4 +44,22 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
      */
     @Query("SELECT COUNT(u) > 0 FROM UserChild u WHERE u.nickname = :nickname AND u.fkUserPai <> :fkUserPai")
     boolean existsNicknameToUpdate(@Param("nickname") String nickname, @Param("fkUserPai") Integer fkUserPai);
+
+    /**
+     * METODO VERIFICA SE EXISTE ALGUM USUÁRIO FILHO COM O FK DO USER PAI
+     * @Author LUCAS BORGUEZAM
+     * @Sice 18 de set. de 2024
+     * @param fkUserPai
+     * @return
+     */
+	boolean existsByFkUserPai(Integer fkUserPai);
+
+	/**
+	 * METODO BUSCA TODOS USER CHILDS QUE TEM O MESMO USUÁRIO PAI
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 18 de set. de 2024
+	 * @param fkUserPai
+	 * @return
+	 */
+	List<UserChild> findByFkUserPai(Integer fkUserPai);
 }

@@ -1,5 +1,7 @@
 package br.com.edukid.api.services;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +57,6 @@ public class UserChildService {
 
 		/*Converte VO para Entity e cadastra na base de dados*/
 		UserChild entity = EdukidMapper.parseObject(data, UserChild.class);
-		
-		
 		
 		var vo = EdukidMapper.parseObject(childRepository.save(entity), UserChildVO.class);
 		
@@ -116,17 +116,17 @@ public class UserChildService {
 			}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais invalidas.");
 	}
-
+	
+	
 	/**
 	 * METODO BUSCA USER CHILD PELO SEU ID
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 10 de set. de 2024
 	 * @param int1
-	 * @return
+	 * @return UserChildGetVO
 	 */
-	public ResponseEntity<?> getUserChild(Integer id) {
-		if(childRepository.existsById(id)) {
-			
+	public UserChildGetVO getUserChildById(Integer id) {
+		if(childRepository.existsById(id)) {	
 			Optional<UserChild> userOptional = childRepository.findById(id);
 			UserChild user = userOptional.get();
 			
@@ -140,11 +140,34 @@ public class UserChildService {
 			if(conf != null)
 				userChild.setConfiguration(conf.getMaterias());
 			
-			return ResponseEntity.status(HttpStatus.OK).body(userChild);
-			
+			return userChild;	
 		}
-		
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais invalidas.");
+		return null;
+	}
+
+	/**
+	 * METODO BUSCA USER CHILD PELO SEU ID
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 10 de set. de 2024
+	 * @param int1
+	 * @return ResponseEntity
+	 */
+	public ResponseEntity<?> getUserChild(Integer id) {
+		UserChildGetVO userChild = getUserChildById(id);
+		if(userChild != null) 
+			return ResponseEntity.status(HttpStatus.OK).body(userChild);		
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Não encontrado.");
+	}
+
+	public ResponseEntity<?> getUserChildByUserFather(Integer idUserFather) {
+		if(childRepository.existsByFkUserPai(idUserFather)) {
+			List<UserChild> usersChildsEntity = childRepository.findByFkUserPai(idUserFather);
+			List<UserChildGetVO> usersChildsVO = new ArrayList<>();	
+			for(UserChild user: usersChildsEntity)
+				usersChildsVO.add(getUserChildById(user.getId()));
+			return ResponseEntity.status(HttpStatus.OK).body(usersChildsVO);
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Não encontrado.");
 	}
 
 }

@@ -2,7 +2,12 @@ package br.com.edukid.api.entities;
 
 import java.io.Serializable;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * CLASSE REPRESENTA A TABELA USUARIO
@@ -35,6 +40,7 @@ public class UserFather implements Serializable{
 	private String status;
 	@Column(name="cod_mudar_senha", nullable = false, length = 8)
 	private String codMudarSenha;
+	
 	
 	
 	public UserFather() {}
@@ -115,8 +121,6 @@ public class UserFather implements Serializable{
 		this.codMudarSenha = codMudarSenha;
 	}
 	
-	
-	
-	
+
 	
 }

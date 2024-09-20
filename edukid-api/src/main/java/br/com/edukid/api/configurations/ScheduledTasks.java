@@ -1,4 +1,4 @@
-package br.com.edukid.api.utils;
+package br.com.edukid.api.configurations;
 
 import org.springframework.stereotype.Component;
 
@@ -15,15 +15,27 @@ public class ScheduledTasks {
 
 	/**
 	 * METODO ATUALIZA BASE DE DADOS FECHANDO TODOS QUIZ EM ABERTO QUE NÃO SEJA DA DATA ATUAL.
-	 * É EXECUTADO A 00H TODOS OS DIAS
+	 * É EXECUTADO COM APÓS A INICIALIZAÇÃO DO MÉTODO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 17 de set. de 2024
 	 */
-    @Scheduled(cron = "0 0 0 * * *")
     @PostConstruct
+    public void runWithIicialization() {
+    	System.out.println("Fechar quizzes em aberto");
+        quizRepository.updateIsFinalizedWhereStartDateMinorWhithCurrent();
+        
+    }
+    
+	/**
+	 * METODO ATUALIZA BASE DE DADOS FECHANDO TODOS QUIZ EM ABERTO.
+	 * É EXECUTADO A 18h TODOS OS DIAS
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 17 de set. de 2024
+	 */
+    @Scheduled(cron = "0 0 18 * * *")
     public void runAtMidnight() {
     	System.out.println("Fechar quizzes em aberto");
-        quizRepository.updateIsFinalized();
+        quizRepository.updateIsFinalizeD();
         
     }
 }

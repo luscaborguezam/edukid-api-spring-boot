@@ -58,7 +58,7 @@ public class UserChildController {
 	 * @return
 	 * @throws Exception
 	 */
-	@DeleteMapping(value = "account/{id}")
+	@DeleteMapping(value = "/account/{id}")
 	public ResponseEntity<?> deleteUserChild(@PathVariable @Valid @NotBlank String id) throws Exception {		
 			return childService.deleteUserChild(Integer.parseInt(id));
 	}
@@ -70,15 +70,35 @@ public class UserChildController {
 	 * @param dataAccount
 	 * @return
 	 */
-	@PostMapping(path="login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> loginUserChild(@RequestBody @Valid LoginVO dataAccount) {
 			return childService.authenticateLogin(dataAccount);
 
 	}
 	
-	@GetMapping(path="account/{idUserChild}")
+	/**
+	 * METODO BUSCA USER CHILD PELO SEU ID
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 18 de set. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	@GetMapping(path="/account/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getUserChild(@PathVariable @Valid @NotBlank 
 			@Pattern(regexp = "^-?\\d+$", message = "Key 'account/{idUserChild}' must be a string with the value of a valid integer") String idUserChild){
 		return childService.getUserChild(Integer.parseInt(idUserChild));
+	}
+	
+	/**
+	 * METODO BUSCA LISTA DE USER CHILD DE UM USER FATHER ESPECÍFICO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 18 de set. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	@GetMapping(path="/by-user-father/{idUserFather}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getUserChildByUserFather(@PathVariable @Valid @NotBlank 
+			@Pattern(regexp = "^-?\\d+$", message = "Key 'account/{idUserFather}' must be a string with the value of a valid integer") String idUserFather){
+		return childService.getUserChildByUserFather(Integer.parseInt(idUserFather));
 	}
 }

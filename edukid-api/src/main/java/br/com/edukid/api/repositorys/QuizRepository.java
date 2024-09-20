@@ -54,5 +54,20 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	@Query("UPDATE Quiz q set q.isFinalized = "+Defines.QUIZ_NAO_REALIZADO+" "
 			+ "where q.isFinalized = "+Defines.QUIZ_EM_ABERTO+" "
 			+ "AND DATE(q.startDate) < CURRENT_DATE")
-	void updateIsFinalized();
+	void updateIsFinalizedWhereStartDateMinorWhithCurrent();
+	
+	/**
+	 * METODO ATUALIZA O STATUS DE FINALIZAÇÃO DO QUIZ, PARA QUIZ_NAO_REALIZADO, 
+	 * DOS QUIZES QUE ESTÃO EM ABERTO 
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 17 de set. de 2024
+	 */
+	@Transactional
+	@Modifying
+	@Query("UPDATE Quiz q set q.isFinalized = "+Defines.QUIZ_NAO_REALIZADO+" "
+			+ "where q.isFinalized = "+Defines.QUIZ_EM_ABERTO+" "
+			+ "AND DATE(q.startDate) < CURRENT_DATE")
+	void updateIsFinalizeD();
+	
+	
 }
