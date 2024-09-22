@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.UserChild;
@@ -62,4 +63,17 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 	 * @return
 	 */
 	List<UserChild> findByFkUserPai(Integer fkUserPai);
+	
+	/**
+	 * METODO BUSCA USER PELO EMAIL
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 21 de set. de 2024
+	 * @param login
+	 * @return UserDetails
+	 */
+	@Query("SELECT u FROM UserChild u WHERE u.nickname = :nickname")
+	UserDetails findByNicknameUserDetails(@Param("nickname") String nickname);
+	
+	@Query("SELECT u.id FROM UserChild u WHERE u.fkUserPai = :fkUserPai")
+	List<Integer> findIdByFkUserPai(@Param("fkUserPai") Integer fkUserPai);
 }

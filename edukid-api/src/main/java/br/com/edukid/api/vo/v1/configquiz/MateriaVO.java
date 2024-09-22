@@ -14,7 +14,7 @@ public class MateriaVO {
 	private String name;
 	@NotBlank
 	@Pattern(regexp = "^-?\\d+$", message = "Key 'questionsQuantity' must be a string with the value of a valid integer")
-	private String quantityQuestons;
+	private String quantityQuestions;
 	private List<TemaAprendizagemVO> temas;
 	
 	public void addTemaAprendizagemVO(TemaAprendizagemVO temaAprendizagemVO) {
@@ -33,12 +33,12 @@ public class MateriaVO {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getQuantityQuestons() {
-		return quantityQuestons;
+	public String getQuantityQuestions() {
+		return quantityQuestions;
 	}
 
-	public void setQuantityQuestons(String quantityQuestons) {
-		this.quantityQuestons = quantityQuestons;
+	public void setQuantityQuestions(String quantityQuestons) {
+		this.quantityQuestions = quantityQuestons;
 	}
 
 	public List<TemaAprendizagemVO> getTemas() {

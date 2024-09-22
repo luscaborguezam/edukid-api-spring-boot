@@ -31,6 +31,7 @@ public class UserChildVO {
 	@NotBlank
 	@Pattern(regexp = "^-?\\d+$", message = "Key 'fkUserPai' must be a string with the value of a valid integer")
 	private String fkUserPai;//Numerico
+	private String token;
 	
 	/*Getters and Setters*/
 	public String getId() {
@@ -86,6 +87,12 @@ public class UserChildVO {
 	}
 	public void setFkUserPai(String fkUserPai) {
 		this.fkUserPai = fkUserPai;
+	}
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 	

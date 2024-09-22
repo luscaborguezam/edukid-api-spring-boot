@@ -123,7 +123,7 @@
 		</dependency>
 
 		<!-- SPRING SECURITY -->
- 	    <!-- <dependency>
+ 	    <dependency>
 	      <groupId>org.springframework.boot</groupId>
 	      <artifactId>spring-boot-starter-security</artifactId>
 	    </dependency>
@@ -133,8 +133,21 @@
 	      <artifactId>spring-security-test</artifactId>
 	      <scope>test</scope>
 	    </dependency>
-	    -->
-
+			
+		<!-- lOMBOK -->
+	  	<dependency>
+	      <groupId>org.projectlombok</groupId>
+	      <artifactId>lombok</artifactId>
+	      <optional>true</optional>
+		</dependency>
+		
+		<!-- JWT https://github.com/auth0/java-jwt -->
+		<dependency>
+		  <groupId>com.auth0</groupId>
+		  <artifactId>java-jwt</artifactId>
+		  <version>4.4.0</version>
+		</dependency>
+		
 	</dependencies>
 
 	<!-- COMPILAÇÃO COMO SERÁ A COMPILAÇÃO -->
@@ -143,6 +156,17 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			
+			<!-- lOMBOK-->
+				<configuration>
+		          <excludes>
+		            <exclude>
+		              <groupId>org.projectlombok</groupId>
+		              <artifactId>lombok</artifactId>
+		            </exclude>
+		          </excludes>
+		        </configuration>
+					
 			</plugin>
 		</plugins>
 	</build>
@@ -160,7 +184,7 @@
 	</repositories>
 	
 	<!-- REPOSITÓRIOS USADOS PARA BAIXAR AS DEPENDÊNCIAS -->
-	<pluginRepositories>
+	<!-- <pluginRepositories>
 		<pluginRepository>
 			<id>spring-milestones</id>
 			<name>Spring Milestones</name>
@@ -169,6 +193,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</pluginRepository>
-	</pluginRepositories>
+	</pluginRepositories> -->
 
 </project>

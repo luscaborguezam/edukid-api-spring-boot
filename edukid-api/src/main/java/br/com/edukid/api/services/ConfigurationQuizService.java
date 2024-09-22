@@ -193,7 +193,7 @@ public class ConfigurationQuizService {
 	        /*Embaralhar os elementos da lista(quiz)*/
 	        Collections.shuffle(perguntasVO, new Random());
 			/*Adicionar o quiz com a quantidade de perguntas definidas na configuração a matéria*/
-	        Integer questionsQuantity = Integer.parseInt(subject.getQuantityQuestons());
+	        Integer questionsQuantity = Integer.parseInt(subject.getQuantityQuestions());
 			subjectTheQuestion.setQuiz(perguntasVO.subList(0, Math.min(questionsQuantity, perguntasVO.size())));
 			/*Adicionar matéria a lista de matérias*/
 			subjectsTheQuestions.add(subjectTheQuestion);

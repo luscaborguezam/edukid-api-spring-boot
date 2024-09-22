@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.edukid.api.entities.UserFather;
-import br.com.edukid.api.vo.v1.LoginVO;
+import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 
 public class MockUserFather {
@@ -18,7 +18,7 @@ public class MockUserFather {
         return mockVO(0);
     }
     
-    public LoginVO mockLoginVO() {
+    public LoginFatherVO mockLoginVO() {
         return mockLoginVO(0);
     }
     
@@ -38,8 +38,8 @@ public class MockUserFather {
         return persons;
     }
     
-    public List<LoginVO> mockLoginVOList() {
-        List<LoginVO> logins = new ArrayList<>();
+    public List<LoginFatherVO> mockLoginVOList() {
+        List<LoginFatherVO> logins = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
         	logins.add(mockLoginVO(i));
         }
@@ -70,9 +70,9 @@ public class MockUserFather {
         return userFather;
     }
     
-    public LoginVO mockLoginVO(Integer number) {
-    	LoginVO login = new LoginVO();
-    	login.setEmailOrNickName("Email Test" + number);
+    public LoginFatherVO mockLoginVO(Integer number) {
+    	LoginFatherVO login = new LoginFatherVO();
+    	login.setEmail("Email Test" + number);
     	login.setPassword("Password Test" + number);
         return login;
     }

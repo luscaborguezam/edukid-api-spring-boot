@@ -2,7 +2,6 @@ package br.com.edukid.api.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,22 +9,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import br.com.edukid.api.services.ConfigurationQuizService;
 import br.com.edukid.api.services.UserFatherService;
-import br.com.edukid.api.vo.v1.LoginVO;
+import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
-import br.com.edukid.api.vo.v1.UserFatherVO;
-import br.com.edukid.api.vo.v1.user.child.UserChildVO;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -63,6 +60,7 @@ public class UserFatherController {
 	 */
 	@PutMapping(path="/account",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> updateUserFather(@RequestBody @Valid UserFatherCadastroVO dataAccount){
+		
 			return fatherService.updateUserFather(dataAccount);
 	}
 	
@@ -87,7 +85,7 @@ public class UserFatherController {
 	 * @return
 	 */
 	@PostMapping(path="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> loginUserFather(@RequestBody @Valid LoginVO dataAccount) {
+	public ResponseEntity<?> loginUserFather(@RequestBody @Valid LoginFatherVO dataAccount) {
 			return fatherService.authenticateLogin(dataAccount);
 	}
 	

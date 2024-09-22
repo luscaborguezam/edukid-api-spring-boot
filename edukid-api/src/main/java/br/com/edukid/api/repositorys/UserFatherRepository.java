@@ -3,6 +3,7 @@ package br.com.edukid.api.repositorys;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import br.com.edukid.api.entities.UserFather;
 
@@ -68,5 +69,15 @@ public interface UserFatherRepository extends JpaRepository<UserFather, Integer>
      * @return true se o campo cod_mudar_senha for NULL para o id especificado, e false caso contrário.
      */
     boolean existsByIdAndCodMudarSenhaIsNull(Integer userId);
+    
+	/**
+	 * METODO BUSCA USER PELO EMAIL
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 21 de set. de 2024
+	 * @param login
+	 * @return UserDetails
+	 */
+    @Query("SELECT u FROM UserFather u WHERE u.email = :email")
+	UserDetails findByEmailUserDetails(@Param("email") String email);
 	
 }

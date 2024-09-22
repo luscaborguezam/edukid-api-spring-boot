@@ -7,10 +7,15 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
+import br.com.edukid.api.configurations.springsecurity.security.infra.TokenService;
 import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.UserChild;
+import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.exceptions.ResourceNotFoundException;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.ConfigurationRepository;
@@ -18,7 +23,8 @@ import br.com.edukid.api.repositorys.UserChildRepository;
 import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.utils.StringServices;
 import br.com.edukid.api.utils.UtilsService;
-import br.com.edukid.api.vo.v1.LoginVO;
+import br.com.edukid.api.vo.v1.LoginChildVO;
+import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildGetVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildVO;
@@ -38,6 +44,12 @@ public class UserChildService {
 	JsonService jsonService;
 	@Autowired
 	ConfigurationRepository configurationRepository;
+	@Autowired
+	TokenService tokenService;
+    @Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
+    SecurityServices securityServices;
 	
 	/**
 	 * 
@@ -71,6 +83,9 @@ public class UserChildService {
 	 * @return
 	 */
 	public ResponseEntity<?> updateUserChild(UserChildVO data) {
+		if(!securityServices.verifyUserFahterWithSolicitation(data))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
+		
 		/*Verificar se existe o novo nickname*/
 		if(childRepository.existsNicknameToUpdate(data.getNickname(), Integer.parseInt(data.getFkUserPai())))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nickname já está em uso.");
@@ -91,6 +106,9 @@ public class UserChildService {
 	 * @return
 	 */
 	public ResponseEntity<?> deleteUserChild(Integer id) {
+		if(!securityServices.verifyUserFahterWithSolicitation(id))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
+
 		var entity = childRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Esse ID não foi encontrado."));
 		childRepository.delete(entity);
@@ -99,22 +117,29 @@ public class UserChildService {
 	
 	
 	/**
-	 * METODO REALIZA A AUTHENTIFICAÇÃO DO LOGINS
+	 * METODO REALIZA A AUTHENTIFICAÇÃO DO LOGIN
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 9 de jul. de 2024
 	 * @param login
 	 * @return STATUS CODE HTTP + DESCRICAO
 	 */
-	public ResponseEntity<?> authenticateLogin(LoginVO login) {
-			if(childRepository.existsByNickname(login.getEmailOrNickName())) {
-				
-				UserChild user = childRepository.findByNickname(login.getEmailOrNickName());
-				if(hashSaltService.verifyHash(login.getPassword(), user.getPassword())) {
-					UserChildVO userChild = EdukidMapper.parseObject(user, UserChildVO.class);
-					return ResponseEntity.status(HttpStatus.OK).body(userChild);
-				}
-			}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais invalidas.");
+	public ResponseEntity<?> authenticateLogin(LoginChildVO login) {
+		
+		if(!childRepository.existsByNickname(login.getNickName()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário inexistente ou senha inválida");		
+		
+		var usernamePassword = new UsernamePasswordAuthenticationToken(login.getNickName(), login.getPassword());
+        /*Spring security verifica email e senha*/
+        var auth = this.authenticationManager.authenticate(usernamePassword);
+        /*Cria o token*/
+        var token = tokenService.generateToken((UserChild) auth.getPrincipal());
+        				
+		UserChild user = childRepository.findByNickname(login.getNickName());
+
+		UserChildVO userChild = EdukidMapper.parseObject(user, UserChildVO.class);
+		userChild.setToken(token);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(userChild);
 	}
 	
 	
@@ -169,5 +194,8 @@ public class UserChildService {
 		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Não encontrado.");
 	}
+	
+	
+	
 
 }

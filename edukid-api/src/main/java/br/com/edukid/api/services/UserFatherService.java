@@ -1,26 +1,29 @@
 package br.com.edukid.api.services;
 
-import java.util.Optional;
 import java.util.logging.Logger;
 
-import org.apache.catalina.mapper.Mapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authorization.method.AuthorizeReturnObject;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+
+import br.com.edukid.api.configurations.springsecurity.security.AuthorizationService;
+import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
+import br.com.edukid.api.configurations.springsecurity.security.infra.TokenService;
 
 //import com.github.dozermapper.core.Mapper;
 
 import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.mapper.EdukidMapper;
+import br.com.edukid.api.repositorys.UserChildRepository;
 import br.com.edukid.api.repositorys.UserFatherRepository;
 import br.com.edukid.api.utils.Defines;
 import br.com.edukid.api.utils.EmailService;
 import br.com.edukid.api.utils.UtilsService;
-import br.com.edukid.api.vo.v1.LoginVO;
+import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
@@ -43,6 +46,12 @@ public class UserFatherService {
 	HashSaltService hashSaltService;
 	@Autowired
 	EmailService emailService;
+	@Autowired
+	TokenService tokenService;
+    @Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
+    SecurityServices securityServices;
 	
 	/* Registrar mensagens de log em uma aplicação Java.*/
 	Logger logger = Logger.getLogger(UserFatherService.class.getName());
@@ -87,6 +96,9 @@ public class UserFatherService {
 	 * @return
 	 */
 	public ResponseEntity<?> updateUserFather(@Valid UserFatherCadastroVO data) {
+		if(!securityServices.verifyUserFahterWithSolicitation(data))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao 'id' do usuário");
+			
 		/*Verificar se os dados que não podem ter duplicitdade está cadastrado na base de dados*/
 		if(fatherRepository.existsEmailToUpdate(data.getEmail(), Integer.parseInt(data.getId())))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email já está em uso.");
@@ -112,6 +124,8 @@ public class UserFatherService {
 	 * @return
 	 */
 	public ResponseEntity<?> desactivteUserFather(@Valid @NotBlank Integer id) {
+		if(!securityServices.verifyUserFahterWithSolicitation(id.toString()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao 'id' do usuário");
 		
 		var userData = fatherRepository.findById(id);
 		UserFather user= EdukidMapper.parseObject(userData, UserFather.class);
@@ -129,42 +143,47 @@ public class UserFatherService {
 	 * @param login
 	 * @return STATUS CODE HTTP + DESCRICAO
 	 */
-	public ResponseEntity<?> authenticateLogin(LoginVO login) {
+	public ResponseEntity<?> authenticateLogin(LoginFatherVO login) {
 		logger.info("Autentificando Login");
-		logger.info(login.getEmailOrNickName()+" "+ login.getPassword());
+		logger.info(login.getEmail()+" "+ login.getPassword());
 		
-			if(fatherRepository.existsByEmail(login.getEmailOrNickName())) {
-				/*Buscar registro*/				
-				UserFather user = fatherRepository.findByEmail(login.getEmailOrNickName());
-				logger.info(user.getCodMudarSenha());
-				/*Verificar confrimação de cadastro*/
-				if(user.getCodMudarSenha() != null) {
-					
-					/*Verificar se passou o código no json*/
-					if(login.getCodVerificacao()==null)
-						return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
-								body("Credênciais inválidas, codVerificacao não pode ser nulo em caso de confirmação de conta ou troca de senha");
-						
-					
-			    	/*Verificar código de confirmação*/
-			    	if(login.getCodVerificacao().equals(user.getCodMudarSenha())) {
-			    		/*Mudar password, cod_mudar_senha para null e salvar*/
-			    		user.setPassword(login.getPassword());
-			    		user.setCodMudarSenha(null);
-			    		UserFatherCadastroVO userVO = EdukidMapper.parseObject(user, UserFatherCadastroVO.class);
-			    		updateUserFather(userVO);	
-			    		return ResponseEntity.status(HttpStatus.OK).body(EdukidMapper.parseObject(user, UserFatherVO.class));
-			    	} else
-			    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas, utilize o código de verificação enviádo em seu email de cadastrado");			    		
-				}
-				/*Login normal*/	
-			    if (hashSaltService.verifyHash(login.getPassword(), user.getPassword())) {
-			        UserFatherVO userFather = EdukidMapper.parseObject(user, UserFatherVO.class);
-			        return ResponseEntity.status(HttpStatus.OK).body(userFather);
-			    
-			    }
-			}
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas");
+		if(!fatherRepository.existsByEmail(login.getEmail()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário inexistente ou senha inválida");			    		
+		
+		
+		var usernamePassword = new UsernamePasswordAuthenticationToken(login.getEmail(), login.getPassword());
+        /*Spring security verifica email e senha*/
+        var auth = this.authenticationManager.authenticate(usernamePassword);
+        /*Cria o token*/
+        var token = tokenService.generateToken((UserFather) auth.getPrincipal());
+		
+		/*Buscar registro*/			
+		UserFather user = fatherRepository.findByEmail(login.getEmail());
+		logger.info(user.getCodMudarSenha());
+		/*Verificar confrimação de cadastro ou mudar senha*/
+		if(user.getCodMudarSenha() != null) {
+			
+			/*Verificar se passou o código no json*/
+			if(login.getCodVerificacao()==null)
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
+						body("Credênciais inválidas, codVerificacao não pode ser nulo em caso de confirmação de conta ou troca de senha");
+				
+	    	/*Verificar código de confirmação*/
+	    	if(login.getCodVerificacao().equals(user.getCodMudarSenha())) {
+	    		/*Mudar password, cod_mudar_senha para null e salvar*/
+	    		user.setPassword(login.getPassword());
+	    		user.setCodMudarSenha(null);
+	    		UserFatherCadastroVO userVO = EdukidMapper.parseObject(user, UserFatherCadastroVO.class);
+	    		updateUserFather(userVO);
+	    	} else
+	    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas, utilize o código de verificação enviádo em seu email de cadastrado");			    		
+		}
+		/*Login normal*/	
+
+        UserFatherVO userFather = EdukidMapper.parseObject(user, UserFatherVO.class);
+        userFather.setToken(token);
+        return ResponseEntity.status(HttpStatus.OK).body(userFather);
+			
 	}	
 
 	/**

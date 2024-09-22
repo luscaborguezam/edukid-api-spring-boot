@@ -10,18 +10,18 @@ import jakarta.validation.constraints.NotBlank;
  */
 
 
-public class LoginVO {
+public class LoginFatherVO {
 	@Email @NotBlank
-	private String emailOrNickName;
+	private String email;
 	@NotBlank
 	private String password;
 	private String codVerificacao;
 	
-	public String getEmailOrNickName() {
-		return emailOrNickName;
+	public String getEmail() {
+		return email;
 	}
-	public void setEmailOrNickName(String emailOrNickName) {
-		this.emailOrNickName = emailOrNickName;
+	public void setEmail(String emailOrNickName) {
+		this.email = emailOrNickName;
 	}
 	public String getPassword() {
 		return password;

@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edukid.api.services.UserChildService;
-import br.com.edukid.api.vo.v1.LoginVO;
+import br.com.edukid.api.vo.v1.LoginChildVO;
+import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -71,7 +72,7 @@ public class UserChildController {
 	 * @return
 	 */
 	@PostMapping(path="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> loginUserChild(@RequestBody @Valid LoginVO dataAccount) {
+	public ResponseEntity<?> loginUserChild(@RequestBody @Valid LoginChildVO dataAccount) {
 			return childService.authenticateLogin(dataAccount);
 
 	}

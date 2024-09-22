@@ -2,7 +2,14 @@ package br.com.edukid.api.entities;
 
 import java.io.Serializable;
 import java.sql.Time;
+import java.util.Collection;
+import java.util.List;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import br.com.edukid.api.configurations.springsecurity.security.UsersRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +24,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name="user_filho")
-public class UserChild implements Serializable{
+public class UserChild implements Serializable, UserDetails{
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -39,10 +46,10 @@ public class UserChild implements Serializable{
 	private Time timeOfQuiz; //formato aceitado HH:mm:ss exemplo 14:30:00
 	@Column(name="qtd_notificacao")
 	private Integer notificationQuantity;
-//	@Column(name="configuracao", columnDefinition = "json")
-//	private String configuration;
 	@Column(name = "id_user_pai", nullable = false)
 	private Integer fkUserPai;
+	
+	private UsersRole role = UsersRole.CHILD;
 	
 	/*GETEERS AND SETTERS*/
 	public Integer getId() {
@@ -69,9 +76,9 @@ public class UserChild implements Serializable{
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-	public String getPassword() {
-		return password;
-	}
+//	public String getPassword() {
+//		return password;
+//	}
 	public void setPassword(String password) {
 		this.password = password;
 	}
@@ -93,12 +100,6 @@ public class UserChild implements Serializable{
 	public void setNotificationQuantity(Integer notificationQuantity) {
 		this.notificationQuantity = notificationQuantity;
 	}
-//	public String getConfiguration() {
-//		return configuration;
-//	}
-//	public void setConfiguration(String configuration) {
-//		this.configuration = configuration;
-//	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
@@ -107,6 +108,30 @@ public class UserChild implements Serializable{
 	}
 	public void setFkUserPai(Integer fkUserPai) {
 		this.fkUserPai = fkUserPai;
+	}
+	public UsersRole getRole() {
+		return role;
+	}
+	
+	/**
+	 * CONSULTA A ENTIDADE PARA VERIFICAR DEFINIR QUAL ROLES DO SECURITY ESTÁ RELACIONADAS AO USUÁRIO
+	 */
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return List.of(new SimpleGrantedAuthority("ROLE_CHILD"));
+			
+	}
+
+	@Override
+	public String getPassword() {
+		// TODO Auto-generated method stub
+		return password;
+	}
+	
+	@Override
+	public String getUsername() {
+		// TODO Auto-generated method stub
+		return nickname;
 	}
 
 	

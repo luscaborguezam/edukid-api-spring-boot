@@ -26,8 +26,8 @@ public class UserFatherVO {
 	private String phone;
 	@Email
 	private String email;
-	
 	private String status;
+	private String token;
 	
 	
 	public String getId() {
@@ -71,6 +71,12 @@ public class UserFatherVO {
 	}
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
 	}
 	
 	

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.unnitests.mapper.mocks.MockUserFather;
-import br.com.edukid.api.vo.v1.LoginVO;
+import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 
