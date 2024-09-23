@@ -2,17 +2,20 @@ package br.com.edukid.api.configurations.springsecurity.security.infra;
 
 import java.util.List;
 
+import org.antlr.v4.runtime.misc.IntegerList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import br.com.edukid.api.entities.UserChild;
 import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.repositorys.UserChildRepository;
 import br.com.edukid.api.repositorys.UserFatherRepository;
 import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
+import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildVO;
 
 @Service
@@ -95,6 +98,20 @@ public class SecurityServices {
 	}
 	
 	/**
+	 * METODO VERIFICA SE O USERCHILD SOLICITANTE É O MESMO ENVIADO NO QUIZ
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 22 de set. de 2024
+	 * @param quizRealized
+	 * @return
+	 */
+	public boolean verifyUserChildWithSolicitation(Integer id) {
+		UserChild userEntity = obtainApplicantChildData();
+		if(userEntity != null && id.toString().equals(userEntity.getId().toString()))
+			return true;
+		return false;
+	}
+	
+	/**
 	 * METODO BUSCA OS DADOS DO USER FATHER REQUERENTE
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 22 de set. de 2024
@@ -114,5 +131,24 @@ public class SecurityServices {
 			return null;	
 	}
 	
+	/**
+	 * METODO BUSCA OS DADOS DO USER CHILD REQUERENTE
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 22 de set. de 2024
+	 * @return
+	 */
+	private UserChild obtainApplicantChildData() {
+		/*Pegar nickname do solicitante*/
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		String nickname = userDetails.getUsername();
+		
+		/*Buscar dados do solicitante*/
+		UserChild userEntity = null;
+		if(childRepository.existsByNickname(nickname))
+			return childRepository.findByNickname(nickname);
+		else
+			return null;	
+	}
 	
 }

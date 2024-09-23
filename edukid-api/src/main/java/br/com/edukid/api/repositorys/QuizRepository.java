@@ -1,6 +1,7 @@
 package br.com.edukid.api.repositorys;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,6 +30,26 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
     Boolean existsQuizOpenByIdUserChild(@Param("idUserChild") Integer idUserChild, @Param("currentDate") LocalDate currentDate);
 	
 
+	/**
+	 * METODO VERIFICAR SE EXISTE UM QUIZ NA DATA ATUAL EM ABERTO DE UM USUÁRIO ESPECÍFICO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 28 de ago. de 2024
+	 * @param yearHighScool
+	 * @return
+	 */
+	@Query("SELECT CASE WHEN COUNT(q) > 0 THEN TRUE ELSE FALSE END "
+	        + "FROM Quiz q JOIN UserChild uc ON q.idUserChild = uc.id "
+	        + "WHERE uc.id = :idUserChild "
+	        + "AND q.isFinalized =  "+Defines.QUIZ_EM_ABERTO+" "
+	        + "AND q.endDate IS NULL "
+	        + "AND q.id = :idQuiz "
+	        + "AND DATE(q.startDate) = DATE(:currentDate)")
+    Boolean existsQuizOpenByIdWhereIdUserChild(
+    		@Param("idUserChild") Integer idUserChild,
+    		@Param("idQuiz") Integer idQuiz,  
+    		@Param("currentDate") LocalDate currentDate);
+	
+	
 	/**
 	 * METODO BUSCA UM QUIZ NA DATA ATUAL EM ABERTO DE UM USUÁRIO ESPECÍFICO
 	 * @Author LUCAS BORGUEZAM

@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
 import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.Materia;
 import br.com.edukid.api.entities.Pergunta;
@@ -53,6 +54,8 @@ public class ConfigurationQuizService {
 	QuizRepository quizRepository;
 	@Autowired
 	ConfigurationRepository configurationRepository;
+	@Autowired
+	SecurityServices securityServices;
 	
 	/**
 	 * METODO BUSCA MATERIAS E TEMAS RELACIONADO AO ANO DO ENSINO MÉDIO DO USUARIO FILHO
@@ -82,6 +85,10 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	public ResponseEntity<?> registerConfQuiz(MateriasETemasVO materiasETemasVO){
+		if(!securityServices.verifyUserFahterWithSolicitation( Integer.parseInt( materiasETemasVO.getIdUserChild()) ))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
+	
+		
 		if(!configurationRepository.existsById(Integer.parseInt(materiasETemasVO.getIdUserChild())))
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User child not found");
 		/*Buscar registro*/
@@ -103,6 +110,7 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	public MateriasETemasVO getSubjectandThemeConfiguredFromUserChild(Integer idUserChild){
+		
 		/*Buscar registro*/
 		/*Buscar registro*/
 		Optional<Configuration> opConfQuiz = configurationRepository.findById(idUserChild);
@@ -121,11 +129,15 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	public ResponseEntity<?> toGenerateQuiz(Integer idUserChild){
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");
+		
 		FieldQuizVO fielQuiz = new FieldQuizVO();
 		Quiz quizEntity = new Quiz();
 		QuizVO quiz = null;
 		
-		/*Verificar se existe um quiz criado na data atual*/
+		/*Verificar se existe um quiz criado e aberto na data atual*/
+		System.out.println(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now()));
 		if(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now())) {
 			quizEntity = quizRepository.FindQuizOpenByIdUserChild(idUserChild, LocalDate.now());
 			fielQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
@@ -140,7 +152,7 @@ public class ConfigurationQuizService {
 		MateriasETemasVO confQuiz = jsonService.fromJson(confEntity.getConfiguration(), MateriasETemasVO.class);
 		
 		if(confQuiz == null) 
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado, para criar o quiz primeiro vocÊ deve cadastrar as configurações do quiz");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado, para criar o quiz primeiro você deve cadastrar as configurações do quiz.");
 		
 		
 		/*Buscar o quiz de cada matéria e temas relcionados a matéria segundo a configuração cadastrada para o usuário filho*/
@@ -231,9 +243,20 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	public ResponseEntity<?> registerQuizRealized(QuizVO quizRealized) {
+		if(!securityServices.verifyUserChildWithSolicitation( Integer.parseInt(quizRealized.getIdUserChild()) ))
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");
+
+		
 		/*Verificar se existe um quiz criado na data atual*/
 		if(!quizRepository.existsQuizOpenByIdUserChild(Integer.parseInt(quizRealized.getIdUserChild()), LocalDate.now()))
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Não há nenhum quiz criado na data de hoje ("+LocalDate.now()+")");
+		
+		/*Verificar se existe o quiz pelo id do quiz passdo pelo userchild*/
+		if(!quizRepository.existsQuizOpenByIdWhereIdUserChild(
+				Integer.parseInt(quizRealized.getIdUserChild()), 
+				Integer.parseInt(quizRealized.getId()),
+				LocalDate.now()))
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Não há nenhum quiz com o 'id' informado!");
 		
 		/*Buscar quiz na base de dados e trasformar em objeto QuizVO*/
 		Optional<Quiz> opQuizEntity = quizRepository.findById(Integer.parseInt(quizRealized.getId()));
@@ -354,6 +377,14 @@ public class ConfigurationQuizService {
 		return map;
 	}
 	
+	/**
+	 * METODO ALTERA OS ATRIBUTOS DO QUIZ REGISTRADO COM O QUIZ REALIZADO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 22 de set. de 2024
+	 * @param quizRegistred
+	 * @param quizRealized
+	 * @return
+	 */
 	private QuizVO updateDataWithQuizRealizedData(QuizVO quizRegistred, QuizVO quizRealized) {
 		//Adicionar endDate
 		quizRegistred.setEndDate(quizRealized.getEndDate());

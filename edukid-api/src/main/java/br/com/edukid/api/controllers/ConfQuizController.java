@@ -26,7 +26,7 @@ public class ConfQuizController {
 	@Autowired
 	ConfigurationQuizService configurationQuizService;
 	/**
-	 * METODO BUSCA UMA LISTA DE MATERIAS E TEMAS RELACIONADOS AO ANO DO ENSINO MEDIO DO USUARIO FILHO
+	 * METODO BUSCA UMA LISTA DE MATERIAS E TEMAS RELACIONADOS AO ANO DO ENSINO MEDIO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
 	 * @param dataAccount
