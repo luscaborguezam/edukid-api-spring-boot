@@ -25,6 +25,11 @@ public class TemaAprendizagem {
 	private String theme;
 	@Column(name = "ano_ensino_fundamental", length = 1)
 	private Integer yearHighScool;
+	@Column(name = "bimestre", length = 1)
+	private Integer bimonthly;
+	
+	
+	
 	
 	public Integer getId() {
 		return id;
@@ -55,6 +60,12 @@ public class TemaAprendizagem {
 	}
 	public void setYearHighScool(Integer yearHighScool) {
 		this.yearHighScool = yearHighScool;
+	}
+	public Integer getBimonthly() {
+		return bimonthly;
+	}
+	public void setBimonthly(Integer bimonthly) {
+		this.bimonthly = bimonthly;
 	}
 	
 	

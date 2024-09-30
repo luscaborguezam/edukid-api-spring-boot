@@ -19,7 +19,17 @@ public class PerguntaVO {
 
 	@NotBlank
     private String idTema;
-
+	
+	@NotBlank
+	private String idConteudo;
+	
+	@NotBlank
+	private String bibliografia;
+	
+	@NotBlank
+	private String img;
+	
+	
 
 	
 	public void addItemInListInfoPergunta(InfoPergunta infoPergunta) {
@@ -73,6 +83,30 @@ public class PerguntaVO {
 
 	public void setIdTema(String idTema) {
 		this.idTema = idTema;
+	}
+	
+	public String getIdConteudo() {
+		return idConteudo;
+	}
+
+	public void setIdConteudo(String idConteudo) {
+		this.idConteudo = idConteudo;
+	}
+
+	public String getBibliografia() {
+		return bibliografia;
+	}
+
+	public void setBibliografia(String bibliografia) {
+		this.bibliografia = bibliografia;
+	}
+
+	public String getImg() {
+		return img;
+	}
+
+	public void setImg(String img) {
+		this.img = img;
 	}
 
 }

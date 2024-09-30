@@ -19,6 +19,11 @@ public class TemaAprendizagemVO {
 	@NotEmpty
 	@Pattern(regexp = "^[1-9]$", message = "A chave 'yearHighScool' deve ser uma string numérica com valor igual ou entre 1 e 9")
 	private String yearHighScool;
+	@NotEmpty
+	@Pattern(regexp = "^[1-4]$", message = "A chave 'bimonth' deve ser uma string numérica com valor igual ou entre 1 e 4")
+	private String bimonth;
+	
+	
 	
 	public String getId() {
 		return id;
@@ -49,6 +54,12 @@ public class TemaAprendizagemVO {
 	}
 	public void setYearHighScool(String yearHighScool) {
 		this.yearHighScool = yearHighScool;
+	}
+	public String getBimonth() {
+		return bimonth;
+	}
+	public void setBimonth(String bimonth) {
+		this.bimonth = bimonth;
 	}
 	
 	

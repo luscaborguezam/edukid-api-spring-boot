@@ -1,4 +1,4 @@
-package br.com.edukid.api.entities;
+	package br.com.edukid.api.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,18 +26,27 @@ public class Pergunta {
 
 	    @JoinColumn(name = "id_tema", nullable = false)
 	    private Integer idTema;
+	    
+	    @Column(name = "id_conteudo", nullable = false)
+	    private Integer idConteudo;
+	    
+	    @Column(name = "bibliografia", nullable = false)
+	    private String bibliografia;
+	    
+	    @Column(name = "img")
+	    private String img;
 
+	    
 	    // Getters and Setters
+		public Integer getId() {
+			return id;
+		}
 
-	    public Integer getId() {
-	        return id;
-	    }
+		public void setId(Integer id) {
+			this.id = id;
+		}
 
-	    public void setId(Integer id) {
-	        this.id = id;
-	    }
-
-	    public String getInfoPergunta() {
+		public String getInfoPergunta() {
 			return infoPergunta;
 		}
 
@@ -46,12 +55,12 @@ public class Pergunta {
 		}
 
 		public Integer getDificuldade() {
-	        return dificuldade;
-	    }
+			return dificuldade;
+		}
 
-	    public void setDificuldade(Integer dificuldade) {
-	        this.dificuldade = dificuldade;
-	    }
+		public void setDificuldade(Integer dificuldade) {
+			this.dificuldade = dificuldade;
+		}
 
 		public Integer getIdTema() {
 			return idTema;
@@ -60,7 +69,29 @@ public class Pergunta {
 		public void setIdTema(Integer idTema) {
 			this.idTema = idTema;
 		}
-	    
 
+		public Integer getIdConteudo() {
+			return idConteudo;
+		}
+
+		public void setIdConteudo(Integer idConteudo) {
+			this.idConteudo = idConteudo;
+		}
+
+		public String getBibliografia() {
+			return bibliografia;
+		}
+
+		public void setBibliografia(String bibliografia) {
+			this.bibliografia = bibliografia;
+		}
+
+		public String getImg() {
+			return img;
+		}
+
+		public void setImg(String img) {
+			this.img = img;
+		}
 
 }
