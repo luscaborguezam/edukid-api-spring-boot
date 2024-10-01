@@ -61,7 +61,7 @@ public class UserFatherController {
 	@PutMapping(path="/account",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> updateUserFather(@RequestBody @Valid UserFatherCadastroVO dataAccount){
 		
-			return fatherService.updateUserFather(dataAccount);
+			return fatherService.updateUserFather(dataAccount, true);
 	}
 	
 	/**

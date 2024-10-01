@@ -95,10 +95,13 @@ public class UserFatherService {
 	 * @param data
 	 * @return
 	 */
-	public ResponseEntity<?> updateUserFather(@Valid UserFatherCadastroVO data) {
-		if(!securityServices.verifyUserFahterWithSolicitation(data))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao 'id' do usuário");
-			
+	public ResponseEntity<?> updateUserFather(@Valid UserFatherCadastroVO data, Boolean isAlterDataUser) {
+		
+		if(isAlterDataUser)
+			if(!securityServices.verifyUserFahterWithSolicitation(data))
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao 'id' do usuário");
+		
+        
 		/*Verificar se os dados que não podem ter duplicitdade está cadastrado na base de dados*/
 		if(fatherRepository.existsEmailToUpdate(data.getEmail(), Integer.parseInt(data.getId())))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email já está em uso.");
@@ -144,7 +147,7 @@ public class UserFatherService {
 	 * @return STATUS CODE HTTP + DESCRICAO
 	 */
 	public ResponseEntity<?> authenticateLogin(LoginFatherVO login) {
-		logger.info("Autentificando Login");
+		logger.info("\n\nAutentificando Login");
 		logger.info(login.getEmail()+" "+ login.getPassword());
 		
 		if(!fatherRepository.existsByEmail(login.getEmail()))
@@ -157,7 +160,7 @@ public class UserFatherService {
         /*Cria o token*/
         var token = tokenService.generateToken((UserFather) auth.getPrincipal());
 		
-		/*Buscar registro*/			
+		/*Buscar registro*/
 		UserFather user = fatherRepository.findByEmail(login.getEmail());
 		logger.info(user.getCodMudarSenha());
 		/*Verificar confrimação de cadastro ou mudar senha*/
@@ -167,14 +170,16 @@ public class UserFatherService {
 			if(login.getCodVerificacao()==null)
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).
 						body("Credênciais inválidas, codVerificacao não pode ser nulo em caso de confirmação de conta ou troca de senha");
-				
+			 System.out.println("\n\nVerificar código de confirmação\n\n");	
 	    	/*Verificar código de confirmação*/
 	    	if(login.getCodVerificacao().equals(user.getCodMudarSenha())) {
 	    		/*Mudar password, cod_mudar_senha para null e salvar*/
 	    		user.setPassword(login.getPassword());
 	    		user.setCodMudarSenha(null);
+	    		
 	    		UserFatherCadastroVO userVO = EdukidMapper.parseObject(user, UserFatherCadastroVO.class);
-	    		updateUserFather(userVO);
+	    		System.out.println("\n\nDepois do mapper\n\n");	
+	    		updateUserFather(userVO, false);
 	    	} else
 	    		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas, utilize o código de verificação enviádo em seu email de cadastrado");			    		
 		}
