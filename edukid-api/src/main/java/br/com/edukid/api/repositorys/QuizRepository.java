@@ -90,5 +90,17 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 			+ "AND DATE(q.startDate) < CURRENT_DATE")
 	void updateIsFinalizeD();
 	
-	
+	@Modifying
+    @Transactional
+    @Query(value = "INSERT INTO quiz (quiz, data_inicio, finalizado, id_user_filho) "
+    		+ "VALUES ("
+    		+ ":quiz, "
+    		+ "NOW(), "
+    		+ ":isFinalized, "
+    		+ ":idUserChild)", 
+            nativeQuery = true //permite consultas com querys nativas sem usar o "JPQL"
+			)
+	void InsertQuizWithoutstartDate(@Param("quiz") String quiz, 
+	        @Param("isFinalized") Integer isFinalized, 
+	        @Param("idUserChild") Integer idUserChild);
 }

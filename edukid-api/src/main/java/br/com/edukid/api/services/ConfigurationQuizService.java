@@ -122,16 +122,27 @@ public class ConfigurationQuizService {
 	}
 	
 	/**
-	 * METODO GERA QUIZ ALEATORIO COM AS CONFIGURACOES CADASTRADAS
+	 * METODO VERIFICA SE O USER DO TOKEM COM O ID DO USER PASSADO E CHAMA A CRIAÇÃO DO QUIZ OU UM QUIZ JÁ FEITO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 1 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	public ResponseEntity<?> GetQuiz(Integer idUserChild){
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");
+		return toGenerateQuiz(idUserChild);		
+	}
+	
+	/**
+	 * METODO GERA QUIZ ALEATORIO COM AS CONFIGURACOES CADASTRADAS, ou retorna um quiz atual em aberto
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 31 de ago. de 2024
 	 * @param idUserChild
 	 * @return
 	 */
 	public ResponseEntity<?> toGenerateQuiz(Integer idUserChild){
-		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");
-		
+		System.out.println("\nCriar ou buscar quiz em aberto");
 		FieldQuizVO fielQuiz = new FieldQuizVO();
 		Quiz quizEntity = new Quiz();
 		QuizVO quiz = null;
@@ -166,7 +177,14 @@ public class ConfigurationQuizService {
 		
 		/*Cadastrar quiz*/
 		quizEntity = new Quiz(jsonService.toJson(fielQuiz), confEntity);
-		quizRepository.save(quizEntity);
+		/*Inserir com query nativa para adicionar data de criação pelo mysql*/
+		quizRepository.InsertQuizWithoutstartDate(
+				quizEntity.getQuiz(),
+				quizEntity.getIsfinalized(),
+				quizEntity.getIdUserChild()
+				);
+		
+		quizEntity = quizRepository.FindQuizOpenByIdUserChild(idUserChild, LocalDate.now());
 		
 		/*Objeto de retorno*/
 		quiz = new QuizVO(quizEntity, fielQuiz);

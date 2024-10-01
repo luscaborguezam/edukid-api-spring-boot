@@ -3,7 +3,12 @@ package br.com.edukid.api.configurations;
 import org.springframework.stereotype.Component;
 
 import br.com.edukid.api.repositorys.QuizRepository;
+import br.com.edukid.api.repositorys.UserChildRepository;
+import br.com.edukid.api.services.ConfigurationQuizService;
+import br.com.edukid.api.services.UserChildService;
 import jakarta.annotation.PostConstruct;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,6 +17,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class ScheduledTasks {
 	@Autowired
 	QuizRepository quizRepository;
+	
+	@Autowired 
+	ConfigurationQuizService configurationQuizService;
+	
+	@Autowired
+	UserChildRepository childRepository;
+	
 
 	/**
 	 * METODO ATUALIZA BASE DE DADOS FECHANDO TODOS QUIZ EM ABERTO QUE NÃO SEJA DA DATA ATUAL.
@@ -21,7 +33,7 @@ public class ScheduledTasks {
 	 */
     @PostConstruct
     public void runWithIicialization() {
-    	System.out.println("Fechar quizzes em aberto");
+    	System.out.println("\nFechar quizzes em aberto");
         quizRepository.updateIsFinalizedWhereStartDateMinorWhithCurrent();
         
     }
@@ -34,8 +46,26 @@ public class ScheduledTasks {
 	 */
     @Scheduled(cron = "0 0 18 * * *")
     public void runAtMidnight() {
-    	System.out.println("Fechar quizzes em aberto");
+    	System.out.println("\nFechar quizzes em aberto");
         quizRepository.updateIsFinalizeD();
         
     }
+    
+	/**
+	 * METODO CRIA O QUIZ PARA TODOS OS USUÁRIOS FILHOS
+	 * EXECUTADO AS 5H DA MANHÃ OU QUANDO O JAR É INICIADOS
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 17 de set. de 2024
+	 */
+    @Scheduled(cron = "0 0 5 * * *")
+    @PostConstruct
+    public void runCreateQuiz() {
+    	System.out.println("\nCRIAR QUIZ PARA TODOS USERS CHILD");
+    	
+    	List<Integer> childIds = childRepository.findAllIdWhereUserFatherEqualsActive();
+    	for(Integer id: childIds)
+    		configurationQuizService.toGenerateQuiz(id);
+        
+    }
+
 }

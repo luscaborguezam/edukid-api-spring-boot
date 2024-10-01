@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.UserChild;
 import br.com.edukid.api.entities.UserFather;
+import br.com.edukid.api.utils.Defines;
 
 /**
  * INTERFACE DISPONIBILIZA OPERACOES PARA O BANCO DE DADOS NA TABELA USER_FILHO, PARA O CAMPO DE CONFIGURAÇÕES POR MEIO DO JPAREPOSITORY
@@ -74,6 +75,25 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 	@Query("SELECT u FROM UserChild u WHERE u.nickname = :nickname")
 	UserDetails findByNicknameUserDetails(@Param("nickname") String nickname);
 	
+	/**
+	 * METODO BUSCA OS ID'S DE USER CHILD RELACIONADO A UM USER FATHER
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 1 de out. de 2024
+	 * @param fkUserPai
+	 * @return
+	 */
 	@Query("SELECT u.id FROM UserChild u WHERE u.fkUserPai = :fkUserPai")
 	List<Integer> findIdByFkUserPai(@Param("fkUserPai") Integer fkUserPai);
+	
+	/**
+	 * METODO BUSCA TODOS OS ID'S DE USER CHILD QUE TEM O USERPAI ATIVO 
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 1 de out. de 2024
+	 * @return
+	 */
+	@Query("SELECT uc.id FROM UserChild uc " +
+		       "INNER JOIN UserFather uf ON uf.id = uc.fkUserPai " +
+		       "WHERE uf.status LIKE '"+ Defines.STATUS_ATIVO_ACCOUNT_USER_FATHER +"'"
+		  )
+	List<Integer> findAllIdWhereUserFatherEqualsActive();
 }

@@ -45,7 +45,7 @@ private static final long serialVersionUID = 1L;
 	 */
 	public Quiz(String quiz, Configuration confUserChild) {
 		this.quiz = quiz;
-		this.startDate = LocalDateTime.now();
+		//this.startDate = LocalDateTime.now();
 		this.idUserChild = confUserChild.getId();
 		this.isFinalized = 0;
 	}
