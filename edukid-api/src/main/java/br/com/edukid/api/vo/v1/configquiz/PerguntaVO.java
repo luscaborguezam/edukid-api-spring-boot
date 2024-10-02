@@ -40,9 +40,13 @@ public class PerguntaVO {
 	
 	public PerguntaVO(Pergunta p) {
 		this.id = p.getId().toString();
+		this.infoPerguntas = new ArrayList<>(); 
 		this.dificuldade = p.getDificuldade().toString();
 		this.idTema = p.getIdTema().toString();
-		this.infoPerguntas = new ArrayList<>(); 
+		this.idConteudo = p.getIdConteudo().toString();
+		this.bibliografia = p.getBibliografia();
+		this.img = p.getImg();
+		
 	}
 	
 	public PerguntaVO(TemaAprendizagemVO theme) {

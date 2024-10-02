@@ -15,10 +15,10 @@ public interface MateriaRepository extends JpaRepository<Materia, Integer>{
 	 * METODO BUSCA MATERIAS COM CONTEÚDOS RELACOINADOS AO ANO DO ENSINO FUMDAMENTAL
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
-	 * @param yearHighScool
+	 * @param yearElementarySchool
 	 * @return
 	 */
-	@Query("SELECT DISTINCT m FROM Materia m JOIN TemaAprendizagem ta ON m.id = ta.idSubject WHERE ta.yearHighScool = :yearHighScool")
-    List<Materia> findDistinctMateriasByYearHighScool(@Param("yearHighScool") Integer yearHighScool);
+	@Query("SELECT DISTINCT m FROM Materia m JOIN TemaAprendizagem ta ON m.id = ta.idSubject WHERE ta.yearElementarySchool = :yearElementarySchool")
+    List<Materia> findDistinctMateriasByYearElementarySchool(@Param("yearElementarySchool") Integer yearElementarySchool);
 
 }

@@ -58,19 +58,19 @@ public class ConfigurationQuizService {
 	SecurityServices securityServices;
 	
 	/**
-	 * METODO BUSCA MATERIAS E TEMAS RELACIONADO AO ANO DO ENSINO MÉDIO DO USUARIO FILHO
+	 * METODO BUSCA MATERIAS E TEMAS RELACIONADO AO ANO DO ENSINO FUNDAMENTAL DO USUARIO FILHO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
-	 * @param yearHighSchool
+	 * @param yearElementarySchool
 	 * @return
 	 */
-	public ResponseEntity<?> getSubjectAndTheme(Integer yearHighSchool) {
+	public ResponseEntity<?> getSubjectAndTheme(Integer yearElementarySchool) {
 		MateriasETemasVO  materiasVO = new MateriasETemasVO();
 		
-		List<Materia> materias = materiaRepository.findDistinctMateriasByYearHighScool(yearHighSchool);
+		List<Materia> materias = materiaRepository.findDistinctMateriasByYearElementarySchool(yearElementarySchool);
 		for(Materia m: materias) {
 			MateriaVO materiaVO = EdukidMapper.parseObject(m, MateriaVO.class);
-			materiaVO.setTemas(EdukidMapper.parseListObjects(temaAprendizagemRepository.findByYearHighScoolAndIdSubject(yearHighSchool, m.getId()), TemaAprendizagemVO.class));
+			materiaVO.setTemas(EdukidMapper.parseListObjects(temaAprendizagemRepository.findByYearElementarySchoolAndIdSubject(yearElementarySchool, m.getId()), TemaAprendizagemVO.class));
 			materiasVO.addMateriaVO(materiaVO);
 		}
 		

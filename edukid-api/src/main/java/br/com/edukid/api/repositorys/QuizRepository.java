@@ -18,7 +18,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	 * METODO VERIFICAR SE EXISTE UM QUIZ NA DATA ATUAL EM ABERTO DE UM USUÁRIO ESPECÍFICO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
-	 * @param yearHighScool
+	 * @param 
 	 * @return
 	 */
 	@Query("SELECT CASE WHEN COUNT(q) > 0 THEN TRUE ELSE FALSE END "
@@ -34,7 +34,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	 * METODO VERIFICAR SE EXISTE UM QUIZ NA DATA ATUAL EM ABERTO DE UM USUÁRIO ESPECÍFICO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
-	 * @param yearHighScool
+	 * @param 
 	 * @return
 	 */
 	@Query("SELECT CASE WHEN COUNT(q) > 0 THEN TRUE ELSE FALSE END "
@@ -54,7 +54,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	 * METODO BUSCA UM QUIZ NA DATA ATUAL EM ABERTO DE UM USUÁRIO ESPECÍFICO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
-	 * @param yearHighScool
+	 * @param 
 	 * @return
 	 */
 	@Query("SELECT q FROM Quiz q JOIN UserChild uc ON q.idUserChild = uc.id "

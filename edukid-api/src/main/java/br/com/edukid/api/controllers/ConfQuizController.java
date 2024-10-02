@@ -26,7 +26,7 @@ public class ConfQuizController {
 	@Autowired
 	ConfigurationQuizService configurationQuizService;
 	/**
-	 * METODO BUSCA UMA LISTA DE MATERIAS E TEMAS RELACIONADOS AO ANO DO ENSINO MEDIO
+	 * METODO BUSCA UMA LISTA DE MATERIAS E TEMAS RELACIONADOS AO ANO DO ENSINO FUNDAMENTAL
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
 	 * @param dataAccount
@@ -62,7 +62,7 @@ public class ConfQuizController {
 	 */
 	@GetMapping(path="/quiz/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> toGeneratedQuiz(@PathVariable @Valid @NotBlank 
-		@Pattern(regexp = "^-?\\d+$", message = "'fkUserPai' deve ser uma string numérica de valor inteiro") String idUserChild)
+		@Pattern(regexp = "^-?\\d+$", message = "'idUserChild' deve ser uma string numérica de valor inteiro") String idUserChild)
 	{
 		return configurationQuizService.toGenerateQuiz(Integer.parseInt(idUserChild));
 	}
@@ -79,5 +79,18 @@ public class ConfQuizController {
 		return configurationQuizService.registerQuizRealized(quizRealized);
 	}
 	
+	/**
+	 * METODO BUSCA O QUIZ MONTADO DE ACORDO COM AS MATERIAS E TEMAS CONFIGURADOS PARA O USUARIO FILHO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 8 de set. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	@GetMapping(path="/quiz/content-to-study/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> findByContentToStudy(@PathVariable @Valid @NotBlank 
+		@Pattern(regexp = "^-?\\d+$", message = "'idUserChild' deve ser uma string numérica de valor inteiro") String idUserChild)
+	{
+		return configurationQuizService.toGenerateQuiz(Integer.parseInt(idUserChild));
+	}
 
 }

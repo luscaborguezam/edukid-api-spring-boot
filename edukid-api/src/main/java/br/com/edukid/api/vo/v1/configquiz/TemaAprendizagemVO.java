@@ -17,8 +17,8 @@ public class TemaAprendizagemVO {
 	@NotBlank
 	private String theme;
 	@NotEmpty
-	@Pattern(regexp = "^[1-9]$", message = "A chave 'yearHighScool' deve ser uma string numérica com valor igual ou entre 1 e 9")
-	private String yearHighScool;
+	@Pattern(regexp = "^[1-9]$", message = "A chave 'yearElementarySchool' deve ser uma string numérica com valor igual ou entre 1 e 9")
+	private String yearElementarySchool;
 	@NotEmpty
 	@Pattern(regexp = "^[1-4]$", message = "A chave 'bimonth' deve ser uma string numérica com valor igual ou entre 1 e 4")
 	private String bimonth;
@@ -49,11 +49,11 @@ public class TemaAprendizagemVO {
 	public void setTheme(String theme) {
 		this.theme = theme;
 	}
-	public String getYearHighScool() {
-		return yearHighScool;
+	public String getYearElementarySchool() {
+		return yearElementarySchool;
 	}
-	public void setYearHighScool(String yearHighScool) {
-		this.yearHighScool = yearHighScool;
+	public void setYearElementarySchool(String yearElementarySchool) {
+		this.yearElementarySchool = yearElementarySchool;
 	}
 	public String getBimonth() {
 		return bimonth;

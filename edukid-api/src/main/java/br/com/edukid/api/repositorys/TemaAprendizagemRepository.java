@@ -13,9 +13,9 @@ public interface TemaAprendizagemRepository extends JpaRepository<TemaAprendizag
 	 * METODO PARA ENCONTRAR TODOS OS TEMAS COM O ANO DE ENSINO FUNDAMENTAL ESPECIFICO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
-	 * @param yearHighScool
+	 * @param yearElementarySchool
 	 * @return
 	 */
-	List<TemaAprendizagem> findByYearHighScoolAndIdSubject(Integer yearHighScool, Integer idSubject);
+	List<TemaAprendizagem> findByYearElementarySchoolAndIdSubject(Integer yearElementarySchool, Integer idSubject);
 	
 }
