@@ -28,6 +28,7 @@ import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildGetVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildCadastroVO;
 
 @Service
 public class UserChildService {
@@ -59,7 +60,9 @@ public class UserChildService {
 	 * @param dataAccount
 	 * @return
 	 */
-	public ResponseEntity<?> registerUserChild(UserChildVO data) {		
+	public ResponseEntity<?> registerUserChild(UserChildCadastroVO data) {	
+		if(!securityServices.verifyUserFahterWithSolicitation(data.getFkUserPai()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'fkUserPai' enviado não corresponde ao 'id' da conta.");
 		/*Faz o Hash da senha do usuario*/
 		data.setPassword(hashSaltService.hash(data.getPassword()));
 		
@@ -70,7 +73,7 @@ public class UserChildService {
 		/*Converte VO para Entity e cadastra na base de dados*/
 		UserChild entity = EdukidMapper.parseObject(data, UserChild.class);
 		
-		var vo = EdukidMapper.parseObject(childRepository.save(entity), UserChildVO.class);
+		var vo = EdukidMapper.parseObject(childRepository.save(entity), UserChildCadastroVO.class);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(vo);
 	}
@@ -82,12 +85,12 @@ public class UserChildService {
 	 * @param dataAccount
 	 * @return
 	 */
-	public ResponseEntity<?> updateUserChild(UserChildVO data) {
+	public ResponseEntity<?> updateUserChild(UserChildCadastroVO data) {
 		if(!securityServices.verifyUserFahterWithSolicitation(data))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
 		
 		/*Verificar se existe o novo nickname*/
-		if(childRepository.existsNicknameToUpdate(data.getNickname(), Integer.parseInt(data.getFkUserPai())))
+		if(childRepository.existsNicknameToUpdate(data.getNickname(), Integer.parseInt(data.getId())))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Nickname já está em uso.");
 		
 		Optional<UserChild> optional = childRepository.findById(Integer.parseInt(data.getId()));
@@ -148,9 +151,11 @@ public class UserChildService {
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 10 de set. de 2024
 	 * @param int1
-	 * @return UserChildGetVO
+	 * @return UserChildGetVO -> User com suas configurações
 	 */
 	public UserChildGetVO getUserChildById(Integer id) {
+
+		
 		if(childRepository.existsById(id)) {	
 			Optional<UserChild> userOptional = childRepository.findById(id);
 			UserChild user = userOptional.get();
@@ -178,6 +183,9 @@ public class UserChildService {
 	 * @return ResponseEntity
 	 */
 	public ResponseEntity<?> getUserChild(Integer id) {
+		if(!securityServices.verifyUserFahterWithSolicitation(id))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
+		
 		UserChildGetVO userChild = getUserChildById(id);
 		if(userChild != null) 
 			return ResponseEntity.status(HttpStatus.OK).body(userChild);		
@@ -185,6 +193,9 @@ public class UserChildService {
 	}
 
 	public ResponseEntity<?> getUserChildByUserFather(Integer idUserFather) {
+		if(!securityServices.verifyUserFahterWithSolicitation(idUserFather.toString()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'fkUserPai' enviado não corresponde ao 'id' da conta.");
+		
 		if(childRepository.existsByFkUserPai(idUserFather)) {
 			List<UserChild> usersChildsEntity = childRepository.findByFkUserPai(idUserFather);
 			List<UserChildGetVO> usersChildsVO = new ArrayList<>();	

@@ -5,10 +5,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import br.com.edukid.api.entities.Pergunta;
 import br.com.edukid.api.entities.Quiz;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.ConfigurationRepository;
+import br.com.edukid.api.repositorys.ConteudoRepository;
 import br.com.edukid.api.repositorys.MateriaRepository;
 import br.com.edukid.api.repositorys.PerguntaRepository;
 import br.com.edukid.api.repositorys.QuizRepository;
@@ -33,6 +36,8 @@ import br.com.edukid.api.vo.v1.configquiz.MateriaVO;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
 import br.com.edukid.api.vo.v1.configquiz.PerguntaVO;
 import br.com.edukid.api.vo.v1.configquiz.TemaAprendizagemVO;
+import br.com.edukid.api.vo.v1.contents.ConteudoParaEstudo;
+import br.com.edukid.api.vo.v1.contents.MateriaDoConteudo;
 import br.com.edukid.api.vo.v1.quiz.QuizByMateriaVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
@@ -56,6 +61,8 @@ public class ConfigurationQuizService {
 	ConfigurationRepository configurationRepository;
 	@Autowired
 	SecurityServices securityServices;
+	@Autowired
+	ConteudoRepository conteudoRepository;
 	
 	/**
 	 * METODO BUSCA MATERIAS E TEMAS RELACIONADO AO ANO DO ENSINO FUNDAMENTAL DO USUARIO FILHO
@@ -128,7 +135,7 @@ public class ConfigurationQuizService {
 	 * @param idUserChild
 	 * @return
 	 */
-	public ResponseEntity<?> GetQuiz(Integer idUserChild){
+	public ResponseEntity<?> getQuiz(Integer idUserChild){
 		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");
 		return toGenerateQuiz(idUserChild);		
@@ -436,4 +443,61 @@ public class ConfigurationQuizService {
 		return quizRegistred;	
 	}//fim updateDataWithQuizRealizedData
 
+	
+	/**
+	 * METODO VERIFICA O TOKEN COM O ID ENVIADO E BUSCA CONTEUDO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 4 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	public ResponseEntity<?> getContentToStudy(Integer idUserChild) {
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");
+		List<MateriaDoConteudo> contents = findContentToStudy(idUserChild);
+		if(contents == null)
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não existe um quiz em aberto para buscar o conteúdo.");
+		
+		return null;
+	}
+
+	/**
+	 * METODO BUSCA O CONTEUDO DE ACORDO COM O QUIZ CRIADO PARA USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 4 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	private List<MateriaDoConteudo> findContentToStudy(Integer idUserChild) {
+		if(!quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now()))
+			return null;
+			
+		/*BUSCAR O QUIZ*/
+		Quiz quizEntity = quizRepository.FindQuizOpenByIdUserChild(idUserChild, LocalDate.now());
+		FieldQuizVO fieldQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
+		
+		for(QuizByMateriaVO materia: fieldQuiz.getMaterias()) {			
+			/*Pegar informações da materia*/
+			MateriaDoConteudo subject = new MateriaDoConteudo();
+			subject.setId(materia.getId());
+			subject.setSubject(materia.getSubject());
+			
+			/*Pegar os temas de cada pergunta*/
+			Set<String> set = new HashSet<>();
+			for(PerguntaVO pergunta: materia.getQuiz()) {
+				/*CRIAR UM SET DOS IDS DO CONTEUDO UTILIZADO POR MATÉRIA*/
+				set.add(pergunta.getIdConteudo());
+			}
+			
+			for(String idConteudo: set) {
+				/*Buscar conteudo e converter para objetoVO*/
+			}
+			
+		}
+		
+		return null;
+	}
+	
+	
+	
 }

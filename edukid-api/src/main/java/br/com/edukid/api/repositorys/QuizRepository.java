@@ -31,7 +31,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	
 
 	/**
-	 * METODO VERIFICAR SE EXISTE UM QUIZ NA DATA ATUAL EM ABERTO DE UM USUÁRIO ESPECÍFICO
+	 * METODO VERIFICAR SE EXISTE UM QUIZ ESPECIFICO E NA DATA ATUAL EM ABERTO DE UM USUÁRIO ESPECÍFICO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 28 de ago. de 2024
 	 * @param 

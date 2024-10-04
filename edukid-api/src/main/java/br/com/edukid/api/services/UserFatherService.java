@@ -70,6 +70,8 @@ public class UserFatherService {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email já está em uso.");
 		if(fatherRepository.existsByCpf(data.getCpf()))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("CPF já está em uso.");
+		if(fatherRepository.existsByPhone(data.getPhone()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Telefone já está em uso.");
 		
 		/*Faz o Hash da senha do usuario*/
 		data.setPassword(hashSaltService.hash(data.getPassword()));
@@ -107,6 +109,8 @@ public class UserFatherService {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email já está em uso.");
 		if(fatherRepository.existsCpfToUpdate(data.getCpf(), Integer.parseInt(data.getId())))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("CPF já está em uso.");
+		if(fatherRepository.existsPhoneToUpdate(data.getPhone(), Integer.parseInt(data.getId())))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Telefone já está em uso.");
 		
 		/*Faz o Hash da senha do usuario*/
 		data.setPassword(hashSaltService.hash(data.getPassword()));

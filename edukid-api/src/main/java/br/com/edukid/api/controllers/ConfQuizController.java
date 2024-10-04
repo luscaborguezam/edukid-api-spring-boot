@@ -17,6 +17,8 @@ import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -64,7 +66,7 @@ public class ConfQuizController {
 	public ResponseEntity<?> toGeneratedQuiz(@PathVariable @Valid @NotBlank 
 		@Pattern(regexp = "^-?\\d+$", message = "'idUserChild' deve ser uma string numérica de valor inteiro") String idUserChild)
 	{
-		return configurationQuizService.toGenerateQuiz(Integer.parseInt(idUserChild));
+		return configurationQuizService.getQuiz(Integer.parseInt(idUserChild));
 	}
 	
 	/**
@@ -80,17 +82,18 @@ public class ConfQuizController {
 	}
 	
 	/**
-	 * METODO BUSCA O QUIZ MONTADO DE ACORDO COM AS MATERIAS E TEMAS CONFIGURADOS PARA O USUARIO FILHO
+	 * METODO BUSCA O MATERIAL DE ESTUDO DE ACORDO COM AS PERGUNTAS DO QUIZ CRIADO PARA O USUARIO FILHO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 8 de set. de 2024
 	 * @param idUserChild
 	 * @return
 	 */
-	@GetMapping(path="/quiz/content-to-study/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> findByContentToStudy(@PathVariable @Valid @NotBlank 
+	@GetMapping(path="/quiz/contents-to-study/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> findContentToStudy(@PathVariable @Valid @NotBlank 
 		@Pattern(regexp = "^-?\\d+$", message = "'idUserChild' deve ser uma string numérica de valor inteiro") String idUserChild)
 	{
-		return configurationQuizService.toGenerateQuiz(Integer.parseInt(idUserChild));
+		return configurationQuizService.getContentToStudy(Integer.parseInt(idUserChild));
 	}
+	
 
 }

@@ -34,6 +34,15 @@ public interface UserFatherRepository extends JpaRepository<UserFather, Integer>
 	boolean existsByCpf(String cpf);
 	
 	/**
+	 * METODO BUSCA A QUANTIDADE DE REGISTRO COM UM PHONE ESPECÍFICO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 9 de jul. de 2024
+	 * @param email
+	 * @return NUMERO DO TIPO LONG
+	 */
+    boolean existsByPhone(String phone);
+	
+	/**
 	 * METODO QUE BUSCA USERFATHER PELO EMAIL
  	 * @Author LUCAS BORGUEZAM
 	 * @Sice 9 de jul. de 2024
@@ -61,6 +70,15 @@ public interface UserFatherRepository extends JpaRepository<UserFather, Integer>
     boolean existsCpfToUpdate(@Param("cpf") String cpf,@Param("userId") Integer userId);
     
     /**
+     * VERIFICA SE EXISTE UM USUÁRIO COM O MESMO PHONE DE UM ID DIFERENTE DO ID FORNECIDO
+     * @param phone O phone a ser verificado
+     * @param userId O ID do usuário que está sendo atualizado
+     * @return n>0 se existir outro usuário com o mesmo phone, caso contrário 0
+     */
+    @Query("SELECT COUNT(u) > 0 FROM UserFather u WHERE u.phone = :phone AND u.id <> :userId")
+    boolean existsPhoneToUpdate(@Param("phone") String phone, @Param("userId") Integer userId);
+    
+    /**
      * VERIFICA SE O CAMPO cod_mudar_senha == NULL
      * 
      * @Author LUCAS BORGUEZAM
@@ -79,5 +97,6 @@ public interface UserFatherRepository extends JpaRepository<UserFather, Integer>
 	 */
     @Query("SELECT u FROM UserFather u WHERE u.email = :email")
 	UserDetails findByEmailUserDetails(@Param("email") String email);
+
 	
 }

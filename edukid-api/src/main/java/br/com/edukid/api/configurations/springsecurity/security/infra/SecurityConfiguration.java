@@ -61,6 +61,7 @@ public class SecurityConfiguration {
 						
 							/*Permissões do EndPoint user-child*/
 						.requestMatchers(HttpMethod.PUT, "/edukid/conf-quiz/quiz").hasRole("CHILD")
+						.requestMatchers(HttpMethod.GET, "/edukid/conf-quiz/quiz").hasRole("CHILD")
 
 						.anyRequest().authenticated()
 				)

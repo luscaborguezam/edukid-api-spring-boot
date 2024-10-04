@@ -20,10 +20,10 @@ private static final long serialVersionUID = 1L;
 	private Integer id;
 	@Column(name = "conteudo", nullable = false, columnDefinition = "TEXT")
 	private String conteudo;
-	@Column(name = "id_tema", nullable = false)
-	private Integer idTema;
 	@Column(name = "img", columnDefinition = "LONGTEXT")
 	private String img;
+	@Column(name = "id_tema", nullable = false)
+	private Integer idTema;
 	@Column(name = "bibliografia", nullable = false, columnDefinition = "TEXT")
 	private String bibliografia;
 	

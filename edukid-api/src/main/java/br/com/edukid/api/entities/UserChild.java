@@ -16,6 +16,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 /**
  * CLASSE REPRESENTA A TABELA USER
@@ -48,7 +49,7 @@ public class UserChild implements Serializable, UserDetails{
 	private Integer notificationQuantity;
 	@Column(name = "id_user_pai", nullable = false)
 	private Integer fkUserPai;
-	
+	@Transient
 	private UsersRole role = UsersRole.CHILD;
 	
 	/*GETEERS AND SETTERS*/

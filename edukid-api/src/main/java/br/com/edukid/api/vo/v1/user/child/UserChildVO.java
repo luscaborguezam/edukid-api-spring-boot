@@ -18,8 +18,6 @@ public class UserChildVO {
 	private String lastName;
 	@NotBlank
 	private String nickname;
-	@NotBlank
-	private String password;
 	@NotEmpty
 	@Pattern(regexp = "^-?\\d+$", message = "Key 'schoolYear' must be a string with the value of a valid integer")
 	private String schoolYear;//Numerico
@@ -57,12 +55,6 @@ public class UserChildVO {
 	}
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
 	}
 	public String getSchoolYear() {
 		return schoolYear;

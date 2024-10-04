@@ -39,13 +39,13 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 	UserChild findByNickname(@Param("nickname") String nickname);
 	
     /**
-     * Verifica se existe um usuário filho com o mesmo nickname de um fkUserPai diferente do fkUserPai.
+     * Verifica se existe um usuário filho com o mesmo nickname
      * @param nickname O e-nickname a ser verificado
      * @param fkUserPai O FK do usuário pai que está sendo atualizado
      * @return true se existir outro usuário com o mesmo e-mail, caso contrário false
      */
-    @Query("SELECT COUNT(u) > 0 FROM UserChild u WHERE u.nickname = :nickname AND u.fkUserPai <> :fkUserPai")
-    boolean existsNicknameToUpdate(@Param("nickname") String nickname, @Param("fkUserPai") Integer fkUserPai);
+    @Query("SELECT COUNT(u) > 0 FROM UserChild u WHERE u.nickname = :nickname AND u.id <> :id")
+    boolean existsNicknameToUpdate(@Param("nickname") String nickname, @Param("id") Integer id);
 
     /**
      * METODO VERIFICA SE EXISTE ALGUM USUÁRIO FILHO COM O FK DO USER PAI

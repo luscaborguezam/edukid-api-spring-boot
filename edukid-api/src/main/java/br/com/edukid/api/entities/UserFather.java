@@ -15,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 /**
  * CLASSE REPRESENTA A TABELA USUARIO
@@ -47,7 +48,7 @@ public class UserFather implements Serializable, UserDetails{
 	private String status;
 	@Column(name="cod_mudar_senha", nullable = false, length = 8)
 	private String codMudarSenha;
-	
+	@Transient
 	private UsersRole role = UsersRole.FATHER;
 	
 	

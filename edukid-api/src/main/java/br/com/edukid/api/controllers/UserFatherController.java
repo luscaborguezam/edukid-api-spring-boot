@@ -43,12 +43,8 @@ public class UserFatherController {
 	 */
 	@PostMapping(path="/account", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> registerUserFather(@RequestBody @Valid UserFatherCadastroVO dataAccount) {
-		try {
-			return fatherService.registerUserFather(dataAccount);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro no servidor");
-		}
+			
+		return fatherService.registerUserFather(dataAccount);
 	}
 	
 	/**

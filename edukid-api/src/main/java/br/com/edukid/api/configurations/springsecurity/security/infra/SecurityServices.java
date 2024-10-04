@@ -16,7 +16,7 @@ import br.com.edukid.api.repositorys.UserFatherRepository;
 import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
-import br.com.edukid.api.vo.v1.user.child.UserChildVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildCadastroVO;
 
 @Service
 public class SecurityServices {
@@ -46,7 +46,8 @@ public class SecurityServices {
 	 * METODO VERIFICA SE O USERPAI SOLICITANTE É O MESMO EM QUE ELE DESEJA ALTERAR OU BUSCAR INFORMAÇÕES
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 22 de set. de 2024
-	 * @param true SE FOR COMPATÍVEL
+	 * @param id -> ID DO USER FATHER
+	 * @return true SE FOR COMPATÍVEL
 	 */
 	public Boolean verifyUserFahterWithSolicitation(String id) {
 		UserFather userEntity = obtainApplicantFatherData();
@@ -62,7 +63,7 @@ public class SecurityServices {
 	 * @param data
 	 * @return true SE FOR COMPATÍVEL
 	 */
-	public boolean verifyUserFahterWithSolicitation(UserChildVO data) {
+	public boolean verifyUserFahterWithSolicitation(UserChildCadastroVO data) {
 		UserFather userEntity = obtainApplicantFatherData();
 		if(userEntity == null) 
 			return false;
@@ -80,7 +81,7 @@ public class SecurityServices {
 	 * METODO  VERIFICA SE O USERPAI SOLICITANTE É O MESMO RESPONSÁVEL PELA CRIANÇA
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 22 de set. de 2024
-	 * @param data
+	 * @param id -> ID DO USER CHILD
 	 * @return true SE FOR COMPATÍVEL
 	 */
 	public boolean verifyUserFahterWithSolicitation(Integer id) {
@@ -101,7 +102,7 @@ public class SecurityServices {
 	 * METODO VERIFICA SE O USERCHILD SOLICITANTE É O MESMO ENVIADO NO QUIZ
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 22 de set. de 2024
-	 * @param quizRealized
+	 * @param id -> 
 	 * @return
 	 */
 	public boolean verifyUserChildWithSolicitation(Integer id) {

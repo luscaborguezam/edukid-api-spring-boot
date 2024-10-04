@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.edukid.api.services.UserChildService;
 import br.com.edukid.api.vo.v1.LoginChildVO;
 import br.com.edukid.api.vo.v1.LoginFatherVO;
-import br.com.edukid.api.vo.v1.user.child.UserChildVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildCadastroVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -35,7 +35,7 @@ public class UserChildController {
 	 * @return
 	 */
 	@PostMapping(path="/account", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> registerUserChild(@RequestBody @Valid UserChildVO dataAccount){
+	public ResponseEntity<?> registerUserChild(@RequestBody @Valid UserChildCadastroVO dataAccount){
 		return childService.registerUserChild(dataAccount);	
 	}
 	
@@ -47,7 +47,7 @@ public class UserChildController {
 	 * @return
 	 */
 	@PutMapping(path="/account",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> updateUserChild(@RequestBody @Valid UserChildVO dataAccount){
+	public ResponseEntity<?> updateUserChild(@RequestBody @Valid UserChildCadastroVO dataAccount){
 		return childService.updateUserChild(dataAccount);
 	}
 	
