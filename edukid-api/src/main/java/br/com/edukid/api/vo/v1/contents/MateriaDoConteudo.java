@@ -9,6 +9,10 @@ public class MateriaDoConteudo {
 	private String id;
 	private List<ConteudoParaEstudo> contents;
 	
+	private void MateriaDoConteud() {
+		contents = new ArrayList<>();
+	}
+	
 	public String getSubject() {
 		return subject;
 	}

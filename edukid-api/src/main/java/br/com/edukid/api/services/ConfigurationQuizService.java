@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
 import br.com.edukid.api.entities.Configuration;
+import br.com.edukid.api.entities.Conteudo;
 import br.com.edukid.api.entities.Materia;
 import br.com.edukid.api.entities.Pergunta;
 import br.com.edukid.api.entities.Quiz;
@@ -445,7 +446,8 @@ public class ConfigurationQuizService {
 
 	
 	/**
-	 * METODO VERIFICA O TOKEN COM O ID ENVIADO E BUSCA CONTEUDO
+	 * METODO VERIFICA O TOKEN COM O ID ENVIADO, E BUSCA QUIZ ATUAL EM ABERTO DO ID PASSADO 
+	 * E RETORNA O CONEUDO DE ESTUDO PARA ESSE QUIZ
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 4 de out. de 2024
 	 * @param idUserChild
@@ -454,26 +456,27 @@ public class ConfigurationQuizService {
 	public ResponseEntity<?> getContentToStudy(Integer idUserChild) {
 		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");
-		List<MateriaDoConteudo> contents = findContentToStudy(idUserChild);
-		if(contents == null)
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não existe um quiz em aberto para buscar o conteúdo.");
 		
-		return null;
-	}
-
-	/**
-	 * METODO BUSCA O CONTEUDO DE ACORDO COM O QUIZ CRIADO PARA USER CHILD
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 4 de out. de 2024
-	 * @param idUserChild
-	 * @return
-	 */
-	private List<MateriaDoConteudo> findContentToStudy(Integer idUserChild) {
 		if(!quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now()))
-			return null;
-			
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não existe um quiz em aberto para buscar o conteúdo.");
+
 		/*BUSCAR O QUIZ*/
 		Quiz quizEntity = quizRepository.FindQuizOpenByIdUserChild(idUserChild, LocalDate.now());
+		/*BUSCAR CONTEUDO*/
+		List<MateriaDoConteudo> materiasEConteudos = findContentToStudybyQuiz(quizEntity);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(materiasEConteudos);
+	}
+	
+	/**
+	 * METODO BUSCA O CONTEUDO DE ACORDO COM A ENTITY QUIZ
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 4 de out. de 2024
+	 * @param quizEntity -> QUIZ PARA PROCURAR O CONTEÚDO
+	 * @return
+	 */
+	private List<MateriaDoConteudo> findContentToStudybyQuiz(Quiz quizEntity) {
+		List<MateriaDoConteudo> materiasEConteudos = new ArrayList<>();
 		FieldQuizVO fieldQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
 		
 		for(QuizByMateriaVO materia: fieldQuiz.getMaterias()) {			
@@ -490,14 +493,42 @@ public class ConfigurationQuizService {
 			}
 			
 			for(String idConteudo: set) {
-				/*Buscar conteudo e converter para objetoVO*/
-			}
+				/*Buscar conteudo*/
+				Optional<Conteudo> opContents = conteudoRepository.findById(Integer.parseInt(idConteudo));
+				Conteudo contents = opContents.get();
+				/*converter para objetoVO e adicionar a lista de conteudos*/
+				subject.getContents().add(EdukidMapper.parseObject(contents, ConteudoParaEstudo.class));
+			}//for(conteudo)
 			
-		}
+			materiasEConteudos.add(subject);
+		}//for(materia)
 		
-		return null;
+		return materiasEConteudos;
 	}
 	
+	/**
+	 * METODO VERIFICA O TOKEN COM O ID ENVIADO, BUSCA QUIZ PELO SEU ID, E RETORNA O CONTEUDO DE ESTUDO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 4 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	public ResponseEntity<?> getContentToStudyByQuizId(Integer idQuiz) {
+		
+		/*Buscar quiz*/
+		if(!quizRepository.existsById(idQuiz))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("id do quiz não está relacionado com sua conta.");
+		Optional<Quiz> opQuizEntity = quizRepository.findById(idQuiz);
+		Quiz quizEntity = opQuizEntity.get();
+		
+		if(!securityServices.verifyUserChildWithSolicitation(quizEntity.getIdUserChild()) && !securityServices.verifyUserFahterWithSolicitation(quizEntity.getIdUserChild()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' do quiz não está relacionado com sua conta.");
+
+		/*Buscar conteudo*/
+		List<MateriaDoConteudo> contents = findContentToStudybyQuiz(quizEntity);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(contents);
+	}
 	
 	
 }
