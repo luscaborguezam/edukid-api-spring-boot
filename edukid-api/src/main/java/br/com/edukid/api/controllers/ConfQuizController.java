@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.edukid.api.services.ConfigurationQuizService;
+import br.com.edukid.api.utils.EmailService;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import jakarta.validation.Valid;
@@ -27,6 +28,9 @@ public class ConfQuizController {
 	
 	@Autowired
 	ConfigurationQuizService configurationQuizService;
+	
+	@Autowired
+	EmailService emailService;
 	/**
 	 * METODO BUSCA UMA LISTA DE MATERIAS E TEMAS RELACIONADOS AO ANO DO ENSINO FUNDAMENTAL
 	 * @Author LUCAS BORGUEZAM

@@ -23,6 +23,8 @@ import br.com.edukid.api.entities.Conteudo;
 import br.com.edukid.api.entities.Materia;
 import br.com.edukid.api.entities.Pergunta;
 import br.com.edukid.api.entities.Quiz;
+import br.com.edukid.api.entities.UserChild;
+import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.ConfigurationRepository;
 import br.com.edukid.api.repositorys.ConteudoRepository;
@@ -31,6 +33,9 @@ import br.com.edukid.api.repositorys.PerguntaRepository;
 import br.com.edukid.api.repositorys.QuizRepository;
 import br.com.edukid.api.repositorys.TemaAprendizagemRepository;
 import br.com.edukid.api.repositorys.UserChildRepository;
+import br.com.edukid.api.repositorys.UserFatherRepository;
+import br.com.edukid.api.utils.Defines;
+import br.com.edukid.api.utils.EmailService;
 import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.vo.v1.configquiz.InfoPergunta;
 import br.com.edukid.api.vo.v1.configquiz.MateriaVO;
@@ -64,6 +69,11 @@ public class ConfigurationQuizService {
 	SecurityServices securityServices;
 	@Autowired
 	ConteudoRepository conteudoRepository;
+	@Autowired
+	UserFatherRepository fatherRepository;
+	@Autowired
+	EmailService emailService;
+	
 	
 	/**
 	 * METODO BUSCA MATERIAS E TEMAS RELACIONADO AO ANO DO ENSINO FUNDAMENTAL DO USUARIO FILHO
@@ -158,7 +168,7 @@ public class ConfigurationQuizService {
 		/*Verificar se existe um quiz criado e aberto na data atual*/
 		System.out.println(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now()));
 		if(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now())) {
-			quizEntity = quizRepository.FindQuizOpenByIdUserChild(idUserChild, LocalDate.now());
+			quizEntity = quizRepository.findQuizOpenByIdUserChild(idUserChild, LocalDate.now());
 			fielQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
 			quiz = new QuizVO(quizEntity, fielQuiz);
 			return ResponseEntity.status(HttpStatus.OK).body(quiz);
@@ -186,13 +196,13 @@ public class ConfigurationQuizService {
 		/*Cadastrar quiz*/
 		quizEntity = new Quiz(jsonService.toJson(fielQuiz), confEntity);
 		/*Inserir com query nativa para adicionar data de criação pelo mysql*/
-		quizRepository.InsertQuizWithoutstartDate(
+		quizRepository.insertQuizWithoutstartDate(
 				quizEntity.getQuiz(),
 				quizEntity.getIsfinalized(),
 				quizEntity.getIdUserChild()
 				);
 		
-		quizEntity = quizRepository.FindQuizOpenByIdUserChild(idUserChild, LocalDate.now());
+		quizEntity = quizRepository.findQuizOpenByIdUserChild(idUserChild, LocalDate.now());
 		
 		/*Objeto de retorno*/
 		quiz = new QuizVO(quizEntity, fielQuiz);
@@ -446,6 +456,68 @@ public class ConfigurationQuizService {
 
 	
 	/**
+	 * METODO FECHA UM QUIZ EM ABERTO NÃO REALIZADO ESPECÍFICO E ENVIA EMAIL AO USUARIO PAI
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 5 de out. de 2024
+	 * @param quiz
+	 */
+	public void closeQuizOpen(Integer quizId) {
+		
+		Optional<Quiz> opQuiz= quizRepository.findById(quizId);
+		Quiz quiz = opQuiz.get();
+		
+		if(quiz.getIsfinalized() == Defines.QUIZ_EM_ABERTO) {
+			
+			Optional<UserChild> opChild = childRepository.findById(quiz.getIdUserChild());
+			UserChild child = opChild.get();
+			Optional<UserFather> opFather = fatherRepository.findById(child.getFkUserPai());
+			UserFather father = opFather.get();
+			
+			/*Fechar quiz*/
+			quizRepository.updateIsFinalizedbyId(quiz.getId());
+			
+			String to = father.getEmail();
+			String titleEmail = "Quiz não realizado";
+			String titleHTML = "Quiz não realizado";
+			String altImageHTML = "Gráfico de acertos";
+			String titleGraphic = "Acertos";
+			String textHTML = "O quiz não foi realizado durante o periodo de realização.";
+			Map<String, Integer> category = new HashMap<String, Integer>();
+			
+			/*Buscar quantidade de perguntas no quiz*/
+			FieldQuizVO fielQuiz = jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class);
+			Integer qtdPerguntas = 0;
+			for(QuizByMateriaVO materia: fielQuiz.getMaterias()) {
+				qtdPerguntas += materia.getQuiz().size();
+			}
+			category.put("Não respondidas", qtdPerguntas);
+			
+			/*Enviar email de quiz não realizado*/
+			try {
+				emailService.sendEmailWithChart(to, titleEmail, titleHTML, altImageHTML, titleGraphic, textHTML, category);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("runWithIicialization, Erro ao enviar e-mail");
+			}
+		}//if()
+    		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
 	 * METODO VERIFICA O TOKEN COM O ID ENVIADO, E BUSCA QUIZ ATUAL EM ABERTO DO ID PASSADO 
 	 * E RETORNA O CONEUDO DE ESTUDO PARA ESSE QUIZ
 	 * @Author LUCAS BORGUEZAM
@@ -461,7 +533,7 @@ public class ConfigurationQuizService {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não existe um quiz em aberto para buscar o conteúdo.");
 
 		/*BUSCAR O QUIZ*/
-		Quiz quizEntity = quizRepository.FindQuizOpenByIdUserChild(idUserChild, LocalDate.now());
+		Quiz quizEntity = quizRepository.findQuizOpenByIdUserChild(idUserChild, LocalDate.now());
 		/*BUSCAR CONTEUDO*/
 		List<MateriaDoConteudo> materiasEConteudos = findContentToStudybyQuiz(quizEntity);
 		

@@ -1,17 +1,23 @@
 package br.com.edukid.api.configurations;
 
-import org.springframework.stereotype.Component;
-
-import br.com.edukid.api.repositorys.QuizRepository;
-import br.com.edukid.api.repositorys.UserChildRepository;
-import br.com.edukid.api.services.ConfigurationQuizService;
-import br.com.edukid.api.services.UserChildService;
-import jakarta.annotation.PostConstruct;
-
+import java.awt.print.Printable;
+import java.time.LocalDate;
 import java.util.List;
 
+import org.hibernate.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import br.com.edukid.api.entities.Quiz;
+import br.com.edukid.api.repositorys.QuizRepository;
+import br.com.edukid.api.repositorys.UserChildRepository;
+import br.com.edukid.api.repositorys.UserFatherRepository;
+import br.com.edukid.api.services.ConfigurationQuizService;
+import br.com.edukid.api.utils.Defines;
+import br.com.edukid.api.utils.EmailService;
+import br.com.edukid.api.utils.JsonService;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class ScheduledTasks {
@@ -24,6 +30,15 @@ public class ScheduledTasks {
 	@Autowired
 	UserChildRepository childRepository;
 	
+	@Autowired
+	UserFatherRepository fatherRepository;
+	
+	@Autowired
+	EmailService emailService;
+	
+	@Autowired
+	JsonService jsonService;
+	
 
 	/**
 	 * METODO ATUALIZA BASE DE DADOS FECHANDO TODOS QUIZ EM ABERTO QUE NÃO SEJA DA DATA ATUAL.
@@ -33,8 +48,15 @@ public class ScheduledTasks {
 	 */
     @PostConstruct
     public void runWithIicialization() {
-    	System.out.println("\nFechar quizzes em aberto");
-        quizRepository.updateIsFinalizedWhereStartDateMinorWhithCurrent();
+    	System.out.println("\n\n\nFechar quizes em aberto com a data menor que a atual\n");
+    	
+    	/*BUSCAR QUIZEZ*/
+    	List<Quiz> quizzes = quizRepository.findQuizOpenByStartDateMinorCurrentDate(LocalDate.now());
+    	
+    	System.out.println(quizzes.size());
+    	for(Quiz quiz: quizzes) {
+    		configurationQuizService.closeQuizOpen(quiz.getId());
+    	}
         
     }
     
@@ -47,7 +69,10 @@ public class ScheduledTasks {
     @Scheduled(cron = "0 0 18 * * *")
     public void runAtMidnight() {
     	System.out.println("\nFechar quizzes em aberto");
-        quizRepository.updateIsFinalizeD();
+    	List<Quiz> quizzes = quizRepository.findAllQuizzesByIsFinalized(Defines.QUIZ_EM_ABERTO);
+    	for(Quiz quiz: quizzes) {
+    		configurationQuizService.closeQuizOpen(quiz.getId());
+    	}
         
     }
     

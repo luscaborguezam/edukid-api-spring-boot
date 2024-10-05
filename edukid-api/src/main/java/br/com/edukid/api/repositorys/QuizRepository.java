@@ -1,6 +1,7 @@
 package br.com.edukid.api.repositorys;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -62,7 +63,31 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	        + "AND q.isFinalized =  "+Defines.QUIZ_EM_ABERTO+" "
 	        + "AND q.endDate IS NULL "
 	        + "AND DATE(q.startDate) = DATE(:currentDate)")
-	Quiz FindQuizOpenByIdUserChild(@Param("idUserChild") Integer idUserChild, @Param("currentDate") LocalDate currentDate);
+	Quiz findQuizOpenByIdUserChild(@Param("idUserChild") Integer idUserChild, @Param("currentDate") LocalDate currentDate);
+	
+	/**
+	 * METODO BUSCA OS QUIZZES EM ABERTO MENORES QUE A DATA ATUAL EM ABERTO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 28 de ago. de 2024
+	 * @param 
+	 * @return
+	 */
+	@Query("SELECT q FROM Quiz q "
+	        + "WHERE q.isFinalized = "+Defines.QUIZ_EM_ABERTO+" "
+	        + "AND q.endDate IS NULL "
+	        + "AND DATE(q.startDate) < DATE(:currentDate)")
+	List<Quiz> findQuizOpenByStartDateMinorCurrentDate(@Param("currentDate") LocalDate currentDate);
+	
+	/**
+	 * 
+	 * METODO BUSCA TODOS OS QUIZZES QUE TENHA O ISFINALIZED IGUAL AO REQUERID
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 5 de out. de 2024
+	 * @param isFinalized
+	 * @return
+	 */
+	List<Quiz> findAllQuizzesByIsFinalized(Integer isFinalized);
+	
 	
 	/**
 	 * METODO ATUALIZA O STATUS DE FINALIZAÇÃO DO QUIZ, PARA QUIZ_NAO_REALIZADO, DOS QUIZES QUE ESTÃO EM ABERTO 
@@ -70,16 +95,15 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 17 de set. de 2024
 	 */
-	@Transactional
-	@Modifying
-	@Query("UPDATE Quiz q set q.isFinalized = "+Defines.QUIZ_NAO_REALIZADO+" "
-			+ "where q.isFinalized = "+Defines.QUIZ_EM_ABERTO+" "
-			+ "AND DATE(q.startDate) < CURRENT_DATE")
-	void updateIsFinalizedWhereStartDateMinorWhithCurrent();
+//	@Transactional
+//	@Modifying
+//	@Query("UPDATE Quiz q set q.isFinalized = "+Defines.QUIZ_NAO_REALIZADO+" "
+//			+ "where q.isFinalized = "+Defines.QUIZ_EM_ABERTO+" "
+//			+ "AND DATE(q.startDate) < CURRENT_DATE")
+//	void updateIsFinalizedWhereStartDateMinorWhithCurrent();
 	
 	/**
-	 * METODO ATUALIZA O STATUS DE FINALIZAÇÃO DO QUIZ, PARA QUIZ_NAO_REALIZADO, 
-	 * DOS QUIZES QUE ESTÃO EM ABERTO 
+	 * METODO ATUALIZA O STATUS DE FINALIZAÇÃO DO QUIZ, PARA QUIZ_NAO_REALIZADO, DO QUIZ ESPECIFICADO.
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 17 de set. de 2024
 	 */
@@ -87,8 +111,9 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	@Modifying
 	@Query("UPDATE Quiz q set q.isFinalized = "+Defines.QUIZ_NAO_REALIZADO+" "
 			+ "where q.isFinalized = "+Defines.QUIZ_EM_ABERTO+" "
-			+ "AND DATE(q.startDate) < CURRENT_DATE")
-	void updateIsFinalizeD();
+			+ "AND q.id = :idQuiz")
+	void updateIsFinalizedbyId(@Param("idQuiz") Integer idQuiz);
+	
 	
 	@Modifying
     @Transactional
@@ -100,7 +125,8 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
     		+ ":idUserChild)", 
             nativeQuery = true //permite consultas com querys nativas sem usar o "JPQL"
 			)
-	void InsertQuizWithoutstartDate(@Param("quiz") String quiz, 
+	void insertQuizWithoutstartDate(@Param("quiz") String quiz, 
 	        @Param("isFinalized") Integer isFinalized, 
 	        @Param("idUserChild") Integer idUserChild);
+	
 }
