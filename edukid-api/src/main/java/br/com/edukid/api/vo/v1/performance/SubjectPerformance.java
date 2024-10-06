@@ -14,6 +14,9 @@ public class SubjectPerformance {
 	
 	public SubjectPerformance() {
 		themesPerformance = new ArrayList<>();
+		totalQuestions=0;
+		totalHits=0;
+		totalErrors=0;
 	}
 	
 	/**

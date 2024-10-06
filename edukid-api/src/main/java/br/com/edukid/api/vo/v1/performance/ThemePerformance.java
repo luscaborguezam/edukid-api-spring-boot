@@ -2,12 +2,17 @@ package br.com.edukid.api.vo.v1.performance;
 
 public class ThemePerformance {
 	/*Dados Gerais*/
+	private String idTheme;
 	private String theme;
 	private Integer totalQuestions;
 	private Integer totalHits;
 	private Integer totalErrors;
 	
-	public ThemePerformance() {}
+	public ThemePerformance() {
+		totalQuestions=0;
+		totalHits=0;
+		totalErrors=0;
+	}
 	
 	/**
 	 * METODO INCREMENTA UM ACERTO NO TOTAL DE ACERTOS
@@ -38,8 +43,17 @@ public class ThemePerformance {
 	}
 	
 	/*Getters and Setters*/
+	
 	public String getTheme() {
 		return theme;
+	}
+
+	public String getIdTheme() {
+		return idTheme;
+	}
+
+	public void setIdTheme(String idTheme) {
+		this.idTheme = idTheme;
 	}
 
 	public void setTheme(String theme) {

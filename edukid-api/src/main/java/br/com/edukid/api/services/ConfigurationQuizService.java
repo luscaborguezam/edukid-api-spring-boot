@@ -1,5 +1,6 @@
 package br.com.edukid.api.services;
 
+import java.awt.print.Printable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -76,8 +77,7 @@ public class ConfigurationQuizService {
 	UserFatherRepository fatherRepository;
 	@Autowired
 	EmailService emailService;
-	@Autowired
-	TemaAprendizagemRepository aprendizagemRepository;
+
 	
 	
 	/**
@@ -478,16 +478,11 @@ public class ConfigurationQuizService {
 			Optional<UserFather> opFather = fatherRepository.findById(child.getFkUserPai());
 			UserFather father = opFather.get();
 			
+
 			/*Fechar quiz*/
 			quizRepository.updateIsFinalizedbyId(quiz.getId());
 			
 			String to = father.getEmail();
-			String titleEmail = "Quiz não realizado";
-			String titleHTML = "Quiz não realizado";
-			String altImageHTML = "Gráfico de acertos";
-			String titleGraphic = "Acertos";
-			String textHTML = "O quiz não foi realizado durante o periodo de realização.";
-			Map<String, Integer> category = new HashMap<String, Integer>();
 			
 			/*Buscar quantidade de perguntas no quiz*/
 			FieldQuizVO fielQuiz = jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class);
@@ -495,11 +490,15 @@ public class ConfigurationQuizService {
 			for(QuizByMateriaVO materia: fielQuiz.getMaterias()) {
 				qtdPerguntas += materia.getQuiz().size();
 			}
-			category.put("Não respondidas", qtdPerguntas);
+			
+			QuizPerformanceData quizPerformance = new QuizPerformanceData();
+			quizPerformance.setNameUserChild(child.getFirstName());
+			quizPerformance.setNickName(child.getNickname());
+			quizPerformance.setTotalQuestions(qtdPerguntas);
 			
 			/*Enviar email de quiz não realizado*/
 			try {
-				emailService.sendEmailWithChart(to, titleEmail, titleHTML, altImageHTML, titleGraphic, textHTML, category);
+				emailService.sendEmailQuizNotRealized(to, quizPerformance);
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println("runWithIicialization, Erro ao enviar e-mail");
@@ -521,7 +520,7 @@ public class ConfigurationQuizService {
 		Quiz quiz = opQuiz.get();
 		
 		/*Verificar se o statu do quiz é */
-		if(quiz.getIsfinalized() == Defines.QUIZ_EM_ABERTO) {
+		if(quiz.getIsfinalized() == Defines.QUIZ_FINALIZADO) {
 			
 			Optional<UserChild> opChild = childRepository.findById(quiz.getIdUserChild());
 			UserChild child = opChild.get();
@@ -534,29 +533,18 @@ public class ConfigurationQuizService {
 			/*Objeto FieldQuiz*/
 			FieldQuizVO fieldQuiz = jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class);
 			
-			/*Objeto com dados de performance do quiz*/
-			QuizPerformanceData quizPerformanceData = calculateQuizPerformmance(fieldQuiz);
-			
-			
-			
-			
-			
 			/*Envio de email*/
-			String to = father.getEmail();
-			String titleEmail = "Quiz não realizado";
-			String titleHTML = "Quiz não realizado";
-			String altImageHTML = "Gráfico de acertos";
-			String titleGraphic = "Acertos";
-			String textHTML = "O quiz não foi realizado durante o periodo de realização.";
-			/*Buscar quantidade de perguntas no quiz*/
-			FieldQuizVO fielQuiz = jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class);
-			Integer qtdPerguntas = 0;
-
 			
+			/*Objeto com dados de performance do quiz*/
+			QuizPerformanceData quizPerformance = calculateQuizPerformmance(fieldQuiz);
+			quizPerformance.setNameUserChild(child.getFirstName());
+			quizPerformance.setNickName(child.getNickname());
 			
-			/*Enviar email de quiz não realizado*/
+			System.out.println("\n\n"+jsonService.toJson(quizPerformance));
+			
+			/*Enviar email de quiz realizado realizado*/
 			try {
-				emailService.sendEmailWithChart(to, titleEmail, titleHTML, altImageHTML, titleGraphic, textHTML, acertosTotais);
+				emailService.sendEmailQuizRealized(father.getEmail(), quizPerformance);
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println("runWithIicialization, Erro ao enviar e-mail");
@@ -590,22 +578,32 @@ public class ConfigurationQuizService {
 			
 			/*Ordenar quiz por tema*/
 			quizByMateria.orderQuizByIdTheme();
+			
+			/*1- iniciar o objeto temaPerformance com o nome do primeiro tema da pergunta do quiz*/
 			ThemePerformance themePerformance = new ThemePerformance();
+			PerguntaVO pergunta = quizByMateria.getQuiz().get(0);
+			//themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.parseInt(pergunta.getIdTema())));
 			
 			
 			/*Lista de PerguntaVO*/
 			for(int c=0; c < quizByMateria.getQuiz().size(); c++) {
-				PerguntaVO pergunta = quizByMateria.getQuiz().get(c);
+				pergunta = quizByMateria.getQuiz().get(c);
+				System.out.println("Tema:"+pergunta.getIdTema());
 				
-//				/*Adicionar performance do tema para na performance da materia*/
-//					/*Tema anterior*/
-//					String temaAnterior = c==0? quizByMateria.getId() :quizByMateria.getQuiz().get(c-1).getIdTema();
-//				if(!temaAnterior.equals(pergunta.getIdTema())){
-//					themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.getInteger(temaAnterior)));
-//					subjectPerformance.addThemePerformance(themePerformance);
-//					themePerformance = new ThemePerformance();
-//					themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.getInteger(pergunta.getIdTema())));
-//				}
+				/*Adicionar performance do tema para na performance da materia*/
+					/*Tema anterior*/
+					String temaAnterior = c==0? pergunta.getIdTema() :quizByMateria.getQuiz().get(c-1).getIdTema();
+				if(!temaAnterior.equals(pergunta.getIdTema())){
+					/*2- adicionar a performance do tema quando for mudar de tema*/
+					themePerformance.calcularTotalDeErros();
+					themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.parseInt(pergunta.getIdTema())));
+					themePerformance.setIdTheme(pergunta.getIdTema());
+					
+					subjectPerformance.addThemePerformance(themePerformance);
+						
+					/*Criar objeto do novo tema*/	
+					themePerformance = new ThemePerformance();
+				}
 				
 				InfoPergunta infoPergunta = pergunta.getInfoPerguntas().get(0);
 				/*Adicionar acerto*/
@@ -615,12 +613,22 @@ public class ConfigurationQuizService {
 					/*incrementar total de acertos da matéria*/
 					subjectPerformance.incrementTotalHit();
 					
-					/*Cacular performance do tema*/
+					/*Cacular acertos do tema*/
 					themePerformance.incrementTotalHit();
 				}//verificacação de acerto
+				/*Cacular questões do tema*/
 				themePerformance.incrementTotalQuestions();
 
-
+				/*3 - salvar a performance do ultimo tema*/
+				if(c == (quizByMateria.getQuiz().size() - 1)) {
+					themePerformance.calcularTotalDeErros();
+					themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.parseInt(pergunta.getIdTema())));
+					themePerformance.setIdTheme(pergunta.getIdTema());
+					
+					subjectPerformance.addThemePerformance(themePerformance);
+					
+					
+				}
 				
 			}//for(listPerguntas)
 			

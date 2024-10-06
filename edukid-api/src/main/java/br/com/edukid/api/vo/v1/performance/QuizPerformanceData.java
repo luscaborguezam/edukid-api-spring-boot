@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuizPerformanceData {
+	
+	private String nameUserChild;
+	private String nickName;
+	
 	/*Dados Gerais*/
 	private Integer totalQuestions;
 	private Integer totalHits;
@@ -14,6 +18,9 @@ public class QuizPerformanceData {
 	
 	public QuizPerformanceData() {
 		subjectPerformance = new ArrayList<>();
+		totalQuestions=0;
+		totalHits=0;
+		totalErrors=0;
 	}
 	
 	/**
@@ -50,8 +57,25 @@ public class QuizPerformanceData {
 	}
 	
 	/*Geters and Setters*/
+	
 	public Integer getTotalQuestions() {
 		return totalQuestions;
+	}
+
+	public String getNameUserChild() {
+		return nameUserChild;
+	}
+
+	public void setNameUserChild(String nameUserChild) {
+		this.nameUserChild = nameUserChild;
+	}
+
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
 	}
 
 	public void setTotalQuestions(Integer totalQuestions) {

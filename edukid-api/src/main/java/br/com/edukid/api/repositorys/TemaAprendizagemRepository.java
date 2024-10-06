@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import br.com.edukid.api.entities.TemaAprendizagem;
 
@@ -27,5 +28,7 @@ public interface TemaAprendizagemRepository extends JpaRepository<TemaAprendizag
 	 * @return
 	 */
     @Query("SELECT t.theme FROM TemaAprendizagem t WHERE t.id = :id")
-    String findThemeById(Integer id);
+    String findThemeById(@Param("id") Integer id);
+    
+    
 }
