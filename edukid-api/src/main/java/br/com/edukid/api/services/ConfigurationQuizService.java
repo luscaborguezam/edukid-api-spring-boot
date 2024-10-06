@@ -44,6 +44,9 @@ import br.com.edukid.api.vo.v1.configquiz.PerguntaVO;
 import br.com.edukid.api.vo.v1.configquiz.TemaAprendizagemVO;
 import br.com.edukid.api.vo.v1.contents.ConteudoParaEstudo;
 import br.com.edukid.api.vo.v1.contents.MateriaDoConteudo;
+import br.com.edukid.api.vo.v1.performance.QuizPerformanceData;
+import br.com.edukid.api.vo.v1.performance.SubjectPerformance;
+import br.com.edukid.api.vo.v1.performance.ThemePerformance;
 import br.com.edukid.api.vo.v1.quiz.QuizByMateriaVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
@@ -73,6 +76,8 @@ public class ConfigurationQuizService {
 	UserFatherRepository fatherRepository;
 	@Autowired
 	EmailService emailService;
+	@Autowired
+	TemaAprendizagemRepository aprendizagemRepository;
 	
 	
 	/**
@@ -500,10 +505,136 @@ public class ConfigurationQuizService {
 				System.out.println("runWithIicialization, Erro ao enviar e-mail");
 			}
 		}//if()
+	}
+		
+		
+	/**
+	 * METODO CONTABILZA AS QUESTÕES DO QUIZ FEITO ENVIADO PELO USER CHILD, E ENVIA EMAIL AO USER FATHER
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 5 de out. de 2024
+	 * @param quiz
+	 */
+	public void toCorrectQuiz(Integer quizId) {
+		
+		/*Buscar quiz*/
+		Optional<Quiz> opQuiz= quizRepository.findById(quizId);
+		Quiz quiz = opQuiz.get();
+		
+		/*Verificar se o statu do quiz é */
+		if(quiz.getIsfinalized() == Defines.QUIZ_EM_ABERTO) {
+			
+			Optional<UserChild> opChild = childRepository.findById(quiz.getIdUserChild());
+			UserChild child = opChild.get();
+			Optional<UserFather> opFather = fatherRepository.findById(child.getFkUserPai());
+			UserFather father = opFather.get();
+			
+			/*Fechar quiz*/
+			quizRepository.updateIsFinalizedbyId(quiz.getId());
+			
+			/*Objeto FieldQuiz*/
+			FieldQuizVO fieldQuiz = jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class);
+			
+			/*Objeto com dados de performance do quiz*/
+			QuizPerformanceData quizPerformanceData = calculateQuizPerformmance(fieldQuiz);
+			
+			
+			
+			
+			
+			/*Envio de email*/
+			String to = father.getEmail();
+			String titleEmail = "Quiz não realizado";
+			String titleHTML = "Quiz não realizado";
+			String altImageHTML = "Gráfico de acertos";
+			String titleGraphic = "Acertos";
+			String textHTML = "O quiz não foi realizado durante o periodo de realização.";
+			/*Buscar quantidade de perguntas no quiz*/
+			FieldQuizVO fielQuiz = jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class);
+			Integer qtdPerguntas = 0;
+
+			
+			
+			/*Enviar email de quiz não realizado*/
+			try {
+				emailService.sendEmailWithChart(to, titleEmail, titleHTML, altImageHTML, titleGraphic, textHTML, acertosTotais);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("runWithIicialization, Erro ao enviar e-mail");
+			}
+		}//if()
     		
 	}
 	
-	
+	/**
+	 * METODO CALCULA A PERFORMANCE DO QUIZ
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 6 de out. de 2024
+	 * @param fieldQuiz
+	 * @return
+	 */
+	private QuizPerformanceData calculateQuizPerformmance(FieldQuizVO fieldQuiz) {
+		QuizPerformanceData quizPerformanceData = new QuizPerformanceData();
+		
+		/*List de materias (QuizByMateriaVO)*/
+		for(int i=0; i < fieldQuiz.getMaterias().size() ; i++ ) {//QuizByMateriaVO m: quizRz.getMaterias()			
+			QuizByMateriaVO quizByMateria = fieldQuiz.getMaterias().get(i);
+			
+			/*Incrementar total de perguntas do quiz*/
+			quizPerformanceData.incrementTotalQuestions(quizByMateria.getQuiz().size());
+			
+			/*Incrementar total de perguntas por materias*/
+			SubjectPerformance subjectPerformance = new SubjectPerformance();
+			subjectPerformance.setTotalQuestions(quizByMateria.getQuiz().size());
+				/*definir nome da matérias*/
+				subjectPerformance.setSubject(quizByMateria.getSubject());
+			
+			/*Ordenar quiz por tema*/
+			quizByMateria.orderQuizByIdTheme();
+			ThemePerformance themePerformance = new ThemePerformance();
+			
+			
+			/*Lista de PerguntaVO*/
+			for(int c=0; c < quizByMateria.getQuiz().size(); c++) {
+				PerguntaVO pergunta = quizByMateria.getQuiz().get(c);
+				
+//				/*Adicionar performance do tema para na performance da materia*/
+//					/*Tema anterior*/
+//					String temaAnterior = c==0? quizByMateria.getId() :quizByMateria.getQuiz().get(c-1).getIdTema();
+//				if(!temaAnterior.equals(pergunta.getIdTema())){
+//					themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.getInteger(temaAnterior)));
+//					subjectPerformance.addThemePerformance(themePerformance);
+//					themePerformance = new ThemePerformance();
+//					themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.getInteger(pergunta.getIdTema())));
+//				}
+				
+				InfoPergunta infoPergunta = pergunta.getInfoPerguntas().get(0);
+				/*Adicionar acerto*/
+				if(infoPergunta.getCorrectAnswer().equals(infoPergunta.getSelectedAnswer())) {
+					/*icrementar total de acertos do quiz*/
+					quizPerformanceData.incrementTotalHit();
+					/*incrementar total de acertos da matéria*/
+					subjectPerformance.incrementTotalHit();
+					
+					/*Cacular performance do tema*/
+					themePerformance.incrementTotalHit();
+				}//verificacação de acerto
+				themePerformance.incrementTotalQuestions();
+
+
+				
+			}//for(listPerguntas)
+			
+			/*Calcular o total de erros da matéria*/
+			subjectPerformance.calcularTotalDeErros();
+			/*Adicionar a performance da materia na performance do quiz*/
+			quizPerformanceData.addSubject(subjectPerformance);
+			
+		}//for(meterias)	
+		/*Calcular o total de erros do quiz*/
+		quizPerformanceData.calcularTotalDeErros();
+		
+		return quizPerformanceData;
+	}
 	
 	
 	

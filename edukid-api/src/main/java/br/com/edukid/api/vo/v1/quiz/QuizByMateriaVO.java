@@ -23,6 +23,15 @@ public class QuizByMateriaVO {
 		this.subject = subject.getName();		
 	}
 	
+	/**
+	 * METODO ORDENA A LISTA DE PERGUNTAS PELO THEMA
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 6 de out. de 2024
+	 */
+	public void orderQuizByIdTheme() {
+		quiz.sort((p1, p2) -> p1.getIdTema().compareTo(p2.getIdTema()));
+	}
+	
 	public String getId() {
 		return id;
 	}
