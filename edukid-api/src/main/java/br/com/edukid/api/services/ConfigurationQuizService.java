@@ -3,6 +3,7 @@ package br.com.edukid.api.services;
 import java.awt.print.Printable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -313,6 +314,9 @@ public class ConfigurationQuizService {
 			quizEntity.updateDataWithQuizRealized(quizRegistred, jsonService.toJson(quizRealized.getQuiz()));
 			/*atualizar registro*/
 			quizRepository.save(quizEntity);
+			
+			/*Corrigir quiz eenviar emaila o pai*/
+			toCorrectQuiz(quizEntity.getId());
 	
 			return ResponseEntity.status(HttpStatus.OK).body(quizRegistred);
 		}
@@ -519,7 +523,7 @@ public class ConfigurationQuizService {
 		Optional<Quiz> opQuiz= quizRepository.findById(quizId);
 		Quiz quiz = opQuiz.get();
 		
-		/*Verificar se o statu do quiz é */
+		/*Verificar se o statu do quiz é igual a 1*/
 		if(quiz.getIsfinalized() == Defines.QUIZ_FINALIZADO) {
 			
 			Optional<UserChild> opChild = childRepository.findById(quiz.getIdUserChild());
@@ -538,6 +542,10 @@ public class ConfigurationQuizService {
 			/*Objeto com dados de performance do quiz*/
 			QuizPerformanceData quizPerformance = calculateQuizPerformmance(fieldQuiz);
 			quizPerformance.setNameUserChild(child.getFirstName());
+	        	/*Pegar a data atual do quiz Converter apenas a data para String*/
+			        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+			        String formattedDateCreation = quiz.getStartDate().toLocalDate().format(formatter);
+			quizPerformance.setDataCreation(formattedDateCreation);
 			quizPerformance.setNickName(child.getNickname());
 			
 			System.out.println("\n\n"+jsonService.toJson(quizPerformance));

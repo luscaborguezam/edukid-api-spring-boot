@@ -2,8 +2,11 @@ package br.com.edukid.api.utils;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jfree.chart.ChartFactory;
@@ -24,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import br.com.edukid.api.vo.v1.performance.QuizPerformanceData;
 import br.com.edukid.api.vo.v1.performance.SubjectPerformance;
+import br.com.edukid.api.vo.v1.performance.ThemePerformance;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
@@ -79,15 +83,11 @@ public class EmailService {
     /**
      * 
      * METODO REALIZA O ENVIO DE UM E-MAIL SOBRE QUIZ NÃO REALIZADO 
-     * COM CONTEÚDO PERSONALIZADO EM HTML E INCLUI UM GRÁFICO DE PIZZA GERADO DINAMICAMENTE.
+     * COM CONTEÚDO PERSONALIZADO EM HTML E INCLUI:
+     * UM GRÁFICO DE PIZZA GERADO DINAMICAMENTE
      * @Author LUCAS BORGUEZAM
      * @Sice 5 de out. de 2024
      * @param to -> Destinatário
-     * @param titleEmail -> Assunto do email
-     * @param titleHTML -> Titulo da menssagem
-     * @param altImageHTML -> Descrição da imagen
-     * @param titleGraphic -> Titulo do gráfico
-     * @param textHTML -> Texto do email
      * @param quizPerformanceData -> Dados de performance do quiz
      * @throws MessagingException
      * @throws IOException
@@ -134,15 +134,12 @@ public class EmailService {
     /**
      * 
      * METODO REALIZA O ENVIO DE UM E-MAIL SOBRE QUIZ NÃO REALIZADO 
-     * COM CONTEÚDO PERSONALIZADO EM HTML E INCLUI UM GRÁFICO DE PIZZA GERADO DINAMICAMENTE.
+     * COM CONTEÚDO PERSONALIZADO EM HTML E INCLUI: 
+     * UM GRÁFICO DE PIZZA GERADO DINAMICAMENTE
+     * UM GRÁFICOS DE BARRAS (MATÉRIAS)
      * @Author LUCAS BORGUEZAM
      * @Sice 5 de out. de 2024
      * @param to -> Destinatário
-     * @param titleEmail -> Assunto do email
-     * @param titleHTML -> Titulo da menssagem
-     * @param altImageHTML -> Descrição da imagen
-     * @param titleGraphic -> Titulo do gráfico
-     * @param textHTML -> Texto do email
      * @param quizPerformanceData -> Dados de performance do quiz
      * @throws MessagingException
      * @throws IOException
@@ -151,20 +148,25 @@ public class EmailService {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         
-        String titleEmail = "Quiz Realizado";
-        String titleHTML = "Quiz realizado";
-        String altImageHTML1 = "Gráfico de acertos";
-        String altImageHTML2 = "Gráfico de erros e de acertos por matéria";
+        String titleEmail = "Quiz da data "+quizPerformanceData.getDataCreation()+" Realizado";
+        String titleHTML = "Quiz da data "+quizPerformanceData.getDataCreation()+" Realizado";
         String textHTML = quizPerformanceData.getNameUserChild()+" concluiu o quiz, veja nos gráficos abaixo os dados de desempenho nesse quiz.";
         
         // Montar HTML com dois gráficos
         String html = "<html>"
                     + "<body>"
-                    + "<h1 style='color:blue;'>" + titleHTML + "</h1>"
+                    + "<h1 style='color:black;'>" + titleHTML + "</h1>"
                     + "<p>" + textHTML + "</p>"
-                    + "<img src='cid:erros-e-acertos.png' alt='" + altImageHTML1 + "'/>"
-                    + "<img src='cid:barchart.png' alt='" + altImageHTML2 + "'/>"
-                    + "</body>"
+                    + "<img src='cid:erros-e-acertos.png' alt='Gráfico de acertos'/>"
+                    + "<img src='cid:barchart.png' alt='Gráfico de erros e de acertos por matéria'/>";
+        
+        /*Adicionando gráfico de por thema de cada matéria*/
+        for (SubjectPerformance materia : quizPerformanceData.getSubjectPerformance()) {
+        	String cid = "barchart-themes-" + materia.getSubject() + ".png";
+            html+="<img src='cid:"+cid+"' alt='Gráfico de acertos por tema para a matéria "+materia.getSubject()+"'/>";
+            
+        }     
+               html += "</body>"
                     + "</html>";
         
         // Configurando o e-mail
@@ -185,15 +187,28 @@ public class EmailService {
         
         /*Materias*/
         /*Criando gráfico de barras de acertos por materias*/ 
-        JFreeChart barChart = createBarChart(quizPerformanceData);
+        JFreeChart barChart = createBarChartByTheme(quizPerformanceData);
         ByteArrayOutputStream chartOutputStream = new ByteArrayOutputStream();
         ChartUtils.writeChartAsPNG(chartOutputStream, barChart, 600, 400);
         helper.addInline("barchart.png", new ByteArrayDataSource(chartOutputStream.toByteArray(), "image/png"));
         
+        /*Gráfico de desempenho por thema para cada matéria do quiz*/
+        for (SubjectPerformance materia : quizPerformanceData.getSubjectPerformance()) {
+            
+            // Criar gráfico de barras para cada matéria
+            JFreeChart barChartTheme = createBarChartBySubjectThemes(materia);
+            ByteArrayOutputStream barChartStream = new ByteArrayOutputStream();
+            ChartUtils.writeChartAsPNG(barChartStream, barChartTheme, 600, 400);
+            
+            // Adicionar gráfico ao HTML
+            String cid = "barchart-themes-" + materia.getSubject() + ".png";
+            helper.addInline(cid, new ByteArrayDataSource(barChartStream.toByteArray(), "image/png"));
+        }
+        
         // Enviando o e-mail
         javaMailSender.send(message);
     }
-    
+
     /**
      * METODO CRIA GRÁFICO DE PIZZA
      * @Author LUCAS BORGUEZAM
@@ -218,19 +233,19 @@ public class EmailService {
                 false);
 
         /*Cor do titulo do gráfico*/
-        chart.getTitle().setPaint(Color.BLUE);
+        //chart.getTitle().setPaint(Color.BLUE);
         return chart;
     }
 
     /**
-     * METODO VRIA UM GRÁFICO DE BARRAS VERTICAL
+     * METODO CRIA UM GRÁFICO DE BARRAS VERTICAL DE ACERTOS E ERROS POR MATÉRIA
      * @Author LUCAS BORGUEZAM
      * @Sice 6 de out. de 2024
      * @param correctAnswers
      * @param wrongAnswers
      * @return
      */
-    public JFreeChart createBarChart(QuizPerformanceData quizPerformanceData) {
+    public JFreeChart createBarChartByTheme(QuizPerformanceData quizPerformanceData) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         
         // Populando o dataset com as matérias e os respectivos acertos e erros
@@ -261,7 +276,49 @@ public class EmailService {
         // Definindo o intervalo do eixo Y
         rangeAxis.setRange(new Range(0, quizPerformanceData.getTotalQuestions())); // Exemplo: O range vai de 0 a 10
         
+        return barChart;
+    }
+
+    /**
+     * METODO VRIA UM GRÁFICO DE BARRAS VERTICAL DE ERROS E ACERTOS POR THEMAS DE UMA MATÉRIA
+     * @Author LUCAS BORGUEZAM
+     * @Sice 6 de out. de 2024
+     * @param correctAnswers
+     * @param wrongAnswers
+     * @return
+     */
+    public JFreeChart createBarChartBySubjectThemes(SubjectPerformance materia) {
+    	DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        for (ThemePerformance theme : materia.getThemesPerformance()) {            
+            // Adicionar valores ao dataset
+            dataset.addValue(theme.getTotalHits(), "Acertos", theme.getTheme());
+            dataset.addValue(theme.getTotalErrors(), "Erros", theme.getTheme());
+        }
+        
+        // Criando o gráfico de barras
+        JFreeChart barChart = ChartFactory.createBarChart(
+                "Desempenho por temas da matéria de "+materia.getSubject(),    // Título do gráfico
+                "Tema",                   // Rótulo do eixo X
+                "Quantidade",                // Rótulo do eixo Y
+                dataset,                     // Dados
+                PlotOrientation.VERTICAL,    // Orientação do gráfico
+                true,                        // Legenda
+                true,                        // Tooltips
+                false);                      // URLs
+
+        // Acessando o plot do gráfico
+        CategoryPlot plot = barChart.getCategoryPlot();
+
+        // Configurando o eixo Y para usar apenas números inteiros
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setTickUnit(new NumberTickUnit(1)); // Define o intervalo de ticks de 1 em 1
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits()); // Mostra apenas inteiros no eixo Y
+
+        // Definindo o intervalo do eixo Y
+        rangeAxis.setRange(new Range(0, materia.getTotalQuestions())); // Exemplo: O range vai de 0 a 10
         
         return barChart;
     }
+    
 }

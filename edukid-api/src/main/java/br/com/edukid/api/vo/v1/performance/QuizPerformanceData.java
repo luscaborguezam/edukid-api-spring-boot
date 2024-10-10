@@ -1,5 +1,6 @@
 package br.com.edukid.api.vo.v1.performance;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ public class QuizPerformanceData {
 	private String nickName;
 	
 	/*Dados Gerais*/
+	private String dataCreation;
 	private Integer totalQuestions;
 	private Integer totalHits;
 	private Integer totalErrors;
@@ -60,6 +62,14 @@ public class QuizPerformanceData {
 	
 	public Integer getTotalQuestions() {
 		return totalQuestions;
+	}
+
+	public String getDataCreation() {
+		return dataCreation;
+	}
+
+	public void setDataCreation(String dataCreation) {
+		this.dataCreation = dataCreation;
 	}
 
 	public String getNameUserChild() {
