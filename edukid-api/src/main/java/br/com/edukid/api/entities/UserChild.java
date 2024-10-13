@@ -37,6 +37,10 @@ public class UserChild implements Serializable, UserDetails{
 	private String firstName;
 	@Column(name = "sobrenome", nullable = false, length = 255)
 	private String lastName;
+	@Column(name = "score", nullable = false)
+	private Integer scoreTotal;
+	@Column(name = "score_semanal", nullable = false)
+	private Integer scoreWeek;	
 	@Column(name = "apelido", nullable = false, length = 255)
 	private String nickname;
 	@Column(name = "passwd", nullable = false, length = 255)
@@ -71,15 +75,27 @@ public class UserChild implements Serializable, UserDetails{
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+	public Integer getScoreTotal() {
+		return scoreTotal;
+	}
+	public void setScoreTotal(Integer scoreTotal) {
+		this.scoreTotal = scoreTotal;
+	}
+	public Integer getScoreWeek() {
+		return scoreWeek;
+	}
+	public void setScoreWeek(Integer scoreWeek) {
+		this.scoreWeek = scoreWeek;
+	}
+	public void setRole(UsersRole role) {
+		this.role = role;
+	}
 	public String getNickname() {
 		return nickname;
 	}
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
-//	public String getPassword() {
-//		return password;
-//	}
 	public void setPassword(String password) {
 		this.password = password;
 	}
@@ -113,6 +129,7 @@ public class UserChild implements Serializable, UserDetails{
 	public UsersRole getRole() {
 		return role;
 	}
+	
 	
 	/**
 	 * CONSULTA A ENTIDADE PARA VERIFICAR DEFINIR QUAL ROLES DO SECURITY ESTÁ RELACIONADAS AO USUÁRIO

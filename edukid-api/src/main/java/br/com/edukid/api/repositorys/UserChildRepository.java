@@ -3,6 +3,7 @@ package br.com.edukid.api.repositorys;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.UserChild;
 import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.utils.Defines;
+import jakarta.transaction.Transactional;
 
 /**
  * INTERFACE DISPONIBILIZA OPERACOES PARA O BANCO DE DADOS NA TABELA USER_FILHO, PARA O CAMPO DE CONFIGURAÇÕES POR MEIO DO JPAREPOSITORY
@@ -96,4 +98,14 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 		       "WHERE uf.status LIKE '"+ Defines.STATUS_ATIVO_ACCOUNT_USER_FATHER +"'"
 		  )
 	List<Integer> findAllIdWhereUserFatherEqualsActive();
+
+	/**
+	 * METODO RESETA A PONTUAÇÃO SEMANAL DO USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 */
+	@Modifying
+    @Transactional
+    @Query(value = "UPDATE user_filho SET score_semanal = 0", nativeQuery = true)
+    void resetScoreWeek();
 }

@@ -20,7 +20,8 @@ public class UserChildGetVO {
 	private String firstName;
 	private String lastName;
 	private String nickname;
-	//private String password;
+	private Integer scoreTotal;
+	private Integer scoreWeek;
 	private String schoolYear;
 	private String timeOfQuiz;
 	private String notificationQuantity;
@@ -46,6 +47,18 @@ public class UserChildGetVO {
 	}
 	public String getLastName() {
 		return lastName;
+	}
+	public Integer getScoreTotal() {
+		return scoreTotal;
+	}
+	public void setScoreTotal(Integer scoreTotal) {
+		this.scoreTotal = scoreTotal;
+	}
+	public Integer getScoreWeek() {
+		return scoreWeek;
+	}
+	public void setScoreWeek(Integer scoreWeek) {
+		this.scoreWeek = scoreWeek;
 	}
 	public void setLastName(String lastName) {
 		this.lastName = lastName;

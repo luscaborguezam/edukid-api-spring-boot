@@ -92,5 +92,17 @@ public class ScheduledTasks {
     		configurationQuizService.toGenerateQuiz(id);
         
     }
+    
+    /**
+     * METODO ZERA O SCORE SEMANAL DE TODOS OS USERS CHILD AS 00H DO DOMINGO
+     * @Author LUCAS BORGUEZAM
+     * @Sice 13 de out. de 2024
+     */
+    @Scheduled(cron = "0 0 0 * * SUN", zone = "America/Sao_Paulo")
+    @PostConstruct
+    public void executeTaskEverySunday() {
+    	childRepository.resetScoreWeek();
+        
+    }
 
 }

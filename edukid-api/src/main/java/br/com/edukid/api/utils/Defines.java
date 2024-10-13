@@ -1,5 +1,8 @@
 package br.com.edukid.api.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * CLASSE CRIADA PARA ARAZENAR AS CONSTANTES UTILIZADAS NO PROJETO 
  * @Author LUCAS BORGUEZAM
@@ -21,4 +24,9 @@ public class Defines {
 	public static final int QUIZ_FINALIZADO_E_INCOMPLETO = 2;
 	public static final int QUIZ_NAO_REALIZADO = 3;
 	
+	
+	/**
+	 * LISTA DE TIPOS DE PERIODOS
+	 */
+	public static final List<String> TYPES_PERIOD = List.of("d", "m", "a"); 
 }

@@ -78,7 +78,10 @@ public class ConfigurationQuizService {
 	UserFatherRepository fatherRepository;
 	@Autowired
 	EmailService emailService;
-
+	@Autowired
+	PerformanceService performanceService;
+	
+	
 	
 	
 	/**
@@ -540,7 +543,7 @@ public class ConfigurationQuizService {
 			/*Envio de email*/
 			
 			/*Objeto com dados de performance do quiz*/
-			QuizPerformanceData quizPerformance = calculateQuizPerformmance(fieldQuiz);
+			QuizPerformanceData quizPerformance = performanceService.calculateQuizPerformmance(fieldQuiz);
 			quizPerformance.setNameUserChild(child.getFirstName());
 	        	/*Pegar a data atual do quiz Converter apenas a data para String*/
 			        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -563,164 +566,7 @@ public class ConfigurationQuizService {
     		
 	}
 	
-	/**
-	 * METODO CALCULA A PERFORMANCE DO QUIZ
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 6 de out. de 2024
-	 * @param fieldQuiz
-	 * @return
-	 */
-	private QuizPerformanceData calculateQuizPerformmance(FieldQuizVO fieldQuiz) {
-		QuizPerformanceData quizPerformanceData = new QuizPerformanceData();
-		
-		/*List de materias (QuizByMateriaVO)*/
-		for(int i=0; i < fieldQuiz.getMaterias().size() ; i++ ) {//QuizByMateriaVO m: quizRz.getMaterias()			
-			QuizByMateriaVO quizByMateria = fieldQuiz.getMaterias().get(i);
-			
-			/*Incrementar total de perguntas do quiz*/
-			quizPerformanceData.incrementTotalQuestions(quizByMateria.getQuiz().size());
-			
-			/*Incrementar total de perguntas por materias*/
-			SubjectPerformance subjectPerformance = new SubjectPerformance();
-			subjectPerformance.setTotalQuestions(quizByMateria.getQuiz().size());
-				/*definir nome da matérias*/
-				subjectPerformance.setSubject(quizByMateria.getSubject());
-			
-				
-			/*iniciar a string temaAnterior e objeto temaPerformance*/
-			ThemePerformance themePerformance = new ThemePerformance();
-			String temaAnterior = "";
-				
-			/*Ordenar quiz(lista de perguntas) por tema*/
-			quizByMateria.orderQuizByIdTheme();
-			/*Lista de PerguntaVO*/
-			for(int c=0; c < quizByMateria.getQuiz().size(); c++) {
-				PerguntaVO pergunta = quizByMateria.getQuiz().get(c);
-				
-				/*Adicionar temaAnterior*/
-				temaAnterior = c ==0 ? pergunta.getIdTema() :quizByMateria.getQuiz().get(c-1).getIdTema();
-				//System.out.println(temaAnterior+" !="+pergunta.getIdTema()+" ?"+!temaAnterior.equals(pergunta.getIdTema()));
-				/*Adicionar themePerformance quando muudar de thema*/
-				if(!temaAnterior.equals(pergunta.getIdTema())){
-					System.out.println("Adicionar tema anterior "+temaAnterior);
-					/*2- adicionar a performance do tema quando for mudar de tema*/
-					themePerformance.calcularTotalDeErros();
-					themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.parseInt(temaAnterior)));
-					themePerformance.setIdTheme(temaAnterior);
-					subjectPerformance.addThemePerformance(themePerformance);
-					
-					/*Criar objeto do novo tema*/	
-					themePerformance = new ThemePerformance();
-				}
-				/*Incrementar quantidade de questões do tema*/
-				themePerformance.incrementTotalQuestions();
-				
-				
-				
-				
-				/*Adicionar acerto*/
-				InfoPergunta infoPergunta = pergunta.getInfoPerguntas().get(0);
-				if(infoPergunta.getCorrectAnswer().equals(infoPergunta.getSelectedAnswer())) {
-					/*icrementar total de acertos do quiz*/
-					quizPerformanceData.incrementTotalHit();
-					/*incrementar total de acertos da matéria*/
-					subjectPerformance.incrementTotalHit();
-					/*Cacular acertos do tema*/
-					themePerformance.incrementTotalHit();
-					
-				}//verificacação de acerto
-				
-				/*3 - salvar a performance do ultimo tema*/
-				if(c == (quizByMateria.getQuiz().size() - 1)) {
-						themePerformance.calcularTotalDeErros();
-						themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.parseInt(pergunta.getIdTema())));
-						themePerformance.setIdTheme(pergunta.getIdTema());
-						subjectPerformance.addThemePerformance(themePerformance);					
-				}
-				
-			}//for(listPerguntas)
-			
-			/*Calcular o total de erros da matéria*/
-			subjectPerformance.calcularTotalDeErros();
-			/*Adicionar a performance da materia na performance do quiz*/
-			quizPerformanceData.addSubject(subjectPerformance);
-			
-		}//for(meterias)	
-		/*Calcular o total de erros do quiz*/
-		quizPerformanceData.calcularTotalDeErros();
-		
-		return quizPerformanceData;
-	}
-	
-	/**
-	 * METODO CALCULA A PERFORMANCE DOS TEMAS
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 8 de out. de 2024
-	 * @param fieldQuiz
-	 * @return
-	 */
-	private List<ThemePerformance> calculateQuizThemePerformance (FieldQuizVO fieldQuiz) {
-		
-		List<ThemePerformance> temasPerformance = new ArrayList<>();
-		
-		/*List de materias (QuizByMateriaVO)*/
-		for(int i=0; i < fieldQuiz.getMaterias().size() ; i++ ) {//QuizByMateriaVO m: quizRz.getMaterias()			
-			QuizByMateriaVO quizByMateria = fieldQuiz.getMaterias().get(i);
-		
-			/*1- iniciar a string temaAnterior com o primeiro tema*/
-			ThemePerformance themePerformance = new ThemePerformance();
-			String temaAnterior = "";//quizByMateria.getQuiz().get(0).getIdTema();
-			
-			/*Ordenar quiz(lista de perguntas) por tema*/
-			quizByMateria.orderQuizByIdTheme();
-			/*Lista de PerguntaVO*/
-			for(int c=0; c < quizByMateria.getQuiz().size(); c++) {
-				PerguntaVO pergunta = quizByMateria.getQuiz().get(c);
-				
-				
-				
-				/*Adicionar temaAnterior*/
-				temaAnterior = c ==0 ? pergunta.getIdTema() :quizByMateria.getQuiz().get(c-1).getIdTema();
-				//System.out.println(temaAnterior+" !="+pergunta.getIdTema()+" ?"+!temaAnterior.equals(pergunta.getIdTema()));
-				/*Adicionar themePerformance quando muudar de thema*/
-				if(!temaAnterior.equals(pergunta.getIdTema())){
-					System.out.println("Adicionar tema anterior "+temaAnterior);
-					/*2- adicionar a performance do tema quando for mudar de tema*/
-					themePerformance.calcularTotalDeErros();
-					themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.parseInt(temaAnterior)));
-					themePerformance.setIdTheme(temaAnterior);
-					temasPerformance.add(themePerformance);
-					
-					/*Criar objeto do novo tema*/	
-					themePerformance = new ThemePerformance();
-				}
-				
-				
-				/*Adicionar acerto*/
-				InfoPergunta infoPergunta = pergunta.getInfoPerguntas().get(0);
-				if(infoPergunta.getCorrectAnswer().equals(infoPergunta.getSelectedAnswer())) {
-					/*Cacular acertos do tema*/
-					themePerformance.incrementTotalHit();
-				}//Acerto
-				/*Cacular questões do tema*/
-				themePerformance.incrementTotalQuestions();
 
-				
-				/*3 - salvar a performance do ultimo tema*/
-				if(c == (quizByMateria.getQuiz().size() - 1)) {
-						themePerformance.calcularTotalDeErros();
-						themePerformance.setTheme(temaAprendizagemRepository.findThemeById(Integer.parseInt(pergunta.getIdTema())));
-						themePerformance.setIdTheme(pergunta.getIdTema());
-						temasPerformance.add(themePerformance);					
-				}
-				
-			}//for(Lista de perguntas)
-		
-		}//for(materia)
-		
-		
-		return temasPerformance;
-	}
 	
 	
 	

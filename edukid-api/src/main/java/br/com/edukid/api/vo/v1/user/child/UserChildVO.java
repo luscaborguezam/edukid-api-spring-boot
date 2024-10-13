@@ -16,6 +16,8 @@ public class UserChildVO {
 	private String firstName;
 	@NotBlank
 	private String lastName;
+	private Integer scoreTotal;
+	private Integer scoreWeek;
 	@NotBlank
 	private String nickname;
 	@NotEmpty
@@ -49,6 +51,18 @@ public class UserChildVO {
 	}
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+	public Integer getScoreTotal() {
+		return scoreTotal;
+	}
+	public void setScoreTotal(Integer scoreTotal) {
+		this.scoreTotal = scoreTotal;
+	}
+	public Integer getScoreWeek() {
+		return scoreWeek;
+	}
+	public void setScoreWeek(Integer scoreWeek) {
+		this.scoreWeek = scoreWeek;
 	}
 	public String getNickname() {
 		return nickname;

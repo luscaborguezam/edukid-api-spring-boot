@@ -114,19 +114,5 @@ public class ConfQuizController {
 		return configurationQuizService.getContentToStudyByQuizId(Integer.parseInt(idQuiz));
 	}
 
-	/**
-	 * METODO BUSCA O MATERIAL DE ESTUDO DE ACORDO COM AS PERGUNTAS DO QUIZ CRIADO PARA O USUARIO FILHO
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 8 de set. de 2024
-	 * @param idUserChild
-	 * @return
-	 */
-	@GetMapping(path="/send/{idQuiz}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> sendEmail(@PathVariable @Valid @NotBlank 
-		@Pattern(regexp = "^-?\\d+$", message = "'idQuiz' deve ser uma string numérica de valor inteiro") String idQuiz)
-	{
-		configurationQuizService.toCorrectQuiz(Integer.parseInt(idQuiz));
-		return ResponseEntity.status(HttpStatus.OK).body("Send email");
-	}
 	
 }

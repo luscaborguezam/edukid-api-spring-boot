@@ -1,6 +1,7 @@
 package br.com.edukid.api.repositorys;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,19 +89,72 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	 */
 	List<Quiz> findAllQuizzesByIsFinalized(Integer isFinalized);
 	
+	/**
+	 * METODO BUSCA OS QUIZZES REALIZADOS DE UM USER CHILD NO PERIODO DA DATA INICIAL ESPECÍFICADA ATÉ A DATA ATUAL
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 12 de out. de 2024
+	 * @param idUserChild
+	 * @param periodoInicial
+	 * @return
+	 */
+	@Query("SELECT q FROM Quiz q "
+	        + "WHERE q.isFinalized = "+Defines.QUIZ_FINALIZADO+" "
+	        + "AND FUNCTION('DATE', q.startDate) >= :startDateTime "
+	        + "AND FUNCTION('DATE', q.startDate) <= :endDateTime " 
+	        + "AND q.idUserChild = :idUserChild")
+	List<Quiz> GetQuizzesByPeriod(@Param("idUserChild") Integer idUserChild,@Param("startDateTime") LocalDate startDateTime, @Param("endDateTime") LocalDate endDateTime);
 	
 	/**
-	 * METODO ATUALIZA O STATUS DE FINALIZAÇÃO DO QUIZ, PARA QUIZ_NAO_REALIZADO, DOS QUIZES QUE ESTÃO EM ABERTO 
-	 * E QUE A DATA DE INICIO SEJA MENOR DO QUE A DATA ATUAL.
+	 * METODO BUSCA A QUANTIDADE DE QUIZZES DE ACORDO COM O PERIODO E STATUS DESEJADO
 	 * @Author LUCAS BORGUEZAM
-	 * @Sice 17 de set. de 2024
+	 * @Sice 13 de out. de 2024
+	 * @param idUserChild
+	 * @param startDateTime
+	 * @param endDateTime
+	 * @param isFinalized
+	 * @return
 	 */
-//	@Transactional
-//	@Modifying
-//	@Query("UPDATE Quiz q set q.isFinalized = "+Defines.QUIZ_NAO_REALIZADO+" "
-//			+ "where q.isFinalized = "+Defines.QUIZ_EM_ABERTO+" "
-//			+ "AND DATE(q.startDate) < CURRENT_DATE")
-//	void updateIsFinalizedWhereStartDateMinorWhithCurrent();
+	@Query("SELECT COUNT(q) FROM Quiz q " +
+		       "WHERE q.isFinalized = :isFinalized " +
+		       "AND FUNCTION('DATE', q.startDate) >= :startDateTime " +
+		       "AND FUNCTION('DATE', q.startDate) <= :endDateTime " +
+		       "AND q.idUserChild = :idUserChild")
+	Integer countQuizzesByPeriodAndIsFinaled(
+	    @Param("idUserChild") Integer idUserChild,
+	    @Param("startDateTime") LocalDate startDateTime,
+	    @Param("endDateTime") LocalDate endDateTime,
+	    @Param("isFinalized") Integer isFinalized);
+	
+	/**
+	 * METODO BUSCA A QUANTIDADE DE QUIZZES CRIADOS EM NO PERIODO DESEJADO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param idUserChild
+	 * @param startDateTime
+	 * @param endDateTime
+	 * @return
+	 */
+	@Query("SELECT COUNT(q) FROM Quiz q " +
+		       "WHERE FUNCTION('DATE', q.startDate) >= :startDateTime " +
+		       "AND FUNCTION('DATE', q.startDate) <= :endDateTime " +
+		       "AND q.idUserChild = :idUserChild")
+	Integer countQuizzesByPeriod(
+	    @Param("idUserChild") Integer idUserChild,
+	    @Param("startDateTime") LocalDate startDateTime,
+	    @Param("endDateTime") LocalDate endDateTime);
+	
+	
+	/**
+	 * METODO BUSCA A QUANTIDADE DE QUIZZES DE CRIADOS PARA UM USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	@Query("SELECT COUNT(q) FROM Quiz q " +
+		       "WHERE q.idUserChild = :idUserChild")
+	Integer countQuizzesByIdUserChild(
+	    @Param("idUserChild") Integer idUserChild);
 	
 	/**
 	 * METODO ATUALIZA O STATUS DE FINALIZAÇÃO DO QUIZ, PARA QUIZ_NAO_REALIZADO, DO QUIZ ESPECIFICADO.
@@ -128,5 +182,6 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	void insertQuizWithoutstartDate(@Param("quiz") String quiz, 
 	        @Param("isFinalized") Integer isFinalized, 
 	        @Param("idUserChild") Integer idUserChild);
+
 	
 }
