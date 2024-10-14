@@ -1,5 +1,6 @@
 package br.com.edukid.api.services;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -27,6 +28,7 @@ import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
+import br.com.edukid.api.vo.v1.ranking.RankingVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
@@ -52,6 +54,8 @@ public class UserFatherService {
     AuthenticationManager authenticationManager;
     @Autowired
     SecurityServices securityServices;
+    @Autowired 
+    UserChildService childService;
 	
 	/* Registrar mensagens de log em uma aplicação Java.*/
 	Logger logger = Logger.getLogger(UserFatherService.class.getName());
@@ -244,6 +248,22 @@ public class UserFatherService {
 			}
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credênciais inválidas");
+	}
+
+	/**
+	 * METODO O SCORE, POSIÇÃO NO RANKING E NOME DOS USER CHILD RELACIONADOS COM OPAI
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param int1
+	 * @return
+	 */
+	public ResponseEntity<?> getRanking(Integer id) {
+		if(!securityServices.verifyUserFahterWithSolicitation(id.toString()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'fkUserPai' enviado não corresponde ao 'id' da conta.");
+		
+		List<RankingVO> ranking = childService.getRankinWeekForUserFather(id); 
+		
+		return ResponseEntity.status(HttpStatus.OK).body(ranking);
 	}	
 
 }

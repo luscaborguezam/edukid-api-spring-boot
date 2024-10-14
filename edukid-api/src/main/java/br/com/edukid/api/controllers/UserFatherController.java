@@ -23,6 +23,7 @@ import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 
 @RestController
@@ -69,7 +70,10 @@ public class UserFatherController {
 	 * @throws Exception
 	 */
 	@DeleteMapping(value = "/account/{id}")
-	public ResponseEntity<?> desactivteUserFather(@PathVariable @Valid @NotBlank String id) throws Exception {
+	public ResponseEntity<?> desactivteUserFather(
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "'id' deve ser uma string numérica de valor inteiro")
+			String id
+		) throws Exception {
 			return fatherService.desactivteUserFather(Integer.parseInt(id));
 	}
 	
@@ -108,5 +112,14 @@ public class UserFatherController {
 	@GetMapping(path="/is-verify-account/{email}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> isVerifyAccount(@PathVariable @Valid @NotBlank String email) {
 			return fatherService.isVerifyAccount(email);
+	
+	}
+	
+	@GetMapping(path="/ranking-week/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getPositionInRankingWeek(
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "'id' do user pai deve ser uma string numérica de valor inteiro")
+			String id
+		) {
+			return fatherService.getRanking(Integer.parseInt(id));
 	}
 }

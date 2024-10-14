@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.edukid.api.services.UserChildService;
 import br.com.edukid.api.vo.v1.LoginChildVO;
 import br.com.edukid.api.vo.v1.LoginFatherVO;
+import br.com.edukid.api.vo.v1.user.child.TrocarSenhaUserChild;
 import br.com.edukid.api.vo.v1.user.child.UserChildCadastroVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildUpdateVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -102,4 +104,26 @@ public class UserChildController {
 			@Pattern(regexp = "^-?\\d+$", message = "Key 'account/{idUserFather}' must be a string with the value of a valid integer") String idUserFather){
 		return childService.getUserChildByUserFather(Integer.parseInt(idUserFather));
 	}
+
+	/**
+	 * METODO 
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param id
+	 * @return
+	 */
+	@GetMapping(path="/ranking-week/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getPositionInRankingWeek(
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "'id' do usuário filho deve ser uma string numérica de valor inteiro")
+			String id
+		) {
+			return childService.getRankingWeek(Integer.parseInt(id));
+	}
+	
+//	@PutMapping(path="/change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//	public ResponseEntity<?> changePassword(@RequestBody @Valid TrocarSenhaUserChild dataAccount) {
+//			return childService.updatePasswordUserChild(dataAccount);
+//
+//	}
+	
 }

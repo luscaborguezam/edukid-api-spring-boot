@@ -8,9 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.UserChild;
-import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.utils.Defines;
 import jakarta.transaction.Transactional;
 
@@ -88,6 +86,16 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 	List<Integer> findIdByFkUserPai(@Param("fkUserPai") Integer fkUserPai);
 	
 	/**
+	 * METODO BUSCA OS ID'S DE USER CHILD RELACIONADO A UM USER FATHER
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 1 de out. de 2024
+	 * @param fkUserPai
+	 * @return
+	 */
+	@Query("SELECT u FROM UserChild u WHERE u.fkUserPai = :fkUserPai")
+	List<UserChild> findChildByFkUserPai(@Param("fkUserPai") Integer fkUserPai);
+	
+	/**
 	 * METODO BUSCA TODOS OS ID'S DE USER CHILD QUE TEM O USERPAI ATIVO 
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 1 de out. de 2024
@@ -108,4 +116,13 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
     @Transactional
     @Query(value = "UPDATE user_filho SET score_semanal = 0", nativeQuery = true)
     void resetScoreWeek();
+
+	/**
+	 * METODO BUSCA TODOS USERS CHILD ID ODENADOS PELO SCORE SEMANAL
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @return
+	 */
+	@Query("SELECT u FROM UserChild u ORDER BY u.scoreWeek")
+	List<UserChild> getRankingForScoreWeek();
 }

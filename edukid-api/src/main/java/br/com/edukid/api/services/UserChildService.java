@@ -26,8 +26,11 @@ import br.com.edukid.api.utils.UtilsService;
 import br.com.edukid.api.vo.v1.LoginChildVO;
 import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
+import br.com.edukid.api.vo.v1.ranking.RankingVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildGetVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildUpdateVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildVO;
+import br.com.edukid.api.vo.v1.user.child.TrocarSenhaUserChild;
 import br.com.edukid.api.vo.v1.user.child.UserChildCadastroVO;
 
 @Service
@@ -61,8 +64,6 @@ public class UserChildService {
 	 * @return
 	 */
 	public ResponseEntity<?> registerUserChild(UserChildCadastroVO data) {	
-		if(!securityServices.verifyUserFahterWithSolicitation(data.getFkUserPai()))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'fkUserPai' enviado não corresponde ao 'id' da conta.");
 		/*Faz o Hash da senha do usuario*/
 		data.setPassword(hashSaltService.hash(data.getPassword()));
 		
@@ -86,7 +87,7 @@ public class UserChildService {
 	 * @return
 	 */
 	public ResponseEntity<?> updateUserChild(UserChildCadastroVO data) {
-		if(!securityServices.verifyUserFahterWithSolicitation(data))
+		if(!securityServices.verifyUserFahterWithSolicitation(Integer.parseInt(data.getId())))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
 		
 		/*Verificar se existe o novo nickname*/
@@ -95,11 +96,39 @@ public class UserChildService {
 		
 		Optional<UserChild> optional = childRepository.findById(Integer.parseInt(data.getId()));
 		UserChild userEntity = optional.get();
+		Double score, scoreWeek;
+		score= userEntity.getScoreTotal();
+		scoreWeek = userEntity.getScoreWeek();
+		
 		userEntity = EdukidMapper.parseObject(data, UserChild.class);
+		userEntity.setPassword(hashSaltService.hash(data.getPassword()));
+		userEntity.setScoreTotal(score);
+		userEntity.setScoreWeek(scoreWeek);
+		
 		var entity = childRepository.save(userEntity);
 		
 		return ResponseEntity.status(HttpStatus.OK).body("Alterado com sucesso.");
 	}
+	
+//	/**
+//	 * METODO ALTERA SENHA DO USUARIO FILHO
+//	 * @Author LUCAS BORGUEZAM
+//	 * @Sice 10 de ago. de 2024
+//	 * @param dataAccount
+//	 * @return
+//	 */
+//	public ResponseEntity<?> updatePasswordUserChild(TrocarSenhaUserChild data) {
+//		if(!securityServices.verifyUserFahterWithSolicitation(Integer.parseInt(data.getIdUSerChild())))
+//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
+//		
+//		Optional<UserChild> optional = childRepository.findById(Integer.parseInt(data.getIdUSerChild()));
+//		UserChild userEntity = optional.get();
+//		userEntity = EdukidMapper.parseObject(data, UserChild.class);
+//		userEntity.setPassword(hashSaltService.hash(data.getPassword()));
+//		var entity = childRepository.save(userEntity);
+//		
+//		return ResponseEntity.status(HttpStatus.OK).body("Senha alterada com sucesso.");
+//	}
 	
 	/**
 	 * METODO DELETA A CONTA DO USUARIO FILHO
@@ -154,7 +183,6 @@ public class UserChildService {
 	 * @return UserChildGetVO -> User com suas configurações
 	 */
 	public UserChildGetVO getUserChildById(Integer id) {
-
 		
 		if(childRepository.existsById(id)) {	
 			Optional<UserChild> userOptional = childRepository.findById(id);
@@ -192,6 +220,13 @@ public class UserChildService {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Não encontrado.");
 	}
 
+	/**
+	 * METODO BUSCA TODOS USERS CHILD DE UM USER FATHER
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param idUserFather
+	 * @return
+	 */
 	public ResponseEntity<?> getUserChildByUserFather(Integer idUserFather) {
 		if(!securityServices.verifyUserFahterWithSolicitation(idUserFather.toString()))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'fkUserPai' enviado não corresponde ao 'id' da conta.");
@@ -204,6 +239,121 @@ public class UserChildService {
 			return ResponseEntity.status(HttpStatus.OK).body(usersChildsVO);
 		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Não encontrado.");
+	}
+
+	/**
+	 * METODO ATUALIZA PONTUAÇÃO DO USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param idUserChild
+	 * @param score
+	 */
+	public void updateScore(Integer idUserChild, Double score) {
+		/*Buscar user child*/
+		Optional<UserChild> opChild = childRepository.findById(idUserChild);
+		UserChild child = opChild.get();
+		/*Somar score total*/
+		child.calculateScore(score);
+		/*Salvar alteração*/
+		childRepository.save(child);
+
+	}
+
+	/**
+	 * METODO BUSCA RANKING SEMANAL MOSTRANDO OS NOMES DOS USUÁRIOS FILHOS RELACIONADOS A ID DO USER FATHER
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param id
+	 * @return
+	 */
+	public List<RankingVO> getRankinWeekForUserFather(Integer idUserFather) {
+		List<RankingVO> rankinVO = new ArrayList<>();
+		
+		List<UserChild> rankingEntity = childRepository.getRankingForScoreWeek();
+		List<UserChild> childsOfUserFather = childRepository.findChildByFkUserPai(idUserFather);
+		
+		Integer position = 0;
+		for(UserChild userRanking : rankingEntity) {
+			position++;
+			
+			/*Verificar se o userChild percorrido está na lista childsOfUSerFather*/
+			boolean isChildOfUserFather = childsOfUserFather.stream()
+		            .anyMatch(child -> child.getId().equals(userRanking.getId()));
+			
+			/*Se existir adiciono objeto com nome*/
+			if(isChildOfUserFather) {
+				RankingVO userPosition = new RankingVO(
+						position, 
+						(userRanking.getFirstName()+" "+userRanking.getLastName()),
+						userRanking.getScoreWeek()
+				);
+				rankinVO.add(userPosition);
+			}
+			else {
+				RankingVO userPosition = new RankingVO(
+						position, 
+						"User Edukid",
+						userRanking.getScoreWeek()
+				);
+				rankinVO.add(userPosition);
+			}
+		}//Fim for
+		
+		return rankinVO;
+	}
+	
+	/**
+	 * METODO VERIFICA TOKEN COM O ID ENVIADO E BUSCA O RANKING PARA O USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	public ResponseEntity<?> getRankingWeek(Integer idUserChild) {
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao seu 'id'.");
+		
+		List<RankingVO> rankingVO = getRankinWeekForUserChild(idUserChild);
+		return ResponseEntity.status(HttpStatus.OK).body(rankingVO);
+	}
+	
+	/**
+	 * METODO BUSCA RANKING SEMANAL MOSTRANDO OS NOMES DOS USUÁRIOS FILHOS RELACIONADOS A ID DO USER FATHER
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param id
+	 * @return
+	 */
+	public List<RankingVO> getRankinWeekForUserChild(Integer idUserChild) {
+		List<RankingVO> rankinVO = new ArrayList<>();
+		
+		List<UserChild> rankingEntity = childRepository.getRankingForScoreWeek();
+		Optional<UserChild> opChild = childRepository.findById(idUserChild);
+		UserChild child = opChild.get();
+		Integer position = 0;
+		for(UserChild userRanking : rankingEntity) {
+			position++;
+			
+			/*Verificar se o userChild percorrido está na lista childsOfUSerFather*/
+			if(child.getId() == userRanking.getId()) {
+				RankingVO userPosition = new RankingVO(
+						position, 
+						(userRanking.getFirstName()+" "+userRanking.getLastName()),
+						userRanking.getScoreWeek()
+				);
+				rankinVO.add(userPosition);
+			}
+			else {
+				RankingVO userPosition = new RankingVO(
+						position, 
+						"User Edukid",
+						userRanking.getScoreWeek()
+				);
+				rankinVO.add(userPosition);
+			}
+		}//Fim for
+		
+		return rankinVO;
 	}
 	
 	

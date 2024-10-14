@@ -80,6 +80,8 @@ public class ConfigurationQuizService {
 	EmailService emailService;
 	@Autowired
 	PerformanceService performanceService;
+	@Autowired 
+	UserChildService childService;
 	
 	
 	
@@ -139,7 +141,6 @@ public class ConfigurationQuizService {
 	public MateriasETemasVO getSubjectandThemeConfiguredFromUserChild(Integer idUserChild){
 		
 		/*Buscar registro*/
-		/*Buscar registro*/
 		Optional<Configuration> opConfQuiz = configurationRepository.findById(idUserChild);
 		Configuration confQuiz = opConfQuiz.get();
 		MateriasETemasVO mt = jsonService.fromJson(confQuiz.getConfiguration(), MateriasETemasVO.class);
@@ -169,6 +170,7 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	public ResponseEntity<?> toGenerateQuiz(Integer idUserChild){
+		
 		System.out.println("\nCriar ou buscar quiz em aberto");
 		FieldQuizVO fielQuiz = new FieldQuizVO();
 		Quiz quizEntity = new Quiz();
@@ -308,7 +310,8 @@ public class ConfigurationQuizService {
 		Quiz quizEntity = opQuizEntity.get();
 		
 		
-		QuizVO quizRegistred = new QuizVO(quizEntity, jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class));
+		FieldQuizVO fieldQuizRealized = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
+		QuizVO quizRegistred = new QuizVO(quizEntity, fieldQuizRealized);
 		Map<String, String> map = validationQuizRegistredWithQuizSended(quizRegistred, quizRealized);
 		if(map.get("Verification").equals("OK")) {
 			/*Adicionar os dados necessários quando finalizados*/
@@ -318,16 +321,20 @@ public class ConfigurationQuizService {
 			/*atualizar registro*/
 			quizRepository.save(quizEntity);
 			
+			/*Salvar pontuação*/
+			childService.updateScore(Integer.parseInt(
+					quizRealized.getIdUserChild()), 
+					Double.parseDouble(fieldQuizRealized.getScore())
+				);
+			
 			/*Corrigir quiz eenviar emaila o pai*/
 			toCorrectQuiz(quizEntity.getId());
 	
 			return ResponseEntity.status(HttpStatus.OK).body(quizRegistred);
 		}
 		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(map.get("Verification"));
-		
-		
-		
 	}
+	
 
 	/**
 	 * METODO COMPARA E VALIDA AS INFORMAÇÕES QUE NÃO SE DEVEM MUDAR DO QUIZ CADASTRADO COM O QUIZ ENVIADO

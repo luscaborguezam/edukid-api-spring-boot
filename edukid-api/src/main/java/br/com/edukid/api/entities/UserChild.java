@@ -38,9 +38,9 @@ public class UserChild implements Serializable, UserDetails{
 	@Column(name = "sobrenome", nullable = false, length = 255)
 	private String lastName;
 	@Column(name = "score", nullable = false)
-	private Integer scoreTotal;
+	private Double scoreTotal;
 	@Column(name = "score_semanal", nullable = false)
-	private Integer scoreWeek;	
+	private Double scoreWeek;	
 	@Column(name = "apelido", nullable = false, length = 255)
 	private String nickname;
 	@Column(name = "passwd", nullable = false, length = 255)
@@ -75,16 +75,16 @@ public class UserChild implements Serializable, UserDetails{
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
-	public Integer getScoreTotal() {
+	public Double getScoreTotal() {
 		return scoreTotal;
 	}
-	public void setScoreTotal(Integer scoreTotal) {
+	public void setScoreTotal(Double scoreTotal) {
 		this.scoreTotal = scoreTotal;
 	}
-	public Integer getScoreWeek() {
+	public Double getScoreWeek() {
 		return scoreWeek;
 	}
-	public void setScoreWeek(Integer scoreWeek) {
+	public void setScoreWeek(Double scoreWeek) {
 		this.scoreWeek = scoreWeek;
 	}
 	public void setRole(UsersRole role) {
@@ -150,6 +150,11 @@ public class UserChild implements Serializable, UserDetails{
 	public String getUsername() {
 		// TODO Auto-generated method stub
 		return nickname;
+	}
+	public void calculateScore(Double score) {
+		scoreTotal += score;
+		scoreWeek += score;
+		
 	}
 
 	

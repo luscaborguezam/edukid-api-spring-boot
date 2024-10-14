@@ -53,7 +53,8 @@ public class SecurityConfiguration {
 						.requestMatchers(HttpMethod.DELETE, "/edukid/user-father/**").hasRole("FATHER")
 							/*endpoints user-Child*/
 						.requestMatchers(HttpMethod.POST, "/edukid/user-child/**").hasRole("FATHER")
-						.requestMatchers(HttpMethod.GET, "/edukid/user-child/**").hasRole("FATHER")
+						.requestMatchers(HttpMethod.GET, "/edukid/user-child/account/**").hasRole("FATHER")
+						.requestMatchers(HttpMethod.GET, "/edukid/user-child/by-user-father/**").hasRole("FATHER")
 						.requestMatchers(HttpMethod.PUT, "/edukid/user-child/**").hasRole("FATHER")
 						.requestMatchers(HttpMethod.DELETE, "/edukid/user-child/**").hasRole("FATHER")
 							/*endpoints conf-quiz */
@@ -62,6 +63,7 @@ public class SecurityConfiguration {
 							/*Permissões do EndPoint user-child*/
 						.requestMatchers(HttpMethod.PUT, "/edukid/conf-quiz/quiz").hasRole("CHILD")
 						.requestMatchers(HttpMethod.GET, "/edukid/conf-quiz/quiz").hasRole("CHILD")
+						.requestMatchers(HttpMethod.GET, "/edukid/user-child/ranking-week/**").hasRole("CHILD")
 
 						.anyRequest().authenticated()
 				)

@@ -9,15 +9,14 @@ import jakarta.validation.constraints.Pattern;
  * @Author LUCAS BORGUEZAM
  * @Sice 7 de ago. de 2024
  */
-public class UserChildVO {
-
+public class UserChildUpdateVO {
+	@NotBlank
+	@Pattern(regexp = "^-?\\d+$", message = "Key 'id' must be a string with the value of a valid integer")
 	private String id;
 	@NotBlank
 	private String firstName;
 	@NotBlank
 	private String lastName;
-	private Double scoreTotal;
-	private Double scoreWeek;
 	@NotBlank
 	private String nickname;
 	@NotEmpty
@@ -51,18 +50,6 @@ public class UserChildVO {
 	}
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
-	}
-	public Double getScoreTotal() {
-		return scoreTotal;
-	}
-	public void setScoreTotal(Double scoreTotal) {
-		this.scoreTotal = scoreTotal;
-	}
-	public Double getScoreWeek() {
-		return scoreWeek;
-	}
-	public void setScoreWeek(Double scoreWeek) {
-		this.scoreWeek = scoreWeek;
 	}
 	public String getNickname() {
 		return nickname;
