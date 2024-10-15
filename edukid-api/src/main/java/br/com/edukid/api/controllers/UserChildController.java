@@ -117,7 +117,7 @@ public class UserChildController {
 			@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "'id' do usuário filho deve ser uma string numérica de valor inteiro")
 			String id
 		) {
-			return childService.getRankingWeek(Integer.parseInt(id));
+			return childService.getRAllRankingWeekForUserChild(Integer.parseInt(id));
 	}
 	
 //	@PutMapping(path="/change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

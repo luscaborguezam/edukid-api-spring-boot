@@ -1,6 +1,7 @@
 package br.com.edukid.api.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,4 +30,9 @@ public class Defines {
 	 * LISTA DE TIPOS DE PERIODOS
 	 */
 	public static final List<String> TYPES_PERIOD = List.of("d", "m", "a"); 
+	
+	/**
+	 * LISTA DE ANOS DO ENISNO FUNDAMENTAL
+	 */
+	public static final List<Integer> ANOS_ENSINO_FUNDAMENTAL = Arrays.asList(1, 2, 3, 4,1, 5, 6, 7, 8, 9);
 }

@@ -29,6 +29,7 @@ import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
 import br.com.edukid.api.vo.v1.ranking.RankingVO;
+import br.com.edukid.api.vo.v1.ranking.RankingsForYearElementarySchoolVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
@@ -261,9 +262,9 @@ public class UserFatherService {
 		if(!securityServices.verifyUserFahterWithSolicitation(id.toString()))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'fkUserPai' enviado não corresponde ao 'id' da conta.");
 		
-		List<RankingVO> ranking = childService.getRankinWeekForUserFather(id); 
+		RankingsForYearElementarySchoolVO allRankings = childService.getAllRankingWeekForUserFather(id); 
 		
-		return ResponseEntity.status(HttpStatus.OK).body(ranking);
+		return ResponseEntity.status(HttpStatus.OK).body(allRankings);
 	}	
 
 }

@@ -1,6 +1,7 @@
 package br.com.edukid.api.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import br.com.edukid.api.exceptions.ResourceNotFoundException;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.ConfigurationRepository;
 import br.com.edukid.api.repositorys.UserChildRepository;
+import br.com.edukid.api.utils.Defines;
 import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.utils.StringServices;
 import br.com.edukid.api.utils.UtilsService;
@@ -27,6 +29,7 @@ import br.com.edukid.api.vo.v1.LoginChildVO;
 import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
 import br.com.edukid.api.vo.v1.ranking.RankingVO;
+import br.com.edukid.api.vo.v1.ranking.RankingsForYearElementarySchoolVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildGetVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildUpdateVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildVO;
@@ -259,18 +262,32 @@ public class UserChildService {
 
 	}
 
+	
+	public RankingsForYearElementarySchoolVO getAllRankingWeekForUserFather(Integer idUserFather) {
+		RankingsForYearElementarySchoolVO allRankingWeek = new RankingsForYearElementarySchoolVO();
+		
+		for(Integer ano: Defines.ANOS_ENSINO_FUNDAMENTAL) {
+			List<RankingVO> rankinVO = getRankinWeekForUserFather(idUserFather, ano);
+			allRankingWeek.addElemento(ano.toString(), rankinVO);
+		}
+		return allRankingWeek;
+	}
+	
 	/**
-	 * METODO BUSCA RANKING SEMANAL MOSTRANDO OS NOMES DOS USUÁRIOS FILHOS RELACIONADOS A ID DO USER FATHER
+	 * METODO BUSCA RANKING SEMANAL POR ANO DO ENSINO MéDIO MOSTRANDO OS NOMES DOS USUÁRIOS FILHOS RELACIONADOS A ID DO USER FATHER
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 13 de out. de 2024
 	 * @param id
 	 * @return
 	 */
-	public List<RankingVO> getRankinWeekForUserFather(Integer idUserFather) {
+	private List<RankingVO> getRankinWeekForUserFather(Integer idUserFather, Integer ano) {
 		List<RankingVO> rankinVO = new ArrayList<>();
 		
-		List<UserChild> rankingEntity = childRepository.getRankingForScoreWeek();
+		
+		
+		List<UserChild> rankingEntity = childRepository.getRankingForScoreWeek(ano);
 		List<UserChild> childsOfUserFather = childRepository.findChildByFkUserPai(idUserFather);
+		
 		
 		Integer position = 0;
 		for(UserChild userRanking : rankingEntity) {
@@ -309,25 +326,30 @@ public class UserChildService {
 	 * @param idUserChild
 	 * @return
 	 */
-	public ResponseEntity<?> getRankingWeek(Integer idUserChild) {
+	public ResponseEntity<?> getRAllRankingWeekForUserChild(Integer idUserChild) {
 		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao seu 'id'.");
 		
-		List<RankingVO> rankingVO = getRankinWeekForUserChild(idUserChild);
-		return ResponseEntity.status(HttpStatus.OK).body(rankingVO);
+		RankingsForYearElementarySchoolVO allRankingWeek = new RankingsForYearElementarySchoolVO();
+		for(Integer ano: Defines.ANOS_ENSINO_FUNDAMENTAL) {
+			List<RankingVO> rankinVO = getRankinWeekForUserChild(idUserChild, ano);
+			allRankingWeek.addElemento(ano.toString(), rankinVO);
+		}
+		
+		return ResponseEntity.status(HttpStatus.OK).body(allRankingWeek);
 	}
 	
 	/**
-	 * METODO BUSCA RANKING SEMANAL MOSTRANDO OS NOMES DOS USUÁRIOS FILHOS RELACIONADOS A ID DO USER FATHER
+	 * METODO BUSCA RANKINGS SEMANAL POR ANO DO ENSINO MéDIO MOSTRANDO OS NOMES DOS USUÁRIOS FILHOS RELACIONADOS A ID DO USER FATHER
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 13 de out. de 2024
 	 * @param id
 	 * @return
 	 */
-	public List<RankingVO> getRankinWeekForUserChild(Integer idUserChild) {
+	public List<RankingVO> getRankinWeekForUserChild(Integer idUserChild, Integer ano) {
 		List<RankingVO> rankinVO = new ArrayList<>();
 		
-		List<UserChild> rankingEntity = childRepository.getRankingForScoreWeek();
+		List<UserChild> rankingEntity = childRepository.getRankingForScoreWeek(ano);
 		Optional<UserChild> opChild = childRepository.findById(idUserChild);
 		UserChild child = opChild.get();
 		Integer position = 0;
