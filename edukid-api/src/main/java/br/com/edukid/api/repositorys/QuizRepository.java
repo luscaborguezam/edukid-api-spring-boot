@@ -102,7 +102,27 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	        + "AND FUNCTION('DATE', q.startDate) >= :startDateTime "
 	        + "AND FUNCTION('DATE', q.startDate) <= :endDateTime " 
 	        + "AND q.idUserChild = :idUserChild")
-	List<Quiz> GetQuizzesByPeriod(@Param("idUserChild") Integer idUserChild,@Param("startDateTime") LocalDate startDateTime, @Param("endDateTime") LocalDate endDateTime);
+	List<Quiz> getQuizzesByPeriod(@Param("idUserChild") Integer idUserChild,@Param("startDateTime") LocalDate startDateTime, @Param("endDateTime") LocalDate endDateTime);
+	
+	/**
+	 * METODO 
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 19 de out. de 2024
+	 * @param idUserChild
+	 * @param startDateTime
+	 * @param endDateTime
+	 * @return
+	 */
+	@Query("SELECT q FROM Quiz q "
+	        + "WHERE q.isFinalized <> "+Defines.QUIZ_FINALIZADO+" "
+	        + "AND FUNCTION('MONTH', q.startDate) = :month "
+	        + "AND FUNCTION('YEAR', q.startDate) = :year "
+	        + "AND q.idUserChild = :idUserChild")
+	List<Quiz> getHistoryQuizzesByPeriod(@Param("idUserChild") Integer idUserChild,
+										 @Param("month") Integer month, 
+										 @Param("year") Integer year);
+
+	
 	
 	/**
 	 * METODO BUSCA A QUANTIDADE DE QUIZZES DE ACORDO COM O PERIODO E STATUS DESEJADO

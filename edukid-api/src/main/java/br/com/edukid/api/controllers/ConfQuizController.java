@@ -113,6 +113,5 @@ public class ConfQuizController {
 	{
 		return configurationQuizService.getContentToStudyByQuizId(Integer.parseInt(idQuiz));
 	}
-
 	
 }

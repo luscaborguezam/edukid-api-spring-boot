@@ -2,8 +2,10 @@ package br.com.edukid.api.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,11 +17,13 @@ import org.springframework.stereotype.Service;
 import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
 import br.com.edukid.api.configurations.springsecurity.security.infra.TokenService;
 import br.com.edukid.api.entities.Configuration;
+import br.com.edukid.api.entities.Quiz;
 import br.com.edukid.api.entities.UserChild;
 import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.exceptions.ResourceNotFoundException;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.ConfigurationRepository;
+import br.com.edukid.api.repositorys.QuizRepository;
 import br.com.edukid.api.repositorys.UserChildRepository;
 import br.com.edukid.api.utils.Defines;
 import br.com.edukid.api.utils.JsonService;
@@ -28,11 +32,15 @@ import br.com.edukid.api.utils.UtilsService;
 import br.com.edukid.api.vo.v1.LoginChildVO;
 import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
+import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
+import br.com.edukid.api.vo.v1.quiz.QuizVO;
+import br.com.edukid.api.vo.v1.quiz.QuizzesByDays;
 import br.com.edukid.api.vo.v1.ranking.RankingVO;
 import br.com.edukid.api.vo.v1.ranking.RankingsForYearElementarySchoolVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildGetVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildUpdateVO;
 import br.com.edukid.api.vo.v1.user.child.UserChildVO;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import br.com.edukid.api.vo.v1.user.child.TrocarSenhaUserChild;
 import br.com.edukid.api.vo.v1.user.child.UserChildCadastroVO;
 
@@ -57,7 +65,9 @@ public class UserChildService {
     AuthenticationManager authenticationManager;
     @Autowired
     SecurityServices securityServices;
-	
+	@Autowired
+	QuizRepository quizRepository;
+    
 	/**
 	 * 
 	 * METODO CADASTRA DADOS DO USUARIO FILHO
@@ -265,8 +275,15 @@ public class UserChildService {
 	
 	public RankingsForYearElementarySchoolVO getAllRankingWeekForUserFather(Integer idUserFather) {
 		RankingsForYearElementarySchoolVO allRankingWeek = new RankingsForYearElementarySchoolVO();
+		/*Buscar os anos de ensino onde os usuários filhos do usuário pai estão*/
+		Set<Integer> years = new HashSet<>();
+		List<UserChild> childsOfUserFather = childRepository.findChildByFkUserPai(idUserFather);
+		for(UserChild child : childsOfUserFather) {
+			years.add(child.getSchoolYear());
+		}
 		
-		for(Integer ano: Defines.ANOS_ENSINO_FUNDAMENTAL) {
+		
+		for(Integer ano: years) {
 			List<RankingVO> rankinVO = getRankinWeekForUserFather(idUserFather, ano);
 			allRankingWeek.addElemento(ano.toString(), rankinVO);
 		}
@@ -283,11 +300,8 @@ public class UserChildService {
 	private List<RankingVO> getRankinWeekForUserFather(Integer idUserFather, Integer ano) {
 		List<RankingVO> rankinVO = new ArrayList<>();
 		
-		
-		
 		List<UserChild> rankingEntity = childRepository.getRankingForScoreWeek(ano);
 		List<UserChild> childsOfUserFather = childRepository.findChildByFkUserPai(idUserFather);
-		
 		
 		Integer position = 0;
 		for(UserChild userRanking : rankingEntity) {
@@ -297,7 +311,7 @@ public class UserChildService {
 			boolean isChildOfUserFather = childsOfUserFather.stream()
 		            .anyMatch(child -> child.getId().equals(userRanking.getId()));
 			
-			/*Se existir adiciono objeto com nome*/
+			/*Se existir adicionar objeto com nome*/
 			if(isChildOfUserFather) {
 				RankingVO userPosition = new RankingVO(
 						position, 
@@ -326,17 +340,15 @@ public class UserChildService {
 	 * @param idUserChild
 	 * @return
 	 */
-	public ResponseEntity<?> getRAllRankingWeekForUserChild(Integer idUserChild) {
+	public ResponseEntity<?> getRankingWeekForUserChild(Integer idUserChild) {
 		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao seu 'id'.");
 		
-		RankingsForYearElementarySchoolVO allRankingWeek = new RankingsForYearElementarySchoolVO();
-		for(Integer ano: Defines.ANOS_ENSINO_FUNDAMENTAL) {
-			List<RankingVO> rankinVO = getRankinWeekForUserChild(idUserChild, ano);
-			allRankingWeek.addElemento(ano.toString(), rankinVO);
-		}
+		Optional<UserChild> opChild = childRepository.findById(idUserChild);
+		UserChild child = opChild.get();
+		List<RankingVO> rankinVO = getRankinWeekForUserChild(idUserChild, child.getSchoolYear());
 		
-		return ResponseEntity.status(HttpStatus.OK).body(allRankingWeek);
+		return ResponseEntity.status(HttpStatus.OK).body(rankinVO);
 	}
 	
 	/**
@@ -377,6 +389,72 @@ public class UserChildService {
 		
 		return rankinVO;
 	}
+
+	/**
+	 * METODO VERIFICA ID E BUSCA O HISTÓRICO DE QUIZZES PARA USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 19 de out. de 2024
+	 * @param idUserChild
+	 * @param j 
+	 * @param month 
+	 * @return
+	 */
+	public ResponseEntity<?> getQuizzezHistory(Integer idUserChild, Integer month, Integer year) {
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao seu 'id'.");
+		
+		QuizzesByDays quizzesByDays = findQuizHistory(idUserChild, month, year);
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).body(quizzesByDays);
+	}
+
+	/**
+	 * METODO BUSCA HISTÓRICO DE QUIZ POR DIA DO USER CHILD ESPECÍFICO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 19 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	private QuizzesByDays findQuizHistory(Integer idUserChild, Integer month, Integer year) {
+		QuizzesByDays quizzesByDays = new QuizzesByDays();
+		/*Buscar quizzes do periodo*/
+		List<Quiz> queizzesEntity = quizRepository.getHistoryQuizzesByPeriod(idUserChild, month, year);
+		/*Transofrmar em VO*/
+		for(Quiz quizEntity : queizzesEntity) {
+			FieldQuizVO fieldQuizVO = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
+			QuizVO quizVO = new QuizVO(quizEntity, fieldQuizVO);
+			/*Adicionar a lista de retorno*/
+			quizzesByDays.addQuiz(quizVO);
+		}
+		
+		return quizzesByDays;
+	}
+
+	/**
+	 * METODO BUSCA HISTÓRICO DE QUIZ POR DIA DOS USERS CHILDS DO USER FAHTER
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 19 de out. de 2024
+	 * @param id
+	 * @return
+	 */
+	public List<QuizzesByDays> findQuizHistoryForUserFather(Integer idUserFather, Integer month, Integer year) {
+		List<QuizzesByDays> quizzesByDays = new ArrayList<>();
+		
+		/*Buscar usuários child relacionados ao pai*/
+		List<UserChild> childsOfUserFather = childRepository.findChildByFkUserPai(idUserFather);
+		
+		for(UserChild childEntity: childsOfUserFather) {
+			QuizzesByDays byDays = findQuizHistory(childEntity.getId(), month, year);
+			byDays.setId(childEntity.getId().toString());
+			byDays.setNome(childEntity.getFirstName()+" "+childEntity.getLastName());
+			
+			quizzesByDays.add(byDays);
+		}
+		
+		
+		return quizzesByDays;
+	}	
 	
 	
 	

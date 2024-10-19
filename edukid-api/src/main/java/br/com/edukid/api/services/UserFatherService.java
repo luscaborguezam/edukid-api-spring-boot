@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import br.com.edukid.api.configurations.springsecurity.security.AuthorizationService;
 import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
 import br.com.edukid.api.configurations.springsecurity.security.infra.TokenService;
+import br.com.edukid.api.entities.UserChild;
 
 //import com.github.dozermapper.core.Mapper;
 
@@ -28,6 +29,7 @@ import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.SolicitarMudancaSenhaVO;
 import br.com.edukid.api.vo.v1.UserFatherCadastroVO;
 import br.com.edukid.api.vo.v1.UserFatherVO;
+import br.com.edukid.api.vo.v1.quiz.QuizzesByDays;
 import br.com.edukid.api.vo.v1.ranking.RankingVO;
 import br.com.edukid.api.vo.v1.ranking.RankingsForYearElementarySchoolVO;
 import jakarta.validation.Valid;
@@ -265,7 +267,26 @@ public class UserFatherService {
 		RankingsForYearElementarySchoolVO allRankings = childService.getAllRankingWeekForUserFather(id); 
 		
 		return ResponseEntity.status(HttpStatus.OK).body(allRankings);
-	}	
+	}
+
+	/**
+	 * METODO VERIFICA ID E BUSCA O HISTÓRICO DE QUIZZES PARA USERS CHILD DO USER PAI
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 19 de out. de 2024
+	 * @param id
+	 * @param month
+	 * @param year 
+	 * @return
+	 */
+	public ResponseEntity<?> getQuizzezHistory(Integer id, Integer month, Integer year) {
+		if(!securityServices.verifyUserFahterWithSolicitation(id.toString()))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao 'id' da conta.");
+		
+		List<QuizzesByDays> quizzesByDays = childService.findQuizHistoryForUserFather(id, month, year);
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).body(quizzesByDays);
+	}
 
 }
 	

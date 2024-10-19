@@ -61,6 +61,7 @@ public class SecurityConfiguration {
 						.requestMatchers(HttpMethod.POST, "/edukid/conf-quiz/subject-and-theme").hasRole("FATHER")
 						
 							/*Permissões do EndPoint user-child*/
+						.requestMatchers(HttpMethod.GET, "/edukid/user-child/quiz-hystory/**").hasRole("CHILD")
 						.requestMatchers(HttpMethod.PUT, "/edukid/conf-quiz/quiz").hasRole("CHILD")
 						.requestMatchers(HttpMethod.GET, "/edukid/conf-quiz/quiz").hasRole("CHILD")
 						.requestMatchers(HttpMethod.GET, "/edukid/user-child/ranking-week/**").hasRole("CHILD")

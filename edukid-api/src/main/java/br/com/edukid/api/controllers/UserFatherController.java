@@ -122,4 +122,23 @@ public class UserFatherController {
 		) {
 			return fatherService.getRanking(Integer.parseInt(id));
 	}
+	
+	/**
+	 * METODO BUSCA O QUIZZES CRIADOS POR PERIODO RELACIONADOS A USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 8 de set. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	@GetMapping(path="/quiz-hystory/{id}-{month}-{year}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getQuizzezHistory(
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "Key 'id' must be a string with the value of a valid integer") 
+			String id,
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^(0[1-9]|1[0-2])$", message = "'month' must be a string with the value numeric in range of 1:12'") 
+			String month,
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^\\d{4}$", message = "Key 'year' must be a string with the value numeric, exemple for year of 2024 must be '2024'") 
+			String year
+	) {
+		return fatherService.getQuizzezHistory(Integer.parseInt(id), Integer.parseInt(month), Integer.parseInt(year));
+	}
 }

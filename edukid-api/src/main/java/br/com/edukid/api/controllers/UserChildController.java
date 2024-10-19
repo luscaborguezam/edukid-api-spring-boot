@@ -88,7 +88,8 @@ public class UserChildController {
 	 */
 	@GetMapping(path="/account/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getUserChild(@PathVariable @Valid @NotBlank 
-			@Pattern(regexp = "^-?\\d+$", message = "Key 'account/{idUserChild}' must be a string with the value of a valid integer") String idUserChild){
+			@Pattern(regexp = "^-?\\d+$", message = "Key 'account/{idUserChild}' must be a string with the value of a valid integer") 
+			String idUserChild){
 		return childService.getUserChild(Integer.parseInt(idUserChild));
 	}
 	
@@ -101,7 +102,8 @@ public class UserChildController {
 	 */
 	@GetMapping(path="/by-user-father/{idUserFather}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getUserChildByUserFather(@PathVariable @Valid @NotBlank 
-			@Pattern(regexp = "^-?\\d+$", message = "Key 'account/{idUserFather}' must be a string with the value of a valid integer") String idUserFather){
+			@Pattern(regexp = "^-?\\d+$", message = "Key 'account/{idUserFather}' must be a string with the value of a valid integer") 
+			String idUserFather){
 		return childService.getUserChildByUserFather(Integer.parseInt(idUserFather));
 	}
 
@@ -117,7 +119,27 @@ public class UserChildController {
 			@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "'id' do usuário filho deve ser uma string numérica de valor inteiro")
 			String id
 		) {
-			return childService.getRAllRankingWeekForUserChild(Integer.parseInt(id));
+			return childService.getRankingWeekForUserChild(Integer.parseInt(id));
+	}
+	
+	
+	/**
+	 * METODO BUSCA O QUIZZES CRIADOS POR PERIODO RELACIONADOS A USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 8 de set. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	@GetMapping(path="/quiz-hystory/{idUserChild}-{month}-{year}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getQuizzezHistory(
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "Key 'idUserChild' must be a string with the value of a valid integer") 
+			String idUserChild,
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^(0[1-9]|1[0-2])$", message = "'month' must be a string with the value numeric in range of 1:12'") 
+			String month,
+			@PathVariable @Valid @NotBlank @Pattern(regexp = "^\\d{4}$", message = "Key 'year' must be a string with the value numeric, exemple for year of 2024 must be '2024'") 
+			String year
+	) {
+		return childService.getQuizzezHistory(Integer.parseInt(idUserChild), Integer.parseInt(month), Integer.parseInt(year));
 	}
 	
 //	@PutMapping(path="/change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

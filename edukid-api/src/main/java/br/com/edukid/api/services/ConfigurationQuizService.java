@@ -1,6 +1,5 @@
 package br.com.edukid.api.services;
 
-import java.awt.print.Printable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -47,11 +46,9 @@ import br.com.edukid.api.vo.v1.configquiz.TemaAprendizagemVO;
 import br.com.edukid.api.vo.v1.contents.ConteudoParaEstudo;
 import br.com.edukid.api.vo.v1.contents.MateriaDoConteudo;
 import br.com.edukid.api.vo.v1.performance.QuizPerformanceData;
-import br.com.edukid.api.vo.v1.performance.SubjectPerformance;
-import br.com.edukid.api.vo.v1.performance.ThemePerformance;
+import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
 import br.com.edukid.api.vo.v1.quiz.QuizByMateriaVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
-import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
 
 @Service
 public class ConfigurationQuizService {

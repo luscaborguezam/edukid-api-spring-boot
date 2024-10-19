@@ -296,7 +296,7 @@ public class PerformanceService {
 		performanceTotal.setTotalQuizzesNotRealized(quizRepository.countQuizzesByPeriodAndIsFinaled(IdUserChild, periodoInicial, periodoFinal, Defines.QUIZ_NAO_REALIZADO));
 		
 		/*BUSCAR QUIZZES REALIZADOS DO USER CHILD POR PERIODO*/		
-		List<Quiz> quizzesInPeriod = quizRepository.GetQuizzesByPeriod(IdUserChild, periodoInicial, periodoFinal);		
+		List<Quiz> quizzesInPeriod = quizRepository.getQuizzesByPeriod(IdUserChild, periodoInicial, periodoFinal);		
 		if(quizzesInPeriod == null || quizzesInPeriod.size() == 0) {
 			return null;
 		} else {
