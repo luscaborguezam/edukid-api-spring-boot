@@ -123,6 +123,6 @@ public interface UserChildRepository extends JpaRepository<UserChild, Integer>{
 	 * @Sice 13 de out. de 2024
 	 * @return
 	 */
-	@Query("SELECT u FROM UserChild u WHERE u.schoolYear =:schoolYear ORDER BY u.scoreWeek")
+	@Query("SELECT u FROM UserChild u WHERE U.schoolYear =:schoolYear ORDER BY u.scoreWeek")
 	List<UserChild> getRankingForScoreWeek(@Param("schoolYear") Integer schoolYear);
 }

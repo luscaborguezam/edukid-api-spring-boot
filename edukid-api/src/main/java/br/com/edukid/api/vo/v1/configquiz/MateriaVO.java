@@ -10,6 +10,7 @@ public class MateriaVO {
 	
 	@NotBlank
 	private String id;
+	@NotBlank
 	private String name;
 	@NotBlank
 	@Pattern(regexp = "^-?\\d+$", message = "Key 'questionsQuantity' must be a string with the value of a valid integer")

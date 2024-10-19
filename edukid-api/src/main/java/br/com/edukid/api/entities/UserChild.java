@@ -38,9 +38,9 @@ public class UserChild implements Serializable, UserDetails{
 	@Column(name = "sobrenome", nullable = false, length = 255)
 	private String lastName;
 	@Column(name = "score", nullable = false)
-	private Double scoreTotal = 0D;
+	private Double scoreTotal;
 	@Column(name = "score_semanal", nullable = false)
-	private Double scoreWeek = 0D;	
+	private Double scoreWeek;	
 	@Column(name = "apelido", nullable = false, length = 255)
 	private String nickname;
 	@Column(name = "passwd", nullable = false, length = 255)
