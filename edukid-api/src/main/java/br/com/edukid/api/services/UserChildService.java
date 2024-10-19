@@ -320,15 +320,15 @@ public class UserChildService {
 	}
 	
 	/**
-	 * METODO VERIFICA TOKEN COM O ID ENVIADO E BUSCA O RANKING PARA O USER CHILD
+	 * METODO VERIFICA TOKEN COM O ID ENVIADO E BUSCA TODOS RANKINGS POR ANO ESCOLAR PARA O USER CHILD
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 13 de out. de 2024
 	 * @param idUserChild
 	 * @return
 	 */
-	public ResponseEntity<?> getRAllRankingWeekForUserChild(Integer idUserChild) {
-		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao seu 'id'.");
+	public ResponseEntity<?> getRAllRankingWeek(Integer idUserChild) {
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild) && !securityServices.verifyUserFahterWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ou se relaciona com seu 'id'.");
 		
 		RankingsForYearElementarySchoolVO allRankingWeek = new RankingsForYearElementarySchoolVO();
 		for(Integer ano: Defines.ANOS_ENSINO_FUNDAMENTAL) {
@@ -340,7 +340,27 @@ public class UserChildService {
 	}
 	
 	/**
-	 * METODO BUSCA RANKINGS SEMANAL POR ANO DO ENSINO MéDIO MOSTRANDO OS NOMES DOS USUÁRIOS FILHOS RELACIONADOS A ID DO USER FATHER
+	 * METODO VERIFICA TOKEN COM O ID ENVIADO E BUSCA RANKING POR ANO ESCOLAR DO USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	public ResponseEntity<?> getRankingWeekForUserChild(Integer idUserChild) {
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao seu 'id'.");
+		
+		Optional<UserChild> opChild = childRepository.findById(idUserChild);
+		UserChild child = opChild.get();
+		List<RankingVO> rankinVO = getRankinWeekForUserChild(idUserChild, child.getSchoolYear() );
+			
+		
+		return ResponseEntity.status(HttpStatus.OK).body(rankinVO);
+	}
+	
+	
+	/**
+	 * METODO BUSCA RANKINGS SEMANAL POR ANO DO ESCOLAR MOSTRANDO OS NOMES DOS USUÁRIOS FILHOS RELACIONADOS A ID DO USER FATHER
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 13 de out. de 2024
 	 * @param id
