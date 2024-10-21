@@ -39,6 +39,7 @@ public class SecurityConfiguration {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //Habilitar Authentificação Stateless que é o padrão das aplicações REST(Apenas cria token para o usuário, diferente do statefull que armazena informações da sesão do usuário) 
 				.authorizeHttpRequests(authorize -> authorize
 							/*Sem permissões do EndPoint user-fathers*/
+						.requestMatchers(HttpMethod.GET, "/edukid/image/**").permitAll()
 						.requestMatchers(HttpMethod.POST, "/edukid/user-father/account").permitAll()
 						.requestMatchers(HttpMethod.POST, "/edukid/user-father/login").permitAll()
 						.requestMatchers(HttpMethod.POST, "/edukid/user-father/change-password").permitAll()

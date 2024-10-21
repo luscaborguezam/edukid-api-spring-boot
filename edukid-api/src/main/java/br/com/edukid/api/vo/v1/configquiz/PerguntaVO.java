@@ -32,9 +32,6 @@ public class PerguntaVO {
 	
 
 	
-	public void addItemInListInfoPergunta(InfoPergunta infoPergunta) {
-		this.infoPerguntas.add(infoPergunta);
-	}
 	
 	
 	
@@ -55,7 +52,9 @@ public class PerguntaVO {
 
 	public PerguntaVO() {}
 
-
+	public void addItemInListInfoPergunta(InfoPergunta infoPergunta) {
+		this.infoPerguntas.add(infoPergunta);
+	}
 
 	public String getId() {
 		return id;

@@ -1,15 +1,15 @@
 package br.com.edukid.api.configurations;
 
-import java.awt.print.Printable;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.hibernate.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import br.com.edukid.api.entities.Conteudo;
 import br.com.edukid.api.entities.Quiz;
+import br.com.edukid.api.repositorys.ConteudoRepository;
 import br.com.edukid.api.repositorys.QuizRepository;
 import br.com.edukid.api.repositorys.UserChildRepository;
 import br.com.edukid.api.repositorys.UserFatherRepository;
@@ -32,6 +32,9 @@ public class ScheduledTasks {
 	
 	@Autowired
 	UserFatherRepository fatherRepository;
+	
+	@Autowired
+	ConteudoRepository conteudoRepository;
 	
 	@Autowired
 	EmailService emailService;
@@ -104,5 +107,26 @@ public class ScheduledTasks {
     	childRepository.resetScoreWeek();
         
     }
+    
+// Não precisa, já está consiguindo renderizar a imagen no app    
+//    /**
+//     * METODO VERIFICA SE A IMAGEM NO BANCO DE DADOS ESTÁ SALVA NA PASTA RESOURSES/IMAGES, SE NÃ TIVER ELE SALVA
+//     * @Author LUCAS BORGUEZAM
+//     * @Sice 20 de out. de 2024
+//     */
+//    @PostConstruct
+//    public void saveImagesToEndpoint() {
+//    	/*Verificar imagens salvas*/
+//    	List<Conteudo> contents = conteudoRepository.findAll();
+//    	for(Conteudo content: contents) {
+//    		/*Verificar se o campo imagem é nulo*/
+//    		if(content.getImg() != null) {
+//    			/*Salvar a imagem*/
+//    			
+//    			
+//    		}
+//    	}
+//    	
+//    }
 
 }
