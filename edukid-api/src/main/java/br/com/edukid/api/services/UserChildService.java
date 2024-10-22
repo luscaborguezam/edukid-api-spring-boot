@@ -154,8 +154,14 @@ public class UserChildService {
 		if(!securityServices.verifyUserFahterWithSolicitation(id))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
 
-		var entity = childRepository.findById(id)
+		UserChild entity = childRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Esse ID não foi encontrado."));
+		
+		/*Deletar as relações de quiz com user child*/
+		List<Quiz> quizzes = quizRepository.findByidUserChild(id);
+		for(Quiz quiz : quizzes)
+			quizRepository.delete(quiz);
+		
 		childRepository.delete(entity);
 		return ResponseEntity.status(HttpStatus.OK).body("Deletado com sucesso.");
 	}

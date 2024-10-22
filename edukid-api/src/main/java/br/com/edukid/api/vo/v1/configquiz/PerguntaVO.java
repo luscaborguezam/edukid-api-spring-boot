@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 
 public class PerguntaVO {
 
+	private String idSubject;
+	
 	@NotBlank
 	private String id;
 
@@ -35,7 +37,8 @@ public class PerguntaVO {
 	
 	
 	
-	public PerguntaVO(Pergunta p) {
+	public PerguntaVO(Pergunta p, String id_subject) {
+		this.idSubject = id_subject;
 		this.id = p.getId().toString();
 		this.infoPerguntas = new ArrayList<>(); 
 		this.dificuldade = p.getDificuldade().toString();
@@ -50,10 +53,16 @@ public class PerguntaVO {
 		this.idTema = theme.getId();
 	}
 
-	public PerguntaVO() {}
-
 	public void addItemInListInfoPergunta(InfoPergunta infoPergunta) {
 		this.infoPerguntas.add(infoPergunta);
+	}
+
+	public String getIdSubject() {
+		return idSubject;
+	}
+
+	public void setIdSubject(String idSubject) {
+		this.idSubject = idSubject;
 	}
 
 	public String getId() {

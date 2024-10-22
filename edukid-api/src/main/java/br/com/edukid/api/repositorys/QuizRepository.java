@@ -122,8 +122,19 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 										 @Param("month") Integer month, 
 										 @Param("year") Integer year);
 
-	
-	
+	/**
+	 * METODO 
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 21 de out. de 2024
+	 * @param idUserChild
+	 * @param startDateTime
+	 * @param endDateTime
+	 * @return
+	 */
+	@Query("SELECT q FROM Quiz q "
+	        + "WHERE q.idUserChild = :idUserChild")
+	List<Quiz> findByidUserChild(@Param("idUserChild") Integer idUserChild);
+
 	/**
 	 * METODO BUSCA A QUANTIDADE DE QUIZZES DE ACORDO COM O PERIODO E STATUS DESEJADO
 	 * @Author LUCAS BORGUEZAM

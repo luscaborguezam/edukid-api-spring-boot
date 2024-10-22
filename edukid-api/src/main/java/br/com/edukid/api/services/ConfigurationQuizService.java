@@ -244,7 +244,7 @@ public class ConfigurationQuizService {
 				/*Buscar lista de perguntas relacionadas ao tema*/
 				List<Pergunta> perguntas = perguntaRepository.findPerguntasByIdTema(Integer.parseInt(theme.getId()));
 				/*Converter objeto*/
-				perguntasVO = convertPerguntasToPerguntasVO(perguntas, perguntasVO);
+				perguntasVO = convertPerguntasToPerguntasVO(perguntas, perguntasVO, subject.getId());
 			}
 	        /*Embaralhar os elementos da lista(quiz)*/
 	        Collections.shuffle(perguntasVO, new Random());
@@ -263,13 +263,14 @@ public class ConfigurationQuizService {
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 8 de set. de 2024
 	 * @param perguntas LISTA DE OBJETO PERGUNTAS
+	 * @param x 
 	 * @return
 	 */
-	private List<PerguntaVO> convertPerguntasToPerguntasVO(List<Pergunta> perguntas, List<PerguntaVO> perguntasVO) {
+	private List<PerguntaVO> convertPerguntasToPerguntasVO(List<Pergunta> perguntas, List<PerguntaVO> perguntasVO, String id_subject) {
 		/*Transformar Lista de perguntas no objeto Quiz para retorno*/
 		for (Pergunta p : perguntas) {
 			/*Transformar Pergunta em PerguntaVO*/
-				PerguntaVO perguntaVO = new PerguntaVO(p);
+				PerguntaVO perguntaVO = new PerguntaVO(p, id_subject);
 				InfoPergunta infoPergunta = jsonService.fromJson(p.getInfoPergunta(), InfoPergunta.class);
 				/*Adicionar infoPergunta a lista de perguntasVO*/
 				perguntaVO.addItemInListInfoPergunta(infoPergunta);

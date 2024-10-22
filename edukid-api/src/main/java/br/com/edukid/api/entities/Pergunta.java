@@ -35,6 +35,8 @@ public class Pergunta {
 	    
 	    @Column(name = "img")
 	    private String img;
+	    
+	    
 
 	    
 	    // Getters and Setters
