@@ -51,7 +51,7 @@ public class SecurityConfiguration {
 						.requestMatchers(HttpMethod.POST, "/edukid/user-father/**").hasRole("FATHER")
 						.requestMatchers(HttpMethod.GET, "/edukid/user-father/**").hasRole("FATHER")
 						.requestMatchers(HttpMethod.PUT, "/edukid/user-father/**").hasRole("FATHER")
-						.requestMatchers(HttpMethod.DELETE, "/edukid/user-father/**").hasRole("FATHER")
+						.requestMatchers(HttpMethod.PATCH, "/edukid/user-father/**").hasRole("FATHER")
 							/*endpoints user-Child*/
 						.requestMatchers(HttpMethod.POST, "/edukid/user-child/**").hasRole("FATHER")
 						.requestMatchers(HttpMethod.GET, "/edukid/user-child/account/**").hasRole("FATHER")

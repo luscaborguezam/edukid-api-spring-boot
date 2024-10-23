@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -69,7 +70,7 @@ public class UserFatherController {
 	 * @return
 	 * @throws Exception
 	 */
-	@DeleteMapping(value = "/account/{id}")
+	@PatchMapping(value = "/account/{id}")
 	public ResponseEntity<?> desactivteUserFather(
 			@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "'id' deve ser uma string numérica de valor inteiro")
 			String id
