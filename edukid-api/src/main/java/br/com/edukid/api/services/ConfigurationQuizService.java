@@ -167,7 +167,6 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	public ResponseEntity<?> toGenerateQuiz(Integer idUserChild){
-		
 		System.out.println("\nCriar ou buscar quiz em aberto");
 		FieldQuizVO fielQuiz = new FieldQuizVO();
 		Quiz quizEntity = new Quiz();
@@ -344,6 +343,7 @@ public class ConfigurationQuizService {
 	 * @return
 	 */
 	private Map<String, String> validationQuizRegistredWithQuizSended(QuizVO quizRegistred, QuizVO quizRealized) {
+		
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("Verification", "OK");
 		
@@ -384,7 +384,11 @@ public class ConfigurationQuizService {
 			}
 						
 			if(quizRegistred.getQuiz().getMaterias().size() != quizRealized.getQuiz().getMaterias().size()) {
-				map.put("Verification", "Quantidade de materias do quiz enviado é diferente do quiz criado");
+				map.put("Verification", "Quantidade de materias do quiz enviado é diferente do quiz criado\n"
+						+ " Quantidade esperada: "+quizRegistred.getQuiz().getMaterias().size() + "\n"
+						+ " Quantidade enviada: "+quizRealized.getQuiz().getMaterias().size()
+						
+						);
 				return map;				
 			}
 			
@@ -394,30 +398,44 @@ public class ConfigurationQuizService {
 				QuizByMateriaVO quizByMateriaRg = quizRegistred.getQuiz().getMaterias().get(i);
 
 				if(!quizByMateriaRg.getId().equals(quizByMateriaRz.getId())) {
-					map.put("Verification", "id da matéria(subject) do quiz enviado é diferente do quiz criado");
+					map.put("Verification", "id da matéria(subject) do quiz enviado é diferente do quiz criado\n"
+							+ " Id materia esperada: "+quizByMateriaRg.getId()+"\n"
+							+ " Id materia enviada: "+quizByMateriaRz.getId());
 					return map;					
 				}
 
 				
 				/*Verificar cada perguntaVO*/
 				for(int c=0; c < quizByMateriaRg.getQuiz().size(); c++) {
+						PerguntaVO perguntaRz = quizByMateriaRz.getQuiz().get(c);
+						PerguntaVO perguntaRg = quizByMateriaRg.getQuiz().get(c);
 					
-					if(!quizByMateriaRg.getQuiz().get(c).getId().equals(quizByMateriaRz.getQuiz().get(c).getId())) {
-						map.put("Verification", "id da questão do quiz enviado é diferente do quiz criado");
+					if(!perguntaRg.getId().equals(perguntaRz.getId())) {
+						map.put("Verification", "id da questão do quiz enviado é diferente do quiz criado\n"
+								+ " Id pergunta esperada: "+perguntaRg.getId()+"\n"
+								+ " Id pergunt enviada: "+perguntaRz.getId());
 						return map;						
 					}
 					/*Verificar informaç~eos da pergunta*/
-					for(int l=0; l < quizByMateriaRg.getQuiz().get(c).getInfoPerguntas().size(); l++) {
-						InfoPergunta infoPerguntaRz =  quizByMateriaRz.getQuiz().get(c).getInfoPerguntas().get(l);
-						InfoPergunta infoPerguntaRg =  quizByMateriaRg.getQuiz().get(c).getInfoPerguntas().get(l);
+					for(int l=0; l < perguntaRg.getInfoPerguntas().size(); l++) {
+						InfoPergunta infoPerguntaRz =  perguntaRz.getInfoPerguntas().get(l);
+						InfoPergunta infoPerguntaRg =  perguntaRg.getInfoPerguntas().get(l);
 						
 						if(!infoPerguntaRg.getQuestion().equals(infoPerguntaRz.getQuestion())) {
-							map.put("Verification", "'question' do quiz enviado é diferente do quiz criado");
+							map.put("Verification", "'question' do quiz enviado é diferente do quiz criado.\n"
+									+ " Id pergunta esperada: "+perguntaRg.getId()+"\n"
+									+ " Id pergunt enviada: "+perguntaRz.getId()+"\n"
+									+ " pergunta esperada: "+infoPerguntaRg.getQuestion()+"\n"
+									+ " pergunta enviada: "+infoPerguntaRz.getQuestion());
 							return map;							
 						}
 						
 						if(!infoPerguntaRg.getOptions().contains(infoPerguntaRz.getSelectedAnswer())) {
-							map.put("Verification", "'correctAnswer' não corresponde a nenhuma opção da lista options do quiz criado");
+							map.put("Verification", "'selectedAnswer' não corresponde a nenhuma opção da lista options do quiz criado\n"	
+									+ " Id pergunta esperada: "+perguntaRg.getId()+"\n"
+									+ " Id pergunt enviada: "+perguntaRz.getId()+"\n"
+									+ " options esperada: " +jsonService.toJson(infoPerguntaRg.getOptions())+"\n"
+									+ " options enviada: "+jsonService.toJson(infoPerguntaRz.getOptions()));
 							return map;							
 						}
 					}//for(infoPerguntas)

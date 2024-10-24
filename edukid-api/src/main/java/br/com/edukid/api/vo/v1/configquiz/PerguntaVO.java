@@ -28,25 +28,20 @@ public class PerguntaVO {
 	@NotBlank
 	private String bibliografia;
 	
-	@NotBlank
+	//@NotBlank
 	private String img;
 	
-	
+	public PerguntaVO() {}
 
-	
-	
-	
-	
-	public PerguntaVO(Pergunta p, String id_subject) {
-		this.idSubject = id_subject;
-		this.id = p.getId().toString();
-		this.infoPerguntas = new ArrayList<>(); 
-		this.dificuldade = p.getDificuldade().toString();
-		this.idTema = p.getIdTema().toString();
-		this.idConteudo = p.getIdConteudo().toString();
-		this.bibliografia = p.getBibliografia();
-		this.img = p.getImg();
-		
+	public PerguntaVO(Pergunta p, String id_subject) {			
+	    this.idSubject = id_subject;
+	    this.id = p.getId() == null ? "" : p.getId().toString();
+	    this.infoPerguntas = new ArrayList<>();
+	    this.dificuldade = p.getDificuldade() == null ? "" : p.getDificuldade().toString();
+	    this.idTema = p.getIdTema() == null ? "" : p.getIdTema().toString();
+	    this.idConteudo = p.getIdConteudo() == null ? "" : p.getIdConteudo().toString();
+	    this.bibliografia = p.getBibliografia() == null ? "" : p.getBibliografia();
+	    this.img = p.getImg();
 	}
 	
 	public PerguntaVO(TemaAprendizagemVO theme) {
