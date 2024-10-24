@@ -309,6 +309,8 @@ public class ConfigurationQuizService {
 		
 		FieldQuizVO fieldQuizRealized = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
 		QuizVO quizRegistred = new QuizVO(quizEntity, fieldQuizRealized);
+		
+		
 		Map<String, String> map = validationQuizRegistredWithQuizSended(quizRegistred, quizRealized);
 		if(map.get("Verification").equals("OK")) {
 			/*Adicionar os dados necessários quando finalizados*/
@@ -432,7 +434,8 @@ public class ConfigurationQuizService {
 						
 						if(!infoPerguntaRg.getOptions().contains(infoPerguntaRz.getSelectedAnswer())) {
 							map.put("Verification", "'selectedAnswer' não corresponde a nenhuma opção da lista options do quiz criado\n"	
-									+ " Id pergunta esperada: "+perguntaRg.getId()+"\n"
+									+ "'selectedAnswer': '"+infoPerguntaRz.getSelectedAnswer()+"'\n"
+									+ "Id pergunta esperada: "+perguntaRg.getId()+"\n"
 									+ " Id pergunt enviada: "+perguntaRz.getId()+"\n"
 									+ " options esperada: " +jsonService.toJson(infoPerguntaRg.getOptions())+"\n"
 									+ " options enviada: "+jsonService.toJson(infoPerguntaRz.getOptions()));

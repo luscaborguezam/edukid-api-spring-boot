@@ -7,6 +7,8 @@ public class SolicitarMudancaSenhaVO {
 	@Email @NotBlank
 	private String email;
 
+	public SolicitarMudancaSenhaVO() {}
+	
 	public String getEmail() {
 		return email;
 	}

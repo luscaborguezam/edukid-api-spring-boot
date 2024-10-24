@@ -1,11 +1,8 @@
 package br.com.edukid.api.vo.v1.performance;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import br.com.edukid.api.utils.Defines;
 
 public class QuizPerformanceData {
 	

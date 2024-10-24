@@ -12,6 +12,11 @@ public class RankingVO {
 		this.name = name;
 		this.score = score;
 	}
+	
+	public RankingVO() {
+		// TODO Auto-generated constructor stub
+	}
+	
 	public Integer getPosition() {
 		return position;
 	}

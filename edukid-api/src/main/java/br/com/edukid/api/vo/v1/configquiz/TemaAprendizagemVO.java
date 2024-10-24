@@ -23,7 +23,9 @@ public class TemaAprendizagemVO {
 	@Pattern(regexp = "^[1-4]$", message = "A chave 'bimonth' deve ser uma string numérica com valor igual ou entre 1 e 4")
 	private String bimonth;
 	
-	
+	public TemaAprendizagemVO() {
+		// TODO Auto-generated constructor stub
+	}
 	
 	public String getId() {
 		return id;

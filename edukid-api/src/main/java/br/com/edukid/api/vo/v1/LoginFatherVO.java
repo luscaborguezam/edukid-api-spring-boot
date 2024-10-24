@@ -17,6 +17,8 @@ public class LoginFatherVO {
 	private String password;
 	private String codVerificacao;
 	
+	public LoginFatherVO() {}
+	
 	public String getEmail() {
 		return email;
 	}

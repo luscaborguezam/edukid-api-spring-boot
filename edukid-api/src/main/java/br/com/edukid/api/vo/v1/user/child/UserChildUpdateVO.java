@@ -32,6 +32,8 @@ public class UserChildUpdateVO {
 	private String fkUserPai;//Numerico
 	private String token;
 	
+	public UserChildUpdateVO() {}
+	
 	/*Getters and Setters*/
 	public String getId() {
 		return id;

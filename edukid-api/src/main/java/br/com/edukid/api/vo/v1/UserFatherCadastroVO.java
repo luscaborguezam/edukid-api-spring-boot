@@ -32,6 +32,7 @@ public class UserFatherCadastroVO {
 	
 	private String status;
 	
+	public UserFatherCadastroVO() {}
 	
 	public String getId() {
 		return id;

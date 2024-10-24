@@ -15,6 +15,8 @@ public class LoginChildVO {
 	@NotBlank
 	private String password;
 	
+	public LoginChildVO() {}
+	
 	public String getNickName() {
 		return nickName;
 	}

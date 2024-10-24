@@ -20,6 +20,10 @@ public class MateriaVO {
 		temas.add(temaAprendizagemVO);
 	}
 	
+	public MateriaVO() {
+		// TODO Auto-generated constructor stub
+	}
+	
 	public String getId() {
 		return id;
 	}

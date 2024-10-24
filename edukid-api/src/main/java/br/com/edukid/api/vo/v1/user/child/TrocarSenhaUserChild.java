@@ -10,6 +10,9 @@ public class TrocarSenhaUserChild {
 	@NotBlank
 	private String password;
 	
+	public TrocarSenhaUserChild() {
+		// TODO Auto-generated constructor stub
+	}
 	
 	public String getIdUSerChild() {
 		return idUSerChild;

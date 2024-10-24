@@ -29,6 +29,7 @@ public class UserFatherVO {
 	private String status;
 	private String token;
 	
+	public UserFatherVO(){}
 	
 	public String getId() {
 		return id;

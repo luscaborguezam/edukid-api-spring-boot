@@ -28,9 +28,7 @@ public class UserChildGetVO {
 	private List<MateriaVO> configuration;
 	private String fkUserPai;
 	
-	
-	
-	
+	public UserChildGetVO(){}
 	
 	/*Getters and Setters*/
 	public String getId() {

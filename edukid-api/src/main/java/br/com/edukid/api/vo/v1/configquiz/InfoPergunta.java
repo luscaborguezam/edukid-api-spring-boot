@@ -14,6 +14,9 @@ public class InfoPergunta {
 	private String correctAnswer;
 	private String selectedAnswer;
 	
+	public InfoPergunta() {
+		// TODO Auto-generated constructor stub
+	}
 	
 	public String getQuestion() {
 		return question;

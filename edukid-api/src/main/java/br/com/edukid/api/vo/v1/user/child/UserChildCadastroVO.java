@@ -33,6 +33,8 @@ public class UserChildCadastroVO {
 	private String fkUserPai;//Numerico
 	private String token;
 	
+	public UserChildCadastroVO(){}
+	
 	/*Getters and Setters*/
 	public String getId() {
 		return id;
