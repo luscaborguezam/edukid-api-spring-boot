@@ -114,8 +114,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	 * @return
 	 */
 	@Query("SELECT q FROM Quiz q "
-	        + "WHERE q.isFinalized <> "+Defines.QUIZ_FINALIZADO+" "
-	        + "AND FUNCTION('MONTH', q.startDate) = :month "
+	        + "WHERE FUNCTION('MONTH', q.startDate) = :month "
 	        + "AND FUNCTION('YEAR', q.startDate) = :year "
 	        + "AND q.idUserChild = :idUserChild")
 	List<Quiz> getHistoryQuizzesByPeriod(@Param("idUserChild") Integer idUserChild,
