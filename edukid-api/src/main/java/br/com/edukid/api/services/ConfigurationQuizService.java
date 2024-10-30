@@ -591,21 +591,7 @@ public class ConfigurationQuizService {
 		}//if()
     		
 	}
-	
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * METODO VERIFICA O TOKEN COM O ID ENVIADO, E BUSCA QUIZ ATUAL EM ABERTO DO ID PASSADO 
 	 * E RETORNA O CONEUDO DE ESTUDO PARA ESSE QUIZ
@@ -689,6 +675,33 @@ public class ConfigurationQuizService {
 		List<MateriaDoConteudo> contents = findContentToStudybyQuiz(quizEntity);
 		
 		return ResponseEntity.status(HttpStatus.OK).body(contents);
+	}
+	
+	/**
+	 * METODO VERIFICA SE O USER DO TOKEM COM O ID DO USER PASSADO E BUSCA O QUIZ POR DATA
+	 * @Sice 30 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	public ResponseEntity<?> findQuizByIdUserAndDate(Integer idUserChild, Integer day, Integer month, Integer year){
+		/*Verificar token com o id do user child*/
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild) && !securityServices.verifyUserFahterWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não está relacionado com sua conta.");
+
+		
+		FieldQuizVO fielQuiz = new FieldQuizVO();
+		Quiz quizEntity = new Quiz();
+		QuizVO quiz = null;
+		
+		/*Verificar se existe um quiz criado na data específica*/
+		System.out.println(quizRepository.existsQuizByDateAndUser(idUserChild, day, month, year));
+		if(quizRepository.existsQuizByDateAndUser(idUserChild, day, month, year)) {
+			quizEntity = quizRepository.findQuizByDateAndUser(idUserChild, day, month, year);
+			fielQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
+			quiz = new QuizVO(quizEntity, fielQuiz);
+			return ResponseEntity.status(HttpStatus.OK).body(quiz);
+		} else
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não existe quiz para a data "+day+"/"+month+"/"+year+".");
 	}
 	
 	

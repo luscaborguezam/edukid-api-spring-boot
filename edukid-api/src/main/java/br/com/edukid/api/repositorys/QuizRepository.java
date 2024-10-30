@@ -31,6 +31,28 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	        + "AND DATE(q.startDate) = DATE(:currentDate)")
     Boolean existsQuizOpenByIdUserChild(@Param("idUserChild") Integer idUserChild, @Param("currentDate") LocalDate currentDate);
 	
+	/**
+	 * MÉTODO VERIFICAR SE EXISTE UM QUIZ DE UM USUÁRIO ESPECÍFICO EM UMA DATA DEFINIDA
+	 * @Author LUCAS BORGUEZAM
+	 * @Since 30 de out. de 2024
+	 * @param idUserChild ID do usuário filho
+	 * @param day Dia do mês
+	 * @param month Mês do ano
+	 * @param year Ano
+	 * @return Verdadeiro se existir um quiz aberto nessa data para o usuário
+	 */
+	@Query("SELECT CASE WHEN COUNT(q) > 0 THEN TRUE ELSE FALSE END "
+	        + "FROM Quiz q JOIN UserChild uc ON q.idUserChild = uc.id "
+	        + "WHERE uc.id = :idUserChild "
+	        + "AND FUNCTION('DAY', q.startDate) = :day "
+	        + "AND FUNCTION('MONTH', q.startDate) = :month "
+	        + "AND FUNCTION('YEAR', q.startDate) = :year")
+	Boolean existsQuizByDateAndUser(
+	        @Param("idUserChild") Integer idUserChild, 
+	        @Param("day") Integer day, 
+	        @Param("month") Integer month, 
+	        @Param("year") Integer year);
+
 
 	/**
 	 * METODO VERIFICAR SE EXISTE UM QUIZ ESPECIFICO E NA DATA ATUAL EM ABERTO DE UM USUÁRIO ESPECÍFICO
@@ -65,6 +87,28 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	        + "AND q.endDate IS NULL "
 	        + "AND DATE(q.startDate) = DATE(:currentDate)")
 	Quiz findQuizOpenByIdUserChild(@Param("idUserChild") Integer idUserChild, @Param("currentDate") LocalDate currentDate);
+	
+	/**
+	 * MÉTODO BUSCA UM QUIZ DE UM USUÁRIO ESPECÍFICO EM UMA DATA DEFINIDA
+	 * @Author LUCAS BORGUEZAM
+	 * @Since 30 de out. de 2024
+	 * @param idUserChild ID do usuário filho
+	 * @param day Dia do mês
+	 * @param month Mês do ano
+	 * @param year Ano
+	 * @return Quiz
+	 */
+	@Query("SELECT q FROM Quiz q "
+			+ "JOIN UserChild uc ON q.idUserChild = uc.id "
+	        + "WHERE uc.id = :idUserChild "
+	        + "AND FUNCTION('DAY', q.startDate) = :day "
+	        + "AND FUNCTION('MONTH', q.startDate) = :month "
+	        + "AND FUNCTION('YEAR', q.startDate) = :year")
+	Quiz findQuizByDateAndUser(
+	        @Param("idUserChild") Integer idUserChild, 
+	        @Param("day") Integer day, 
+	        @Param("month") Integer month, 
+	        @Param("year") Integer year);
 	
 	/**
 	 * METODO BUSCA OS QUIZZES EM ABERTO MENORES QUE A DATA ATUAL EM ABERTO

@@ -114,4 +114,27 @@ public class ConfQuizController {
 		return configurationQuizService.getContentToStudyByQuizId(Integer.parseInt(idQuiz));
 	}
 	
+	/**
+	 * METODO BUSCA QUIZ DE UMA DATA ESPECÍFICA E DE UM USUÁRIO ESPECÍFICO
+	 * @param idUserChild
+	 * @return
+	 */
+	@GetMapping(path="/quiz/{idUserChild}/date:{day}-{month}-{year}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getQuizByIdUserAndDate(@PathVariable @Valid @NotBlank 
+		@Pattern(regexp = "^-?\\d+$", message = "'idUserChild' deve ser uma string numérica de valor inteiro") 
+		String idUserChild,
+		@PathVariable @Valid @NotBlank @Pattern(regexp = "^([1-9]|0[1-9]|[12][0-9]|3[01])$", message = "'day' must be a valid day in the range 01 to 31, with exactly two digits")
+		String day,
+		@PathVariable @Valid @NotBlank @Pattern(regexp = "^([1-9]|0[1-9]|1[0-2])$", message = "'month' must be a string with the value numeric in range of 1:12'") 
+		String month,
+		@PathVariable @Valid @NotBlank @Pattern(regexp = "^\\d{4}$", message = "Key 'year' must be a string with the value numeric, exemple for year of 2024 must be '2024'") 
+		String year)
+		
+	{
+		return configurationQuizService.findQuizByIdUserAndDate(Integer.parseInt(idUserChild), 
+																Integer.parseInt(day),  
+																Integer.parseInt(month), 
+																Integer.parseInt(year)
+																);
+	}
 }
