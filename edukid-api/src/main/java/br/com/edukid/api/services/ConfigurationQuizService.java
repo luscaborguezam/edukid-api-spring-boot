@@ -109,7 +109,7 @@ public class ConfigurationQuizService {
 	 * @Sice 31 de ago. de 2024
 	 * @param materiasETemasVO
 	 * @return
-	 */
+	 */?
 	public ResponseEntity<?> registerConfQuiz(MateriasETemasVO materiasETemasVO){
 		if(!securityServices.verifyUserFahterWithSolicitation( Integer.parseInt( materiasETemasVO.getIdUserChild()) ))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");

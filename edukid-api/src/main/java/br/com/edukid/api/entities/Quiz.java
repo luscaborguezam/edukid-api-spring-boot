@@ -25,8 +25,6 @@ private static final long serialVersionUID = 1L;
 	
 	@Column(name = "id_quiz")
 	private Integer id;
-	@Column(name = "quiz", columnDefinition = "json",nullable = false)
-	private String quiz;
 	@Column(name = "data_inicio", nullable = false)
 	private LocalDateTime startDate; // yyyy-MM-dd'T'HH:mm:ss exemplo: 2024-09-11T15:30:45
 	@Column(name = "data_fim")
@@ -44,7 +42,6 @@ private static final long serialVersionUID = 1L;
 	 * @param userChild
 	 */
 	public Quiz(String quiz, Configuration confUserChild) {
-		this.quiz = quiz;
 		//this.startDate = LocalDateTime.now();
 		this.idUserChild = confUserChild.getId();
 		this.isFinalized = 0;
@@ -58,7 +55,6 @@ private static final long serialVersionUID = 1L;
 	 * @param quiz
 	 */
 	public void updateDataWithQuizRealized(QuizVO quizRegistred, String quiz) {
-		this.quiz = quiz;
 		this.endDate = LocalDateTime.parse(quizRegistred.getEndDate());
 		//this.endDate = LocalDateTime.now();
 		this.isFinalized = Integer.parseInt(quizRegistred.getIsFinalized());
@@ -71,12 +67,6 @@ private static final long serialVersionUID = 1L;
 	}
 	public void setId(Integer id) {
 		this.id = id;
-	}
-	public String getQuiz() {
-		return quiz;
-	}
-	public void setQuiz(String quiz) {
-		this.quiz = quiz;
 	}
 	public LocalDateTime getStartDate() {
 		return startDate;

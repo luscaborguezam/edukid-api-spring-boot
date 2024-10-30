@@ -108,7 +108,7 @@ public class UserChildController {
 	}
 
 	/**
-	 * METODO 
+	 * METODO BUSCA RANKING SEMANAL
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 13 de out. de 2024
 	 * @param id
