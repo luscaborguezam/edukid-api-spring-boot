@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
+import br.com.edukid.api.entities.ConfMateria;
+import br.com.edukid.api.entities.ConfTema;
 import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.Conteudo;
 import br.com.edukid.api.entities.Materia;
@@ -27,6 +29,8 @@ import br.com.edukid.api.entities.Quiz;
 import br.com.edukid.api.entities.UserChild;
 import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.mapper.EdukidMapper;
+import br.com.edukid.api.repositorys.ConfMateriaRepository;
+import br.com.edukid.api.repositorys.ConfTemaRepository;
 import br.com.edukid.api.repositorys.ConfigurationRepository;
 import br.com.edukid.api.repositorys.ConteudoRepository;
 import br.com.edukid.api.repositorys.MateriaRepository;
@@ -66,7 +70,9 @@ public class ConfigurationQuizService {
 	@Autowired
 	QuizRepository quizRepository;
 	@Autowired
-	ConfigurationRepository configurationRepository;
+	ConfMateriaRepository confMateriaRepository;
+	@Autowired
+	ConfTemaRepository confTemaRepository;
 	@Autowired
 	SecurityServices securityServices;
 	@Autowired
@@ -109,21 +115,26 @@ public class ConfigurationQuizService {
 	 * @Sice 31 de ago. de 2024
 	 * @param materiasETemasVO
 	 * @return
-	 */?
+	 */
 	public ResponseEntity<?> registerConfQuiz(MateriasETemasVO materiasETemasVO){
 		if(!securityServices.verifyUserFahterWithSolicitation( Integer.parseInt( materiasETemasVO.getIdUserChild()) ))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde a nenhum 'id' dos seus filhos.");
 	
-		
-		if(!configurationRepository.existsById(Integer.parseInt(materiasETemasVO.getIdUserChild())))
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User child not found");
-		/*Buscar registro*/
-		Optional<Configuration> opConfQuiz = configurationRepository.findById(Integer.parseInt(materiasETemasVO.getIdUserChild()));
-		Configuration confQuiz = opConfQuiz.get();
-		/*Setar o json de configuracao*/
-		confQuiz.setConfiguration(jsonService.toJson(materiasETemasVO));
-		configurationRepository.save(confQuiz);
-		
+		for(MateriaVO materiaVO : materiasETemasVO.getMaterias()){
+			ConfMateria confMateria = new ConfMateria(Integer.parseInt(materiasETemasVO.getIdUserChild()),
+													  Integer.parseInt(materiaVO.getId()),
+													  Integer.parseInt(materiaVO.getQuantityQuestions())
+													 );
+			confMateriaRepository.save(confMateria);
+			for(TemaAprendizagemVO temaAprendizagemVO: materiaVO.getTemas()) {
+				ConfTema confTema = new ConfTema(Integer.parseInt(materiasETemasVO.getIdUserChild()),
+												 Integer.parseInt(materiaVO.getId()),
+												 Integer.parseInt(temaAprendizagemVO.getId())
+												);
+				confTemaRepository.save(confTema);
+			}
+			
+		}
 		return ResponseEntity.status(HttpStatus.OK).body("Registrado!");
 	}
 	
@@ -134,7 +145,7 @@ public class ConfigurationQuizService {
 	 * @Sice 31 de ago. de 2024
 	 * @param idUserChild
 	 * @return
-	 */
+	 */?
 	public MateriasETemasVO getSubjectandThemeConfiguredFromUserChild(Integer idUserChild){
 		
 		/*Buscar registro*/

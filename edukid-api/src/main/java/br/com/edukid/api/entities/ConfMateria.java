@@ -20,20 +20,26 @@ public class ConfMateria implements Serializable{
 	@Column(name = "id_user_filho")
 	private Integer idUserChild;
 	@Column(name="id_materia")
-	private String idSubject;
+	private Integer idSubject;
 	@Column(name = "quantidade_questoes")
 	private Integer quantityQuestions;
 	
+	public ConfMateria(Integer idUserChild, Integer idSubject, Integer quantityQuestions) {
+		this.idUserChild = idUserChild;
+		this.idSubject = idSubject;
+		this.quantityQuestions = quantityQuestions;
+		
+	}
 	public Integer getIdUserChild() {
 		return idUserChild;
 	}
 	public void setIdUserChild(Integer idUserChild) {
 		this.idUserChild = idUserChild;
 	}
-	public String getIdSubject() {
+	public Integer getIdSubject() {
 		return idSubject;
 	}
-	public void setIdSubject(String idSubject) {
+	public void setIdSubject(Integer idSubject) {
 		this.idSubject = idSubject;
 	}
 	public Integer getQuantityQuestions() {

@@ -20,9 +20,15 @@ public class ConfTema implements Serializable{
 	@Column(name = "id_user_filho")
 	private Integer idUserChild;
 	@Column(name="id_materia")
-	private String idSubject;
+	private Integer idSubject;
 	@Column(name = "id_tema")
 	private Integer idTema;
+	
+	public ConfTema(Integer idUserChild, Integer idSubject,Integer idTema) {
+		this.idUserChild = idUserChild;
+		this.idSubject = idSubject;
+		this.idTema = idTema;
+	}
 	
 	public Integer getIdUserChild() {
 		return idUserChild;
@@ -30,10 +36,10 @@ public class ConfTema implements Serializable{
 	public void setIdUserChild(Integer idUserChild) {
 		this.idUserChild = idUserChild;
 	}
-	public String getIdSubject() {
+	public Integer getIdSubject() {
 		return idSubject;
 	}
-	public void setIdSubject(String idSubject) {
+	public void setIdSubject(Integer idSubject) {
 		this.idSubject = idSubject;
 	}
 	public Integer getIdTema() {
