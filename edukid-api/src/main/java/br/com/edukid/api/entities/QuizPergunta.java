@@ -11,7 +11,7 @@ public class QuizPergunta {
 	private static final long serialVersionUID = 1L;
 	
 
-	@Column(name = "id_quiz")
+	@Column(name = "id_quiz", nullable = false)
 	private Integer idQuiz;
 	@Column(name = "id_pergunta", nullable = false)
 	private Integer idQuestion;
@@ -19,6 +19,10 @@ public class QuizPergunta {
 	private String selectedAnswer;
 	
 	
+	public QuizPergunta(Integer idQuiz, Integer idQuestion) {
+		this.idQuiz = idQuiz;
+		this.idQuestion = idQuestion;
+	}
 	public Integer getIdQuiz() {
 		return idQuiz;
 	}

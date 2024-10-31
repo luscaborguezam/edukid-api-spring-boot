@@ -27,6 +27,10 @@ public class TemaAprendizagemVO {
 		// TODO Auto-generated constructor stub
 	}
 	
+	public TemaAprendizagemVO(String id) {
+		this.id = id;
+	}
+	
 	public String getId() {
 		return id;
 	}

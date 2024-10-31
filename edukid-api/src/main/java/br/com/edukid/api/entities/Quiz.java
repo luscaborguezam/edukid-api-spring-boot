@@ -25,12 +25,14 @@ private static final long serialVersionUID = 1L;
 	
 	@Column(name = "id_quiz")
 	private Integer id;
-	@Column(name = "data_inicio", nullable = false)
+	@Column(name = "data_inicio")
 	private LocalDateTime startDate; // yyyy-MM-dd'T'HH:mm:ss exemplo: 2024-09-11T15:30:45
 	@Column(name = "data_fim")
 	private LocalDateTime  endDate; // yyyy-MM-dd'T'HH:mm:ss exemplo: 2024-09-11T15:30:45
-	@Column(name = "finalizado", nullable = false)
+	@Column(name = "finalizado")
 	private Integer isFinalized;
+	@Column(name = "score")
+	private Integer score;
 	@Column(name = "id_user_filho", nullable = false)
 	private Integer idUserChild;
 	
@@ -85,6 +87,18 @@ private static final long serialVersionUID = 1L;
 	}
 	public void setIsfinalized(Integer isfinalized) {
 		isFinalized = isfinalized;
+	}
+	public Integer getIsFinalized() {
+		return isFinalized;
+	}
+	public void setIsFinalized(Integer isFinalized) {
+		this.isFinalized = isFinalized;
+	}
+	public Integer getScore() {
+		return score;
+	}
+	public void setScore(Integer score) {
+		this.score = score;
 	}
 	public Integer getIdUserChild() {
 		return idUserChild;

@@ -21,4 +21,15 @@ public interface MateriaRepository extends JpaRepository<Materia, Integer>{
 	@Query("SELECT DISTINCT m FROM Materia m JOIN TemaAprendizagem ta ON m.id = ta.idSubject WHERE ta.yearElementarySchool = :yearElementarySchool")
     List<Materia> findDistinctMateriasByYearElementarySchool(@Param("yearElementarySchool") Integer yearElementarySchool);
 
+
+
+
+	
+	@Query(	"SELECT DISTINCT m FROM Materia m "
+			+ "INNER JOIN Pergunta p ON m.id = p.idMateria"
+			+ "INNER JOIN QuizPergunta qp ON p.id = qp.idQuestion "
+			+ "INNER JOIN Quiz q ON qp.idQuiz = q.id "
+			+ "WHERE q.id = :idQuiz")
+    List<Materia> findDistinctMateriasByIdQuiz(@Param("idQuiz") Integer idQuiz);
+
 }

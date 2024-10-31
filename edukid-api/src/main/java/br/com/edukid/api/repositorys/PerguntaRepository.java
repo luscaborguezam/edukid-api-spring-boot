@@ -39,8 +39,27 @@ public interface PerguntaRepository extends JpaRepository<Pergunta, Integer> {
 			+ "INNER JOIN UserChild uf ON q.idUserChild = uf.id "
 			+ "WHERE uf.id =:idUserChild "
 			+ "AND q.idQuiz =:idQuiz")
-	List<Pergunta> findRandomPerguntasByTema(@Param("idUserChild") Integer idUserChild,
-											 @Param("idQuiz") Integer idQuiz
+	List<Pergunta> findRandomPerguntasOfQuizByTema(@Param("idUserChild") Integer idUserChild,
+											 	   @Param("idQuiz") Integer idQuiz
+			);
+	
+	/**
+	 * METODO PARA BUSCAR PERGUNTAS RELACIONADAS A UM QUIZ DE UM USUÁRIO
+	 * @param idUserChild
+	 * @param idQuiz
+	 * @return
+	 */	
+	@Query("SELECT p.* FROM Pergunta p "
+			+ "INNER JOIN Materia m ON p.idMateria = m.id "
+			+ "INNER JOIN QuizPergunta qp ON p.id = qp.idQuestion "
+			+ "INNER JOIN Quiz q ON qp.idQuiz = q.id "
+			+ "INNER JOIN UserChild uf ON q.idUserChild = uf.id "
+			+ "WHERE uf.id =:idUserChild "
+			+ "AND q.idQuiz =:idQuiz "
+			+ "AND m.id =:idMateria")
+	List<Pergunta> findRandomPerguntasOfQuizByTemaAndMatria(@Param("idUserChild") Integer idUserChild,
+															@Param("idQuiz") Integer idQuiz,
+															@Param("idMateria") Integer idMateria
 			);
 	
 }

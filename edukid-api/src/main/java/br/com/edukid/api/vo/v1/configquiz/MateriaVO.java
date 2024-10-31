@@ -1,5 +1,6 @@
 package br.com.edukid.api.vo.v1.configquiz;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
@@ -21,7 +22,13 @@ public class MateriaVO {
 	}
 	
 	public MateriaVO() {
-		// TODO Auto-generated constructor stub
+		temas = new ArrayList<>();
+	}
+	
+	public MateriaVO(String id, String quantityQuestions) {
+		this.id = id;
+		this.quantityQuestions = quantityQuestions;
+		temas = new ArrayList<>();
 	}
 	
 	public String getId() {

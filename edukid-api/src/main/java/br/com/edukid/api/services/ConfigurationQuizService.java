@@ -26,6 +26,7 @@ import br.com.edukid.api.entities.Conteudo;
 import br.com.edukid.api.entities.Materia;
 import br.com.edukid.api.entities.Pergunta;
 import br.com.edukid.api.entities.Quiz;
+import br.com.edukid.api.entities.QuizPergunta;
 import br.com.edukid.api.entities.UserChild;
 import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.mapper.EdukidMapper;
@@ -35,6 +36,7 @@ import br.com.edukid.api.repositorys.ConfigurationRepository;
 import br.com.edukid.api.repositorys.ConteudoRepository;
 import br.com.edukid.api.repositorys.MateriaRepository;
 import br.com.edukid.api.repositorys.PerguntaRepository;
+import br.com.edukid.api.repositorys.QuizPerguntaRepository;
 import br.com.edukid.api.repositorys.QuizRepository;
 import br.com.edukid.api.repositorys.TemaAprendizagemRepository;
 import br.com.edukid.api.repositorys.UserChildRepository;
@@ -69,6 +71,8 @@ public class ConfigurationQuizService {
 	PerguntaRepository perguntaRepository;
 	@Autowired
 	QuizRepository quizRepository;
+	@Autowired
+	QuizPerguntaRepository quizPerguntaRepository;
 	@Autowired
 	ConfMateriaRepository confMateriaRepository;
 	@Autowired
@@ -145,14 +149,24 @@ public class ConfigurationQuizService {
 	 * @Sice 31 de ago. de 2024
 	 * @param idUserChild
 	 * @return
-	 */?
+	 */
 	public MateriasETemasVO getSubjectandThemeConfiguredFromUserChild(Integer idUserChild){
 		
-		/*Buscar registro*/
-		Optional<Configuration> opConfQuiz = configurationRepository.findById(idUserChild);
-		Configuration confQuiz = opConfQuiz.get();
-		MateriasETemasVO mt = jsonService.fromJson(confQuiz.getConfiguration(), MateriasETemasVO.class);
-		mt.setIdUserChild(idUserChild.toString());
+		MateriasETemasVO mt = new MateriasETemasVO(idUserChild.toString());
+		
+		/*Buscar registro e carregar objeto de retorno*/
+		List<ConfMateria> confMaterias = confMateriaRepository.findByIdUserChild(idUserChild);
+		for(ConfMateria confMateria: confMaterias) {
+			MateriaVO materiaVO = new MateriaVO(confMateria.getIdSubject().toString(), confMateria.getQuantityQuestions().toString());
+			
+			/*Pegar temas relacionados a matéria*/
+			List<ConfTema> confTemas = confTemaRepository.findByIdUserChild(confMateria.getIdSubject(), confMateria.getIdUserChild());
+			for(ConfTema confTema : confTemas) {
+				TemaAprendizagemVO temaAprendizagemVO = new TemaAprendizagemVO(confTema.getIdTema().toString());
+				materiaVO.addTemaAprendizagemVO(temaAprendizagemVO);
+			}
+			mt.addMateriaVO(materiaVO);
+		}
 		
 		return mt;
 	}
@@ -179,7 +193,6 @@ public class ConfigurationQuizService {
 	 */
 	public ResponseEntity<?> toGenerateQuiz(Integer idUserChild){
 		System.out.println("\nCriar ou buscar quiz em aberto");
-		FieldQuizVO fielQuiz = new FieldQuizVO();
 		Quiz quizEntity = new Quiz();
 		QuizVO quiz = null;
 		
@@ -187,47 +200,66 @@ public class ConfigurationQuizService {
 		System.out.println(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now()));
 		if(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now())) {
 			quizEntity = quizRepository.findQuizOpenByIdUserChild(idUserChild, LocalDate.now());
-			fielQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
-			quiz = new QuizVO(quizEntity, fielQuiz);
+			quiz = getQuizVO(quizEntity);
 			return ResponseEntity.status(HttpStatus.OK).body(quiz);
 		}
 		
 		/*Buscar as configurações do quiz*/
-		Optional<Configuration> opConfQuiz = configurationRepository.findById(idUserChild);
-		Configuration confEntity = opConfQuiz.get();
-		/*Transformar json de configuração em objeto*/
-		MateriasETemasVO confQuiz = jsonService.fromJson(confEntity.getConfiguration(), MateriasETemasVO.class);
-		
-		if(confQuiz == null) 
+		MateriasETemasVO confQuiz = getSubjectandThemeConfiguredFromUserChild(idUserChild);
+		if(confQuiz.getMaterias() == null || confQuiz.getMaterias().size() == 0) 
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado, para criar o quiz primeiro você deve cadastrar as configurações do quiz.");
 		
+		/*Criar quiz*/
+		quizEntity.setIdUserChild(idUserChild);
+		Quiz quizSaved = quizRepository.save(quizEntity);
 		
-		/*Buscar o quiz de cada matéria e temas relcionados a matéria segundo a configuração cadastrada para o usuário filho*/
+		/*Criar quiz de cada matéria e temas relcionados a matéria segundo a configuração cadastrada para o usuário filho*/
 		List<QuizByMateriaVO> quizMateriaVOs = getQuizForSubject(confQuiz);
 
-		/*Definir a quantidade de questões no quiz final*/
-		
-	
-		/*Adicionar ao quiz a quantidade de questões definida nas configurações do user child*/
-		fielQuiz.setMaterias(quizMateriaVOs);
-		
-		/*Cadastrar quiz*/
-		quizEntity = new Quiz(jsonService.toJson(fielQuiz), confEntity);
-		/*Inserir com query nativa para adicionar data de criação pelo mysql*/
-		quizRepository.insertQuizWithoutstartDate(
-				quizEntity.getQuiz(),
-				quizEntity.getIsfinalized(),
-				quizEntity.getIdUserChild()
-				);
-		
-		quizEntity = quizRepository.findQuizOpenByIdUserChild(idUserChild, LocalDate.now());
+		/*Salvar as prguntas criadas na tabela quiz_perguntas*/
+		for(QuizByMateriaVO byMateriaVO: quizMateriaVOs) 
+			for(PerguntaVO perguntaVO: byMateriaVO.getQuiz()) {
+				QuizPergunta quizPergunta = new  QuizPergunta(quizSaved.getId(), Integer.parseInt(perguntaVO.getId()));
+				quizPerguntaRepository.save(quizPergunta);
+			}
 		
 		/*Objeto de retorno*/
-		quiz = new QuizVO(quizEntity, fielQuiz);
+		quiz = getQuizVO(quizEntity);
 		
         return ResponseEntity.status(HttpStatus.CREATED).body(quiz);
 	}
 	
+
+	/**
+	 * METODO BUSCA UM QUIZ JÁ EXISTENTE E RETORNA OBJETO QUIZVO CARREGADO
+	 * @param idUserChild
+	 * @return
+	 */
+	public QuizVO getQuizVO(Quiz quizEntity) {
+		FieldQuizVO fielQuiz = new FieldQuizVO(quizEntity.getScore().toString());
+		
+		/*Buscar materias*/
+		List<Materia> materias = materiaRepository.findDistinctMateriasByIdQuiz(quizEntity.getId());
+		for(Materia materia : materias) {
+			QuizByMateriaVO quizByMateriaVO = new QuizByMateriaVO(materia);
+			List<Pergunta> perguntas = perguntaRepository.findRandomPerguntasOfQuizByTemaAndMatria(
+					quizEntity.getIdUserChild(), 
+					quizEntity.getId(),
+					materia.getId()
+			);
+			
+			for(Pergunta pergunta: perguntas) {
+				PerguntaVO perguntaVO = new PerguntaVO(pergunta, materia.getId().toString());
+				perguntaVO.setInfoPerguntas(jsonService.fromJsonToList(pergunta.getInfoPergunta(), InfoPergunta.class));
+				
+				quizByMateriaVO.addPerguntaVO(perguntaVO);
+			}
+			fielQuiz.addQuizByMateriaVO(quizByMateriaVO);
+		}
+		
+		QuizVO quiz = new QuizVO(quizEntity, fielQuiz);
+		return quiz;
+	}
 	
 	/**
 	 * METODO CRIA QUIZ POR MATÉRIAS E TEMAS SALVOS NAS CONFIGURAÇÃO DO USUÁRIO 
@@ -296,7 +328,7 @@ public class ConfigurationQuizService {
 	 * @Sice 11 de set. de 2024
 	 * @param quizRealized
 	 * @return
-	 */
+	 */?
 	public ResponseEntity<?> registerQuizRealized(QuizVO quizRealized) {
 		if(!securityServices.verifyUserChildWithSolicitation( Integer.parseInt(quizRealized.getIdUserChild()) ))
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");

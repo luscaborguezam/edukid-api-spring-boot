@@ -29,6 +29,10 @@ public class Pergunta {
 	    
 	    @Column(name = "id_conteudo", nullable = false)
 	    private Integer idConteudo;
+
+	    @Column(name = "id_materia", nullable = false)
+	    private Integer idMateria;
+
 	    
 	    @Column(name = "bibliografia", nullable = false)
 	    private String bibliografia;
@@ -78,6 +82,14 @@ public class Pergunta {
 
 		public void setIdConteudo(Integer idConteudo) {
 			this.idConteudo = idConteudo;
+		}
+
+		public Integer getIdMateria() {
+			return idMateria;
+		}
+
+		public void setIdMateria(Integer idMateria) {
+			this.idMateria = idMateria;
 		}
 
 		public String getBibliografia() {

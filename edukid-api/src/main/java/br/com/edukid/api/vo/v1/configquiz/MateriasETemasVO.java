@@ -21,6 +21,11 @@ public class MateriasETemasVO {
 		materias = new ArrayList<>();
 	}
 
+	public MateriasETemasVO(String idUserChild) {
+		this.idUserChild = idUserChild;
+		materias = new ArrayList<>();
+	}
+	
 	public List<MateriaVO> getMaterias() {
 		return materias;
 	}

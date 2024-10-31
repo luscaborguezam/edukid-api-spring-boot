@@ -1,5 +1,6 @@
 package br.com.edukid.api.vo.v1.quiz;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.edukid.api.entities.Materia;
@@ -20,7 +21,8 @@ public class QuizByMateriaVO {
 	
 	public QuizByMateriaVO(Materia subject) {
 		this.id = subject.getId().toString();
-		this.subject = subject.getName();		
+		this.subject = subject.getName();
+		quiz = new ArrayList<>();
 	}
 	
 	/**
@@ -30,6 +32,10 @@ public class QuizByMateriaVO {
 	 */
 	public void orderQuizByIdTheme() {
 		quiz.sort((p1, p2) -> p1.getIdTema().compareTo(p2.getIdTema()));
+	}
+	
+	public void addPerguntaVO(PerguntaVO perguntaVO) {
+		quiz.add(perguntaVO);
 	}
 	
 	public String getId() {
