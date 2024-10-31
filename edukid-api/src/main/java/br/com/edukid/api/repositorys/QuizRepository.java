@@ -104,7 +104,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	        + "AND FUNCTION('DAY', q.startDate) = :day "
 	        + "AND FUNCTION('MONTH', q.startDate) = :month "
 	        + "AND FUNCTION('YEAR', q.startDate) = :year")
-	Quiz findQuizByDateAndUser(
+	List<Quiz> findQuizByDateAndUser(
 	        @Param("idUserChild") Integer idUserChild, 
 	        @Param("day") Integer day, 
 	        @Param("month") Integer month, 

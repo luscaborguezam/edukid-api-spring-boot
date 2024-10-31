@@ -687,19 +687,17 @@ public class ConfigurationQuizService {
 		/*Verificar token com o id do user child*/
 		if(!securityServices.verifyUserChildWithSolicitation(idUserChild) && !securityServices.verifyUserFahterWithSolicitation(idUserChild))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não está relacionado com sua conta.");
-
 		
-		FieldQuizVO fielQuiz = new FieldQuizVO();
-		Quiz quizEntity = new Quiz();
-		QuizVO quiz = null;
-		
+		List<QuizVO> listQuizVO = new ArrayList<>();
 		/*Verificar se existe um quiz criado na data específica*/
-		System.out.println(quizRepository.existsQuizByDateAndUser(idUserChild, day, month, year));
 		if(quizRepository.existsQuizByDateAndUser(idUserChild, day, month, year)) {
-			quizEntity = quizRepository.findQuizByDateAndUser(idUserChild, day, month, year);
-			fielQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
-			quiz = new QuizVO(quizEntity, fielQuiz);
-			return ResponseEntity.status(HttpStatus.OK).body(quiz);
+			List<Quiz> listQuizEntity = quizRepository.findQuizByDateAndUser(idUserChild, day, month, year);
+			for(Quiz quizEntity: listQuizEntity) {
+				FieldQuizVO fielQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
+				QuizVO quiz = new QuizVO(quizEntity, fielQuiz);
+				listQuizVO.add(quiz);
+			}
+			return ResponseEntity.status(HttpStatus.OK).body(listQuizVO);
 		} else
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não existe quiz para a data "+day+"/"+month+"/"+year+".");
 	}
