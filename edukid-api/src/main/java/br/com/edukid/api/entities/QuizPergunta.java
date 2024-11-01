@@ -1,6 +1,8 @@
 package br.com.edukid.api.entities;
 
+import br.com.edukid.api.entities.ids.QuizPerguntaId;
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -10,30 +12,26 @@ public class QuizPergunta {
 	
 	private static final long serialVersionUID = 1L;
 	
-
-	@Column(name = "id_quiz", nullable = false)
-	private Integer idQuiz;
-	@Column(name = "id_pergunta", nullable = false)
-	private Integer idQuestion;
+	@EmbeddedId
+	private QuizPerguntaId id; 
+	
 	@Column(name = "resposta_selecionada")
 	private String selectedAnswer;
 	
 	
+	public QuizPergunta() {
+		id = new QuizPerguntaId();
+	}
+	
 	public QuizPergunta(Integer idQuiz, Integer idQuestion) {
-		this.idQuiz = idQuiz;
-		this.idQuestion = idQuestion;
+		id = new QuizPerguntaId(idQuiz, idQuestion);
 	}
-	public Integer getIdQuiz() {
-		return idQuiz;
+	
+	public QuizPerguntaId getId() {
+		return id;
 	}
-	public void setIdQuiz(Integer idQuiz) {
-		this.idQuiz = idQuiz;
-	}
-	public Integer getIdQuestion() {
-		return idQuestion;
-	}
-	public void setIdQuestion(Integer idQuestion) {
-		this.idQuestion = idQuestion;
+	public void setId(QuizPerguntaId id) {
+		this.id = id;
 	}
 	public String getSelectedAnswer() {
 		return selectedAnswer;

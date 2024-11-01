@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,6 +32,7 @@ import br.com.edukid.api.vo.v1.performance.SubjectPerformance;
 import br.com.edukid.api.vo.v1.performance.ThemePerformance;
 import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
 import br.com.edukid.api.vo.v1.quiz.QuizByMateriaVO;
+import br.com.edukid.api.vo.v1.quiz.QuizVO;
 
 @Service
 public class PerformanceService {
@@ -205,65 +208,103 @@ public class PerformanceService {
 	}
 
 	/**
+	 * BUSCA DADOS DA PERFORMANCE ERETORNA UM RESPONSE ENTITY
+	 * @param IdUserChild
+	 * @param dataInicial
+	 * @param dataFInal
+	 * @param quizzesInPeriods
+	 * @return
+	 */
+	public ResponseEntity<?> getPerformanceByPeriod(Integer IdUserChild, LocalDate dataInicial, LocalDate dataFInal,  List<QuizVO> quizzesInPeriods){
+		
+		 QuizPerformanceData performanceTotal = calculatePerformanceByPeriod(IdUserChild, dataInicial, dataFInal, quizzesInPeriods);
+	        if(performanceTotal == null)
+	        	return ResponseEntity.status(HttpStatus.OK).body("Não há quizzes realizados para o periodo de "+dataInicial+" até ");
+	        
+			return ResponseEntity.status(HttpStatus.OK).body(performanceTotal);
+	}
+	
+	/**
 	 * METODO VERIFICA OS DADOS ENVIADOS PARA CALCULAR PERFORMANCE POR PERIODO, E RETORNA OS DADOS DA PERFORMANCE
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 8 de out. de 2024
 	 * @param fieldQuiz
 	 * @return
 	 */
-	public ResponseEntity<?> GetPerformanceByPeriod(Integer IdUserChild, String type, String period) {
+ 	public Map<String, String> verifyParamPeriod(Integer IdUserChild, String type, String period) {
+		Map<String, String> returnMap = new HashMap<>();
 		/*Verificar token com o id do user child*/
-		if(!securityServices.verifyUserChildWithSolicitation(IdUserChild) && !securityServices.verifyUserFahterWithSolicitation(IdUserChild))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não está relacionado com sua conta.");
-		
+		if(!securityServices.verifyUserChildWithSolicitation(IdUserChild) && !securityServices.verifyUserFahterWithSolicitation(IdUserChild)) {
+			returnMap.put("stausCode", "UNAUTHORIZED");
+			returnMap.put("message", "'idUserChild' enviado não está relacionado com sua conta.");
+			return returnMap;
+		}        
+	        
+    	if((type == null || type.isEmpty()) && period != null) {
+			returnMap.put("stausCode", "UNAUTHORIZED");
+			returnMap.put("message", "Para utilizar o parâmetro 'periodo' é preciso usar o parâmetro 'tipe', exemplo '?tipo=d&periodo=7'");
+			return returnMap;
+        }
+        
+    	String regex = "^[1-9][0-9]*$";	
+        if(!period.matches(regex)) {
+			returnMap.put("stausCode", "UNAUTHORIZED");
+			returnMap.put("message", "parâmetro 'periodo' deve ser uma string numérica maior que 0 exemplo '?tipo=d&periodo=7'");
+			return returnMap;
+        }
+        
+		/*Verificar o tipo escolhido*/
+		if(!Defines.TYPES_PERIOD.contains(type)) {
+			returnMap.put("stausCode", "UNAUTHORIZED");
+			returnMap.put("message", "'tipo' inválido, deve estar entre essas opções ['d','m','a']");
+			return returnMap;
+		}
+		returnMap.put("statusCode", "OK");
+		return returnMap;
+	}
+	
+	/**
+	 * METODO BUSCA FORMA O PERIODO DA CONSULTA
+	 * @param IdUserChild
+	 * @param type
+	 * @param period
+	 * @param quizzesInPeriods
+	 * @return
+	 */
+	public Map<String, LocalDate> getPeriod(Integer IdUserChild, String type, String period) {
+		Map<String, LocalDate> returnMap = new HashMap<>();
 		QuizPerformanceData quizPerformanceData = null;
 		/*Definir o periodo*/
 		LocalDate hoje = LocalDate.now();
         LocalDate dataInicial;
-        String regex = "^[1-9][0-9]*$";
-        
         /*Verificar uso dos parâmetros*/
         if (type == null && period == null)
         	dataInicial = hoje;
-        
-        else {        	
-	        if((type == null || type.isEmpty()) && period != null)
-	        	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Para utilizar o parâmetro 'periodo' é preciso usar o parâmetro 'tipe', exemplo '?tipo=d&periodo=7'");
-	        if(!period.matches(regex))
-	        	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("parâmetro 'periodo' deve ser uma string numérica maior que 0 exemplo '?tipo=d&periodo=7'");
-			
-			/*Verificar o tipo escolhido*/
-			if(!Defines.TYPES_PERIOD.contains(type))
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'tipo' inválido, deve estar entre essas opções ['d','m','a']");
-
-			Integer p = period == null? 0: Integer.parseInt(period);
-			System.out.println("pré switch");
-			switch (type.toLowerCase()) {
-			case "d": // Dias
-				System.out.println("case 'd'");
-				dataInicial = hoje.minusDays(p);
-				break;
-			case "m": // Meses
-				dataInicial = hoje.minusMonths(p);
-				break;
-			case "a": // Anos
-				dataInicial = hoje.minusYears(p);
-				break;
-			default:
-				System.out.println("Período inválido.");
-				return null;
-			}
-        }
 		
-    	
+		Integer p = period == null? 0: Integer.parseInt(period);
+		System.out.println("pré switch");
+		switch (type.toLowerCase()) {
+		case "d": // Dias
+			System.out.println("case 'd'");
+			dataInicial = hoje.minusDays(p);
+			break;
+		case "m": // Meses
+			dataInicial = hoje.minusMonths(p);
+			break;
+		case "a": // Anos
+			dataInicial = hoje.minusYears(p);
+			break;
+		default:
+			System.out.println("Período inválido.");
+			return null;
+		}
         System.out.println("\n\nData inicial: "+dataInicial + " Data final: "+ hoje);
+		returnMap.put("inicial", dataInicial);
+		returnMap.put("final", hoje);
+		return returnMap;
         
-        QuizPerformanceData performanceTotal = calculatePerformanceByPeriod(IdUserChild, dataInicial, hoje);
-        if(performanceTotal == null)
-        	return ResponseEntity.status(HttpStatus.OK).body("Não há quizzes realizados para o periodo de "+dataInicial+" até ");
-        
-		return ResponseEntity.status(HttpStatus.OK).body(performanceTotal);
 	}
+
 
 	/**
 	 * 
@@ -275,13 +316,13 @@ public class PerformanceService {
 	 * @param periodoAtual
 	 * @return
 	 */
-	public QuizPerformanceData calculatePerformanceByPeriod(Integer IdUserChild, LocalDate periodoInicial, LocalDate periodoFinal) {
+	public QuizPerformanceData calculatePerformanceByPeriod(Integer IdUserChild, LocalDate periodoInicial, LocalDate periodoFinal, List<QuizVO> quizzesInPeriod) {
 		
 		/*Buscar dados do user child*/
 		Optional<UserChild> opChild = childRepository.findById(IdUserChild);
 		UserChild child = opChild.get();
 		
-		/*Acrescentar dados do ser child no objeto de performance total*/
+		/*Acrescentar dados do user child no objeto de performance total*/
 		QuizPerformanceData performanceTotal = new QuizPerformanceData(); 
 		performanceTotal.setNameUserChild(child.getFirstName()+" "+child.getLastName());
 		performanceTotal.setNickName(child.getNickname());
@@ -296,27 +337,22 @@ public class PerformanceService {
 		performanceTotal.setTotalQuizzesNotRealized(quizRepository.countQuizzesByPeriodAndIsFinaled(IdUserChild, periodoInicial, periodoFinal, Defines.QUIZ_NAO_REALIZADO));
 		
 		/*BUSCAR QUIZZES REALIZADOS DO USER CHILD POR PERIODO*/		
-		List<Quiz> quizzesInPeriod = quizRepository.getQuizzesByPeriod(IdUserChild, periodoInicial, periodoFinal);		
+				
 		if(quizzesInPeriod == null || quizzesInPeriod.size() == 0) {
 			return null;
 		} else {
 			performanceTotal.setTotalQuizzesFinalized(quizzesInPeriod.size());
 			
-			for(Quiz quiz: quizzesInPeriod) {
-				System.out.println("json field: "+jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class));
-				System.out.println(quiz.getId());
-				QuizPerformanceData performance = calculateQuizPerformmance(jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class));
+			for(QuizVO quizVORegistred: quizzesInPeriod) {
+				FieldQuizVO fielQuiz = quizVORegistred.getQuiz();
+								
+				System.out.println("json field: "+jsonService.toJson(fielQuiz));
+				QuizPerformanceData performance = calculateQuizPerformmance(fielQuiz);
 					
 				performanceTotal.combinar(performance);
 			}
 			
 		}
-		
-		
-
-		
-
-		
 		return performanceTotal;
 	
 	}

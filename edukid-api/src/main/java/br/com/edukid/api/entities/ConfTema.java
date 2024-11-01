@@ -2,7 +2,8 @@ package br.com.edukid.api.entities;
 
 import java.io.Serializable;
 
-import jakarta.persistence.Column;
+import br.com.edukid.api.entities.ids.ConfTemaId;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -17,35 +18,26 @@ public class ConfTema implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
-	@Column(name = "id_user_filho")
-	private Integer idUserChild;
-	@Column(name="id_materia")
-	private Integer idSubject;
-	@Column(name = "id_tema")
-	private Integer idTema;
+	@EmbeddedId
+	private ConfTemaId id;
+	
+	public ConfTema() {
+		id = new ConfTemaId();
+	}
 	
 	public ConfTema(Integer idUserChild, Integer idSubject,Integer idTema) {
-		this.idUserChild = idUserChild;
-		this.idSubject = idSubject;
-		this.idTema = idTema;
+		id.setIdUserChild(idUserChild);
+		id.setIdSubject(idSubject);
+		id.setIdTema(idTema);
+	}
+
+	public ConfTemaId getId() {
+		return id;
+	}
+
+	public void setId(ConfTemaId id) {
+		this.id = id;
 	}
 	
-	public Integer getIdUserChild() {
-		return idUserChild;
-	}
-	public void setIdUserChild(Integer idUserChild) {
-		this.idUserChild = idUserChild;
-	}
-	public Integer getIdSubject() {
-		return idSubject;
-	}
-	public void setIdSubject(Integer idSubject) {
-		this.idSubject = idSubject;
-	}
-	public Integer getIdTema() {
-		return idTema;
-	}
-	public void setIdTema(Integer idTema) {
-		this.idTema = idTema;
-	}
+	
 }

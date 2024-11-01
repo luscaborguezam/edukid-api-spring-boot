@@ -1,7 +1,6 @@
 package br.com.edukid.api.services;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -16,33 +15,25 @@ import org.springframework.stereotype.Service;
 
 import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
 import br.com.edukid.api.configurations.springsecurity.security.infra.TokenService;
-import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.Quiz;
 import br.com.edukid.api.entities.UserChild;
-import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.exceptions.ResourceNotFoundException;
 import br.com.edukid.api.mapper.EdukidMapper;
-import br.com.edukid.api.repositorys.ConfigurationRepository;
 import br.com.edukid.api.repositorys.QuizRepository;
 import br.com.edukid.api.repositorys.UserChildRepository;
-import br.com.edukid.api.utils.Defines;
 import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.utils.StringServices;
 import br.com.edukid.api.utils.UtilsService;
 import br.com.edukid.api.vo.v1.LoginChildVO;
-import br.com.edukid.api.vo.v1.LoginFatherVO;
 import br.com.edukid.api.vo.v1.configquiz.MateriasETemasVO;
 import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import br.com.edukid.api.vo.v1.quiz.QuizzesByDays;
 import br.com.edukid.api.vo.v1.ranking.RankingVO;
 import br.com.edukid.api.vo.v1.ranking.RankingsForYearElementarySchoolVO;
-import br.com.edukid.api.vo.v1.user.child.UserChildGetVO;
-import br.com.edukid.api.vo.v1.user.child.UserChildUpdateVO;
-import br.com.edukid.api.vo.v1.user.child.UserChildVO;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
-import br.com.edukid.api.vo.v1.user.child.TrocarSenhaUserChild;
 import br.com.edukid.api.vo.v1.user.child.UserChildCadastroVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildGetVO;
+import br.com.edukid.api.vo.v1.user.child.UserChildVO;
 
 @Service
 public class UserChildService {
@@ -58,14 +49,14 @@ public class UserChildService {
 	@Autowired
 	JsonService jsonService;
 	@Autowired
-	ConfigurationRepository configurationRepository;
-	@Autowired
 	TokenService tokenService;
     @Autowired
     AuthenticationManager authenticationManager;
     @Autowired
     SecurityServices securityServices;
-	@Autowired
+    @Autowired
+    ConfigurationQuizService configurationQuizService;
+    @Autowired
 	QuizRepository quizRepository;
     
 	/**
@@ -207,11 +198,7 @@ public class UserChildService {
 			Optional<UserChild> userOptional = childRepository.findById(id);
 			UserChild user = userOptional.get();
 			
-			Optional<Configuration> opConfEntity = configurationRepository.findById(id);
-			Configuration confEntity = opConfEntity.get();
-			
-			
-			MateriasETemasVO conf = jsonService.fromJson(confEntity.getConfiguration(), MateriasETemasVO.class);
+			MateriasETemasVO conf = configurationQuizService.getSubjectandThemeConfiguredFromUserChild(id);
 			
 			UserChildGetVO userChild = EdukidMapper.parseObject(user, UserChildGetVO.class);
 			if(conf != null)
@@ -428,7 +415,8 @@ public class UserChildService {
 		List<Quiz> queizzesEntity = quizRepository.getHistoryQuizzesByPeriod(idUserChild, month, year);
 		/*Transofrmar em VO*/
 		for(Quiz quizEntity : queizzesEntity) {
-			FieldQuizVO fieldQuizVO = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
+			QuizVO quizVORegistred = configurationQuizService.getQuizVO(quizEntity);
+			FieldQuizVO fieldQuizVO = quizVORegistred.getQuiz();
 			QuizVO quizVO = new QuizVO(quizEntity, fieldQuizVO);
 			/*Adicionar a lista de retorno*/
 			quizzesByDays.addQuiz(quizVO);

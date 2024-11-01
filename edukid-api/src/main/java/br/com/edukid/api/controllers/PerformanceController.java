@@ -1,5 +1,9 @@
 package br.com.edukid.api.controllers;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,7 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.edukid.api.entities.Quiz;
+import br.com.edukid.api.repositorys.QuizRepository;
+import br.com.edukid.api.services.ConfigurationQuizService;
 import br.com.edukid.api.services.PerformanceService;
+import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -21,6 +29,10 @@ public class PerformanceController {
 	
 	@Autowired
 	PerformanceService performanceService;
+	@Autowired
+	ConfigurationQuizService configurationQuizService;
+	@Autowired 
+	QuizRepository quizRepository;
 	
 	/**
 	 * METODO CONSULTA O RESULTADO DO CALCULO DO DESEMPENHO DO USER CHILD POR PERIODO
@@ -41,7 +53,21 @@ public class PerformanceController {
         String period
 		)
 	{	
-		return performanceService.GetPerformanceByPeriod(Integer.parseInt(idUserChild), type, period);
+		Integer id = Integer.parseInt(idUserChild);
+		Map<String, String> verification= performanceService.verifyParamPeriod(id, type, period);
+		
+		
+		if(verification.get("statusCode").equals("OK")){
+			/*Buscar periodo formatado em LocalDate*/
+			Map<String, LocalDate> periodLocalDate = performanceService.getPeriod(id, type, period);
+			/*Buscar Lista de Quizzes*/
+			List<Quiz> quizzesInPeriod = quizRepository.getQuizzesByPeriod(id, periodLocalDate.get("inicial"), periodLocalDate.get("fianl"));
+			List<QuizVO> quizzesInPeriodVO = configurationQuizService.getQuizVO(quizzesInPeriod);
+			
+			return performanceService.getPerformanceByPeriod(id, periodLocalDate.get("inicial"), periodLocalDate.get("fianl"), quizzesInPeriodVO);
+		} 
+		
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(verification.get("message"));
 		
 	}
 	

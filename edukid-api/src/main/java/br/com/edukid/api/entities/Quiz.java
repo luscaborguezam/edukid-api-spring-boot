@@ -38,31 +38,6 @@ private static final long serialVersionUID = 1L;
 	
 	
 	public Quiz() {}
-	/**
-	 * Cria objeto carregando informações necessárias para o cadastro
-	 * @param quiz
-	 * @param userChild
-	 */
-	public Quiz(String quiz, Configuration confUserChild) {
-		//this.startDate = LocalDateTime.now();
-		this.idUserChild = confUserChild.getId();
-		this.isFinalized = 0;
-	}
-	
-	/**
-	 * METODO ATUALIZA OBJETO COM DADOS DO QUIZ REALIZADO
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 17 de set. de 2024
-	 * @param quizRegistred
-	 * @param quiz
-	 */
-	public void updateDataWithQuizRealized(QuizVO quizRegistred, String quiz) {
-		this.endDate = LocalDateTime.parse(quizRegistred.getEndDate());
-		//this.endDate = LocalDateTime.now();
-		this.isFinalized = Integer.parseInt(quizRegistred.getIsFinalized());
-		
-	}
-
 
 	public Integer getId() {
 		return id;

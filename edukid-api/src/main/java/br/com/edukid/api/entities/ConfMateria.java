@@ -2,7 +2,9 @@ package br.com.edukid.api.entities;
 
 import java.io.Serializable;
 
+import br.com.edukid.api.entities.ids.ConfMateriaId;
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -17,30 +19,28 @@ public class ConfMateria implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	
-	@Column(name = "id_user_filho")
-	private Integer idUserChild;
-	@Column(name="id_materia")
-	private Integer idSubject;
+    @EmbeddedId
+    private ConfMateriaId id;
+    
 	@Column(name = "quantidade_questoes")
 	private Integer quantityQuestions;
 	
+	public ConfMateria() {
+		id = new ConfMateriaId();
+	}
+	
 	public ConfMateria(Integer idUserChild, Integer idSubject, Integer quantityQuestions) {
-		this.idUserChild = idUserChild;
-		this.idSubject = idSubject;
+		id.setIdUserChild(idUserChild);
+		id.setIdSubject(idSubject);
 		this.quantityQuestions = quantityQuestions;
 		
 	}
-	public Integer getIdUserChild() {
-		return idUserChild;
+	
+	public ConfMateriaId getId() {
+		return id;
 	}
-	public void setIdUserChild(Integer idUserChild) {
-		this.idUserChild = idUserChild;
-	}
-	public Integer getIdSubject() {
-		return idSubject;
-	}
-	public void setIdSubject(Integer idSubject) {
-		this.idSubject = idSubject;
+	public void setId(ConfMateriaId id) {
+		this.id = id;
 	}
 	public Integer getQuantityQuestions() {
 		return quantityQuestions;

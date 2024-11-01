@@ -33,30 +33,30 @@ public interface PerguntaRepository extends JpaRepository<Pergunta, Integer> {
 	 * @param idQuiz
 	 * @return
 	 */
-	@Query("SELECT p.* FROM Pergunta p "
-			+ "INNER JOIN QuizPergunta qp ON p.id = qp.idQuestion "
-			+ "INNER JOIN Quiz q ON qp.idQuiz = q.id "
-			+ "INNER JOIN UserChild uf ON q.idUserChild = uf.id "
-			+ "WHERE uf.id =:idUserChild "
-			+ "AND q.idQuiz =:idQuiz")
+	@Query(value= "SELECT p.* FROM Pergunta p "
+				+ "INNER JOIN quiz_perguntas qp ON p.id_pergunta = qp.id_pergunta "
+				+ "INNER JOIN quiz q ON qp.id_quiz = q.id_quiz "
+				+ "INNER JOIN user_filho uf ON q.id_user_filho = uf.id_user_filho "
+				+ "WHERE uf.id_user_filho =:idUserChild "
+				+ "AND q.id_quiz =:idQuiz ", nativeQuery = true)
 	List<Pergunta> findRandomPerguntasOfQuizByTema(@Param("idUserChild") Integer idUserChild,
 											 	   @Param("idQuiz") Integer idQuiz
 			);
 	
 	/**
-	 * METODO PARA BUSCAR PERGUNTAS RELACIONADAS A UM QUIZ DE UM USUÁRIO
+	 * METODO PARA BUSCAR PERGUNTAS RELACIONADAS A UMA MATERIA ESPECIFICA DE UM QUIZ ESPECIFICO DE UM USUÁRIO ESPECIFICO
 	 * @param idUserChild
 	 * @param idQuiz
 	 * @return
 	 */	
-	@Query("SELECT p.* FROM Pergunta p "
-			+ "INNER JOIN Materia m ON p.idMateria = m.id "
-			+ "INNER JOIN QuizPergunta qp ON p.id = qp.idQuestion "
-			+ "INNER JOIN Quiz q ON qp.idQuiz = q.id "
-			+ "INNER JOIN UserChild uf ON q.idUserChild = uf.id "
-			+ "WHERE uf.id =:idUserChild "
-			+ "AND q.idQuiz =:idQuiz "
-			+ "AND m.id =:idMateria")
+	@Query(value= "SELECT p.* FROM pergunta p "
+				+ "INNER JOIN materia m ON p.id_materia = m.id_materia "
+				+ "INNER JOIN quiz_perguntas qp ON p.id_pergunta = qp.id_pergunta "
+				+ "INNER JOIN quiz q ON qp.id_quiz = q.id_quiz "
+				+ "INNER JOIN user_filho uf ON q.id_user_filho = uf.id_user_filho "
+				+ "WHERE uf.id_user_filho =:idUserChild "
+				+ "AND q.id_quiz =:idQuiz "
++ "AND m.id_materia =:idMateria", nativeQuery = true)
 	List<Pergunta> findRandomPerguntasOfQuizByTemaAndMatria(@Param("idUserChild") Integer idUserChild,
 															@Param("idQuiz") Integer idQuiz,
 															@Param("idMateria") Integer idMateria

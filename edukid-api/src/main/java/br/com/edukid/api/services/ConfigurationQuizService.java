@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import br.com.edukid.api.configurations.springsecurity.security.infra.SecurityServices;
 import br.com.edukid.api.entities.ConfMateria;
 import br.com.edukid.api.entities.ConfTema;
-import br.com.edukid.api.entities.Configuration;
 import br.com.edukid.api.entities.Conteudo;
 import br.com.edukid.api.entities.Materia;
 import br.com.edukid.api.entities.Pergunta;
@@ -32,7 +31,6 @@ import br.com.edukid.api.entities.UserFather;
 import br.com.edukid.api.mapper.EdukidMapper;
 import br.com.edukid.api.repositorys.ConfMateriaRepository;
 import br.com.edukid.api.repositorys.ConfTemaRepository;
-import br.com.edukid.api.repositorys.ConfigurationRepository;
 import br.com.edukid.api.repositorys.ConteudoRepository;
 import br.com.edukid.api.repositorys.MateriaRepository;
 import br.com.edukid.api.repositorys.PerguntaRepository;
@@ -157,12 +155,14 @@ public class ConfigurationQuizService {
 		/*Buscar registro e carregar objeto de retorno*/
 		List<ConfMateria> confMaterias = confMateriaRepository.findByIdUserChild(idUserChild);
 		for(ConfMateria confMateria: confMaterias) {
-			MateriaVO materiaVO = new MateriaVO(confMateria.getIdSubject().toString(), confMateria.getQuantityQuestions().toString());
+			MateriaVO materiaVO = new MateriaVO(confMateria.getId().getIdSubject().toString(), confMateria.getQuantityQuestions().toString());
 			
 			/*Pegar temas relacionados a matéria*/
-			List<ConfTema> confTemas = confTemaRepository.findByIdUserChild(confMateria.getIdSubject(), confMateria.getIdUserChild());
+			List<ConfTema> confTemas = confTemaRepository.findByIdUserChild(confMateria.getId().getIdSubject(), 
+																			confMateria.getId().getIdUserChild()
+			);
 			for(ConfTema confTema : confTemas) {
-				TemaAprendizagemVO temaAprendizagemVO = new TemaAprendizagemVO(confTema.getIdTema().toString());
+				TemaAprendizagemVO temaAprendizagemVO = new TemaAprendizagemVO(confTema.getId().getIdTema().toString());
 				materiaVO.addTemaAprendizagemVO(temaAprendizagemVO);
 			}
 			mt.addMateriaVO(materiaVO);
@@ -261,6 +261,42 @@ public class ConfigurationQuizService {
 		return quiz;
 	}
 	
+	public List<QuizVO> getQuizVO(List<Quiz> quizzesInPeriod) {
+		List<QuizVO> quizzesVO = new  ArrayList<>();
+		
+		for(Quiz quiz: quizzesInPeriod) 
+			quizzesVO.add(getQuizVO(quiz));
+		
+		return quizzesVO;
+	}
+	
+	/**
+	 * METODO ALTERA UM QUIZ EXISTENTE COM OS DADOS DE PREENCHIMENTO DO QUIZVO
+	 * @param quizVO
+	 * @return
+	 */
+	public Quiz updateQuizForDataQuizVO(QuizVO quizVO) {
+		FieldQuizVO fieldQuizVO = quizVO.getQuiz();
+		for(QuizByMateriaVO matriaVO: fieldQuizVO.getMaterias()) {
+			for(PerguntaVO perguntaVO : matriaVO.getQuiz()) {
+				/*Buscar registro na table relacional de QuizPergunta*/
+				QuizPergunta quizPergunta = quizPerguntaRepository.findByidQuizAndidQuestion(Integer.parseInt(perguntaVO.getId()),
+																						 Integer.parseInt(quizVO.getId())
+				);
+				quizPergunta.setSelectedAnswer(perguntaVO.getInfoPerguntas().get(0).getSelectedAnswer());
+				/*atualizar na base dedados*/
+				quizPerguntaRepository.save(quizPergunta);
+			}//for(perguntaVO)			
+		}//for(MateriaVO)
+		Optional<Quiz> opQuizEntity = quizRepository.findById(Integer.parseInt(quizVO.getId()));
+		Quiz quizEntity = opQuizEntity.get();
+		quizEntity.setScore(Integer.parseInt(fieldQuizVO.getScore()));
+		quizEntity.setIsfinalized(Integer.parseInt(quizVO.getIsFinalized()));
+		quizEntity.setEndDate(LocalDateTime.parse(quizVO.getEndDate()));
+		
+		return quizEntity;
+	}
+	
 	/**
 	 * METODO CRIA QUIZ POR MATÉRIAS E TEMAS SALVOS NAS CONFIGURAÇÃO DO USUÁRIO 
 	 * O QUIZ DE CADA MATÉRIA TEM O NÚMERO DE QUESTÕES DEFINIDAS NA CONFIGURAÇÃO
@@ -328,7 +364,7 @@ public class ConfigurationQuizService {
 	 * @Sice 11 de set. de 2024
 	 * @param quizRealized
 	 * @return
-	 */?
+	 */
 	public ResponseEntity<?> registerQuizRealized(QuizVO quizRealized) {
 		if(!securityServices.verifyUserChildWithSolicitation( Integer.parseInt(quizRealized.getIdUserChild()) ))
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não corresponde ao seu 'id'.");
@@ -348,28 +384,23 @@ public class ConfigurationQuizService {
 		/*Buscar quiz na base de dados e trasformar em objeto QuizVO*/
 		Optional<Quiz> opQuizEntity = quizRepository.findById(Integer.parseInt(quizRealized.getId()));
 		Quiz quizEntity = opQuizEntity.get();
-		
-		
-		FieldQuizVO fieldQuizRealized = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
-		QuizVO quizRegistred = new QuizVO(quizEntity, fieldQuizRealized);
+		QuizVO quizRegistred = getQuizVO(quizEntity);
 		
 		
 		Map<String, String> map = validationQuizRegistredWithQuizSended(quizRegistred, quizRealized);
 		if(map.get("Verification").equals("OK")) {
 			/*Adicionar os dados necessários quando finalizados*/
 			quizRegistred = updateDataWithQuizRealizedData(quizRegistred, quizRealized);
-			/*Transformar objeto de volta em Quiz(Entity)*/
-			quizEntity.updateDataWithQuizRealized(quizRegistred, jsonService.toJson(quizRealized.getQuiz()));
-			/*atualizar registro*/
-			quizRepository.save(quizEntity);
-			
+			/*atualizar registro Quiz and QuizPergunta*/
+			quizEntity = updateQuizForDataQuizVO(quizRegistred);
+						
 			/*Salvar pontuação*/
-			childService.updateScore(Integer.parseInt(
-					quizRealized.getIdUserChild()), 
-					Double.parseDouble(fieldQuizRealized.getScore())
+			childService.updateScore(
+					quizEntity.getIdUserChild(), 
+					Double.parseDouble(quizEntity.getScore().toString())
 				);
 			
-			/*Corrigir quiz eenviar emaila o pai*/
+			/*Corrigir quiz eenviar email ao pai*/
 			toCorrectQuiz(quizEntity.getId());
 	
 			return ResponseEntity.status(HttpStatus.OK).body(quizRegistred);
@@ -561,9 +592,10 @@ public class ConfigurationQuizService {
 			String to = father.getEmail();
 			
 			/*Buscar quantidade de perguntas no quiz*/
-			FieldQuizVO fielQuiz = jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class);
+			QuizVO quizVORegistred = getQuizVO(quiz);
+			FieldQuizVO fieldQuiz = quizVORegistred.getQuiz();
 			Integer qtdPerguntas = 0;
-			for(QuizByMateriaVO materia: fielQuiz.getMaterias()) {
+			for(QuizByMateriaVO materia: fieldQuiz.getMaterias()) {
 				qtdPerguntas += materia.getQuiz().size();
 			}
 			
@@ -607,7 +639,8 @@ public class ConfigurationQuizService {
 			quizRepository.updateIsFinalizedbyId(quiz.getId());
 			
 			/*Objeto FieldQuiz*/
-			FieldQuizVO fieldQuiz = jsonService.fromJson(quiz.getQuiz(), FieldQuizVO.class);
+			QuizVO quizVORegistred = getQuizVO(quiz);
+			FieldQuizVO fieldQuiz = quizVORegistred.getQuiz();
 			
 			/*Envio de email*/
 			
@@ -634,20 +667,6 @@ public class ConfigurationQuizService {
 		}//if()
     		
 	}
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	/**
 	 * METODO VERIFICA O TOKEN COM O ID ENVIADO, E BUSCA QUIZ ATUAL EM ABERTO DO ID PASSADO 
@@ -681,7 +700,8 @@ public class ConfigurationQuizService {
 	 */
 	private List<MateriaDoConteudo> findContentToStudybyQuiz(Quiz quizEntity) {
 		List<MateriaDoConteudo> materiasEConteudos = new ArrayList<>();
-		FieldQuizVO fieldQuiz = jsonService.fromJson(quizEntity.getQuiz(), FieldQuizVO.class);
+		QuizVO quizVORegistred = getQuizVO(quizEntity);
+		FieldQuizVO fieldQuiz = quizVORegistred.getQuiz();
 		
 		for(QuizByMateriaVO materia: fieldQuiz.getMaterias()) {			
 			/*Pegar informações da materia*/
@@ -733,6 +753,7 @@ public class ConfigurationQuizService {
 		
 		return ResponseEntity.status(HttpStatus.OK).body(contents);
 	}
+
 	
 	
 }
