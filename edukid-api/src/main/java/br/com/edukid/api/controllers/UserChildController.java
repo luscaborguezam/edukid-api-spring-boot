@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.edukid.api.services.ConfigurationQuizService;
 import br.com.edukid.api.services.UserChildService;
 import br.com.edukid.api.vo.v1.LoginChildVO;
 import br.com.edukid.api.vo.v1.LoginFatherVO;
@@ -28,6 +29,8 @@ public class UserChildController {
 	
 	@Autowired
 	UserChildService childService;
+	@Autowired 
+	ConfigurationQuizService configurationQuizService;
 
 	/**
 	 * METODO FAZ REGISTRO DO USUARIO FILHO
@@ -139,7 +142,7 @@ public class UserChildController {
 			@PathVariable @Valid @NotBlank @Pattern(regexp = "^\\d{4}$", message = "Key 'year' must be a string with the value numeric, exemple for year of 2024 must be '2024'") 
 			String year
 	) {
-		return childService.getQuizzezHistory(Integer.parseInt(idUserChild), Integer.parseInt(month), Integer.parseInt(year));
+		return configurationQuizService.getQuizzezHistory(Integer.parseInt(idUserChild), Integer.parseInt(month), Integer.parseInt(year));
 	}
 	
 //	@PutMapping(path="/change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

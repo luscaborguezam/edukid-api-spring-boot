@@ -246,25 +246,6 @@ public class UserChildService {
 		}
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Não encontrado.");
 	}
-
-	/**
-	 * METODO ATUALIZA PONTUAÇÃO DO USER CHILD
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 13 de out. de 2024
-	 * @param idUserChild
-	 * @param score
-	 */
-	public void updateScore(Integer idUserChild, Double score) {
-		/*Buscar user child*/
-		Optional<UserChild> opChild = childRepository.findById(idUserChild);
-		UserChild child = opChild.get();
-		/*Somar score total*/
-		child.calculateScore(score);
-		/*Salvar alteração*/
-		childRepository.save(child);
-
-	}
-
 	
 	public RankingsForYearElementarySchoolVO getAllRankingWeekForUserFather(Integer idUserFather) {
 		RankingsForYearElementarySchoolVO allRankingWeek = new RankingsForYearElementarySchoolVO();
@@ -382,75 +363,5 @@ public class UserChildService {
 		
 		return rankinVO;
 	}
-
-	/**
-	 * METODO VERIFICA ID E BUSCA O HISTÓRICO DE QUIZZES PARA USER CHILD
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 19 de out. de 2024
-	 * @param idUserChild
-	 * @param j 
-	 * @param month 
-	 * @return
-	 */
-	public ResponseEntity<?> getQuizzezHistory(Integer idUserChild, Integer month, Integer year) {
-		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao seu 'id'.");
-		
-		QuizzesByDays quizzesByDays = findQuizHistory(idUserChild, month, year);
-		
-		
-		return ResponseEntity.status(HttpStatus.OK).body(quizzesByDays);
-	}
-
-	/**
-	 * METODO BUSCA HISTÓRICO DE QUIZ POR DIA DO USER CHILD ESPECÍFICO
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 19 de out. de 2024
-	 * @param idUserChild
-	 * @return
-	 */
-	private QuizzesByDays findQuizHistory(Integer idUserChild, Integer month, Integer year) {
-		QuizzesByDays quizzesByDays = new QuizzesByDays();
-		/*Buscar quizzes do periodo*/
-		List<Quiz> queizzesEntity = quizRepository.getHistoryQuizzesByPeriod(idUserChild, month, year);
-		/*Transofrmar em VO*/
-		for(Quiz quizEntity : queizzesEntity) {
-			QuizVO quizVORegistred = configurationQuizService.getQuizVO(quizEntity);
-			FieldQuizVO fieldQuizVO = quizVORegistred.getQuiz();
-			QuizVO quizVO = new QuizVO(quizEntity, fieldQuizVO);
-			/*Adicionar a lista de retorno*/
-			quizzesByDays.addQuiz(quizVO);
-		}
-		
-		return quizzesByDays;
-	}
-
-	/**
-	 * METODO BUSCA HISTÓRICO DE QUIZ POR DIA DOS USERS CHILDS DO USER FAHTER
-	 * @Author LUCAS BORGUEZAM
-	 * @Sice 19 de out. de 2024
-	 * @param id
-	 * @return
-	 */
-	public List<QuizzesByDays> findQuizHistoryForUserFather(Integer idUserFather, Integer month, Integer year) {
-		List<QuizzesByDays> quizzesByDays = new ArrayList<>();
-		
-		/*Buscar usuários child relacionados ao pai*/
-		List<UserChild> childsOfUserFather = childRepository.findChildByFkUserPai(idUserFather);
-		
-		for(UserChild childEntity: childsOfUserFather) {
-			QuizzesByDays byDays = findQuizHistory(childEntity.getId(), month, year);
-			byDays.setId(childEntity.getId().toString());
-			byDays.setNome(childEntity.getFirstName()+" "+childEntity.getLastName());
-			
-			quizzesByDays.add(byDays);
-		}
-		
-		
-		return quizzesByDays;
-	}	
-	
-	
-	
 
 }

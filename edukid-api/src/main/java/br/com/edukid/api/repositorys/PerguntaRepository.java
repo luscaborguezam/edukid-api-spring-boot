@@ -56,7 +56,7 @@ public interface PerguntaRepository extends JpaRepository<Pergunta, Integer> {
 				+ "INNER JOIN user_filho uf ON q.id_user_filho = uf.id_user_filho "
 				+ "WHERE uf.id_user_filho =:idUserChild "
 				+ "AND q.id_quiz =:idQuiz "
-+ "AND m.id_materia =:idMateria", nativeQuery = true)
+				+ "AND m.id_materia =:idMateria ORDER BY RAND()", nativeQuery = true)
 	List<Pergunta> findRandomPerguntasOfQuizByTemaAndMatria(@Param("idUserChild") Integer idUserChild,
 															@Param("idQuiz") Integer idQuiz,
 															@Param("idMateria") Integer idMateria

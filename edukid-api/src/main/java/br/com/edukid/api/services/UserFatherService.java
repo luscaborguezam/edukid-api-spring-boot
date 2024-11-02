@@ -59,6 +59,8 @@ public class UserFatherService {
     SecurityServices securityServices;
     @Autowired 
     UserChildService childService;
+    @Autowired
+    ConfigurationQuizService configurationQuizService;
 	
 	/* Registrar mensagens de log em uma aplicação Java.*/
 	Logger logger = Logger.getLogger(UserFatherService.class.getName());
@@ -282,7 +284,7 @@ public class UserFatherService {
 		if(!securityServices.verifyUserFahterWithSolicitation(id.toString()))
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao 'id' da conta.");
 		
-		List<QuizzesByDays> quizzesByDays = childService.findQuizHistoryForUserFather(id, month, year);
+		List<QuizzesByDays> quizzesByDays = configurationQuizService.findQuizHistoryForUserFather(id, month, year);
 		
 		
 		return ResponseEntity.status(HttpStatus.OK).body(quizzesByDays);

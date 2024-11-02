@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
+import org.jfree.data.json.impl.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +55,7 @@ import br.com.edukid.api.vo.v1.performance.QuizPerformanceData;
 import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
 import br.com.edukid.api.vo.v1.quiz.QuizByMateriaVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
+import br.com.edukid.api.vo.v1.quiz.QuizzesByDays;
 
 @Service
 public class ConfigurationQuizService {
@@ -85,8 +88,7 @@ public class ConfigurationQuizService {
 	EmailService emailService;
 	@Autowired
 	PerformanceService performanceService;
-	@Autowired 
-	UserChildService childService;
+
 	
 	
 	
@@ -158,8 +160,9 @@ public class ConfigurationQuizService {
 			MateriaVO materiaVO = new MateriaVO(confMateria.getId().getIdSubject().toString(), confMateria.getQuantityQuestions().toString());
 			
 			/*Pegar temas relacionados a matéria*/
-			List<ConfTema> confTemas = confTemaRepository.findByIdUserChild(confMateria.getId().getIdSubject(), 
-																			confMateria.getId().getIdUserChild()
+			List<ConfTema> confTemas = confTemaRepository.findByIdUserChild(confMateria.getId().getIdUserChild(),
+																			confMateria.getId().getIdSubject() 
+																			
 			);
 			for(ConfTema confTema : confTemas) {
 				TemaAprendizagemVO temaAprendizagemVO = new TemaAprendizagemVO(confTema.getId().getIdTema().toString());
@@ -168,6 +171,7 @@ public class ConfigurationQuizService {
 			mt.addMateriaVO(materiaVO);
 		}
 		
+		System.out.println("\n\nmt: "+jsonService.toJson(mt));
 		return mt;
 	}
 	
@@ -193,13 +197,12 @@ public class ConfigurationQuizService {
 	 */
 	public ResponseEntity<?> toGenerateQuiz(Integer idUserChild){
 		System.out.println("\nCriar ou buscar quiz em aberto");
-		Quiz quizEntity = new Quiz();
 		QuizVO quiz = null;
 		
 		/*Verificar se existe um quiz criado e aberto na data atual*/
 		System.out.println(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now()));
 		if(quizRepository.existsQuizOpenByIdUserChild(idUserChild, LocalDate.now())) {
-			quizEntity = quizRepository.findQuizOpenByIdUserChild(idUserChild, LocalDate.now());
+			Quiz quizEntity = quizRepository.findQuizOpenByIdUserChild(idUserChild, LocalDate.now());
 			quiz = getQuizVO(quizEntity);
 			return ResponseEntity.status(HttpStatus.OK).body(quiz);
 		}
@@ -210,12 +213,12 @@ public class ConfigurationQuizService {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não autorizado, para criar o quiz primeiro você deve cadastrar as configurações do quiz.");
 		
 		/*Criar quiz*/
-		quizEntity.setIdUserChild(idUserChild);
-		Quiz quizSaved = quizRepository.save(quizEntity);
+		quizRepository.insertQuizWithoutstartDate(idUserChild);
+		Quiz quizSaved = quizRepository.findLatestQuizByUserChild(idUserChild);
 		
 		/*Criar quiz de cada matéria e temas relcionados a matéria segundo a configuração cadastrada para o usuário filho*/
 		List<QuizByMateriaVO> quizMateriaVOs = getQuizForSubject(confQuiz);
-
+		
 		/*Salvar as prguntas criadas na tabela quiz_perguntas*/
 		for(QuizByMateriaVO byMateriaVO: quizMateriaVOs) 
 			for(PerguntaVO perguntaVO: byMateriaVO.getQuiz()) {
@@ -224,7 +227,7 @@ public class ConfigurationQuizService {
 			}
 		
 		/*Objeto de retorno*/
-		quiz = getQuizVO(quizEntity);
+		quiz = getQuizVO(quizSaved);
 		
         return ResponseEntity.status(HttpStatus.CREATED).body(quiz);
 	}
@@ -240,20 +243,28 @@ public class ConfigurationQuizService {
 		
 		/*Buscar materias*/
 		List<Materia> materias = materiaRepository.findDistinctMateriasByIdQuiz(quizEntity.getId());
+		
+		System.out.println("\n\n"+materias);
 		for(Materia materia : materias) {
 			QuizByMateriaVO quizByMateriaVO = new QuizByMateriaVO(materia);
-			List<Pergunta> perguntas = perguntaRepository.findRandomPerguntasOfQuizByTemaAndMatria(
-					quizEntity.getIdUserChild(), 
-					quizEntity.getId(),
-					materia.getId()
-			);
+			List<QuizPergunta> quizPerguntas = quizPerguntaRepository.findByidQuizAndidSubject(
+																		quizEntity.getId(), 
+																		materia.getId()
+												);
 			
-			for(Pergunta pergunta: perguntas) {
+			for(QuizPergunta quizPergunta : quizPerguntas) {
+				Optional<Pergunta> opPergunta = perguntaRepository.findById(quizPergunta.getId().getIdQuestion());
+				Pergunta pergunta = opPergunta.get();
+				
+				/*TRANSFORMAR PERGUNTAS EM PERGUNTASVO*/
 				PerguntaVO perguntaVO = new PerguntaVO(pergunta, materia.getId().toString());
-				perguntaVO.setInfoPerguntas(jsonService.fromJsonToList(pergunta.getInfoPergunta(), InfoPergunta.class));
+				InfoPergunta infoPergunta = jsonService.fromJson(pergunta.getInfoPergunta(), InfoPergunta.class);
+				infoPergunta.setSelectedAnswer(quizPergunta.getSelectedAnswer());
+				perguntaVO.addItemInListInfoPergunta(infoPergunta);
 				
 				quizByMateriaVO.addPerguntaVO(perguntaVO);
 			}
+			
 			fielQuiz.addQuizByMateriaVO(quizByMateriaVO);
 		}
 		
@@ -290,9 +301,10 @@ public class ConfigurationQuizService {
 		}//for(MateriaVO)
 		Optional<Quiz> opQuizEntity = quizRepository.findById(Integer.parseInt(quizVO.getId()));
 		Quiz quizEntity = opQuizEntity.get();
+		LocalDateTime endDate = LocalDateTime.parse(quizVO.getEndDate());
 		quizEntity.setScore(Integer.parseInt(fieldQuizVO.getScore()));
 		quizEntity.setIsfinalized(Integer.parseInt(quizVO.getIsFinalized()));
-		quizEntity.setEndDate(LocalDateTime.parse(quizVO.getEndDate()));
+		quizEntity.setEndDate(endDate);
 		
 		return quizEntity;
 	}
@@ -308,7 +320,7 @@ public class ConfigurationQuizService {
 	private List<QuizByMateriaVO> getQuizForSubject(MateriasETemasVO confQuiz) {
 		List<QuizByMateriaVO> subjectsTheQuestions = new ArrayList<>();
 		
-
+		/*Cada matéria da configuração do quiz*/
 		for(MateriaVO subject : confQuiz.getMaterias()){
 			/*Buscar nome de cada matéria*/
 			Optional<Materia> optional = materiaRepository.findById(Integer.parseInt(subject.getId()));
@@ -317,6 +329,7 @@ public class ConfigurationQuizService {
 			QuizByMateriaVO subjectTheQuestion = new QuizByMateriaVO(subjectEntity);
 			List<PerguntaVO> perguntasVO = new ArrayList<>();
 			
+			/*Para cada tema da configuração do quiz*/
 			for(TemaAprendizagemVO theme: subject.getTemas()) {	
 			/*Buscar e criar um quiz com a lista de perguntas relaconadas aos temas para cada matéria listadas na configuração*/
 				/*Buscar lista de perguntas relacionadas ao tema*/
@@ -337,7 +350,7 @@ public class ConfigurationQuizService {
 	}
 	
 	/**
-	 * METODO TRANSFORMA OBJETO PERGUNTA DA LISTA DE OBJETOS PERGNTA PARA OBJETO PERGUNTASVO E ADICIONA A LISTA PERGUNTASVO
+	 * METODO TRANSFORMA OBJETO PERGUNTA DA LISTA DE OBJETOS PERGUNTA PARA OBJETO PERGUNTASVO E ADICIONA A LISTA PERGUNTASVO
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 8 de set. de 2024
 	 * @param perguntas LISTA DE OBJETO PERGUNTAS
@@ -393,9 +406,12 @@ public class ConfigurationQuizService {
 			quizRegistred = updateDataWithQuizRealizedData(quizRegistred, quizRealized);
 			/*atualizar registro Quiz and QuizPergunta*/
 			quizEntity = updateQuizForDataQuizVO(quizRegistred);
-						
+			quizRepository.updateFinalizedByUserChild(quizEntity.getId(),
+													  quizEntity.getIsfinalized(),
+													  quizEntity.getScore()
+				);
 			/*Salvar pontuação*/
-			childService.updateScore(
+			updateScore(
 					quizEntity.getIdUserChild(), 
 					Double.parseDouble(quizEntity.getScore().toString())
 				);
@@ -408,6 +424,23 @@ public class ConfigurationQuizService {
 		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(map.get("Verification"));
 	}
 	
+	/**
+	 * METODO ATUALIZA PONTUAÇÃO DO USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 13 de out. de 2024
+	 * @param idUserChild
+	 * @param score
+	 */
+	public void updateScore(Integer idUserChild, Double score) {
+		/*Buscar user child*/
+		Optional<UserChild> opChild = childRepository.findById(idUserChild);
+		UserChild child = opChild.get();
+		/*Somar score total*/
+		child.calculateScore(score);
+		/*Salvar alteração*/
+		childRepository.save(child);
+
+	}
 
 	/**
 	 * METODO COMPARA E VALIDA AS INFORMAÇÕES QUE NÃO SE DEVEM MUDAR DO QUIZ CADASTRADO COM O QUIZ ENVIADO
@@ -436,7 +469,7 @@ public class ConfigurationQuizService {
         }
             
 		if(quizRealized.getIsFinalized().equals("0")) {
-			map.put("Verification", "isRealized do quiz enviado não pode ser igual a '0'(status aberto) ");
+			map.put("Verification", "isFinalized do quiz enviado não pode ser igual a '0'(status aberto) ");
 			return map;
 		}
 		
@@ -446,6 +479,7 @@ public class ConfigurationQuizService {
 		}
 		
 		FieldQuizVO quizRz = quizRealized.getQuiz();
+		FieldQuizVO quizRg = quizRegistred.getQuiz();
 		
 			regex = "^[+-]?([0-9]*[.])?[0-9]+$";
 			if(quizRz.getScore() == null|| !quizRz.getScore().matches(regex)) {
@@ -468,11 +502,16 @@ public class ConfigurationQuizService {
 				return map;				
 			}
 			
+			/*Ordenar ambos os quizzes pelas materias*/
+			// Ordena convertendo o valor para Integer
+	        Collections.sort(quizRz.getMaterias(),Comparator.comparingInt(QuizByMateriaVO -> Integer.parseInt(QuizByMateriaVO.getId())));
+	        Collections.sort(quizRg.getMaterias(), Comparator.comparingInt(QuizByMateriaVO -> Integer.parseInt(QuizByMateriaVO.getId())));
 			
 			for(int i=0; i < quizRegistred.getQuiz().getMaterias().size() ; i++ ) {//QuizByMateriaVO m: quizRz.getMaterias()
 				QuizByMateriaVO quizByMateriaRz = quizRz.getMaterias().get(i);
-				QuizByMateriaVO quizByMateriaRg = quizRegistred.getQuiz().getMaterias().get(i);
+				QuizByMateriaVO quizByMateriaRg = quizRg.getMaterias().get(i);
 
+				
 				if(!quizByMateriaRg.getId().equals(quizByMateriaRz.getId())) {
 					map.put("Verification", "id da matéria(subject) do quiz enviado é diferente do quiz criado\n"
 							+ " Id materia esperada: "+quizByMateriaRg.getId()+"\n"
@@ -480,11 +519,17 @@ public class ConfigurationQuizService {
 					return map;					
 				}
 
-				
+				/*Ordenar ambos os quizzes*/
+				// Ordena convertendo o valor para Integer
+		        Collections.sort(quizByMateriaRz.getQuiz(), Comparator.comparingInt(PerguntaVO -> Integer.parseInt(PerguntaVO.getId())));
+		        Collections.sort(quizByMateriaRg.getQuiz(), Comparator.comparingInt(PerguntaVO -> Integer.parseInt(PerguntaVO.getId())));
 				/*Verificar cada perguntaVO*/
 				for(int c=0; c < quizByMateriaRg.getQuiz().size(); c++) {
 						PerguntaVO perguntaRz = quizByMateriaRz.getQuiz().get(c);
 						PerguntaVO perguntaRg = quizByMateriaRg.getQuiz().get(c);
+						
+						
+						
 					
 					if(!perguntaRg.getId().equals(perguntaRz.getId())) {
 						map.put("Verification", "id da questão do quiz enviado é diferente do quiz criado\n"
@@ -544,12 +589,25 @@ public class ConfigurationQuizService {
 			quizRegistred.getQuiz().setScore(quizRealized.getQuiz().getScore());
 			//Adicionar totaltime
 			quizRegistred.getQuiz().setTotalTime(quizRealized.getQuiz().getTotalTime());
+		
+		FieldQuizVO quizRz = quizRealized.getQuiz();
+		FieldQuizVO quizRg = quizRegistred.getQuiz();
+			
+		/*Ordenar ambos os quizzes pelas materias*/
+		// Ordena convertendo o valor para Integer
+        Collections.sort(quizRz.getMaterias(),Comparator.comparingInt(QuizByMateriaVO -> Integer.parseInt(QuizByMateriaVO.getId())));
+        Collections.sort(quizRg.getMaterias(), Comparator.comparingInt(QuizByMateriaVO -> Integer.parseInt(QuizByMateriaVO.getId())));
+
 			
 			/*List de materias (QuizByMateriaVO)*/
 			for(int i=0; i < quizRegistred.getQuiz().getMaterias().size() ; i++ ) {//QuizByMateriaVO m: quizRz.getMaterias()
-				QuizByMateriaVO quizByMateriaRz = quizRealized.getQuiz().getMaterias().get(i);
-				QuizByMateriaVO quizByMateriaRg = quizRegistred.getQuiz().getMaterias().get(i);
+				QuizByMateriaVO quizByMateriaRz = quizRz.getMaterias().get(i);
+				QuizByMateriaVO quizByMateriaRg = quizRg.getMaterias().get(i);
 
+				/*Ordenar ambos os quizzes, pelo id das perguntas convertendo o valor para Integer*/
+			        Collections.sort(quizByMateriaRz.getQuiz(), Comparator.comparingInt(PerguntaVO -> Integer.parseInt(PerguntaVO.getId())));
+			        Collections.sort(quizByMateriaRg.getQuiz(), Comparator.comparingInt(PerguntaVO -> Integer.parseInt(PerguntaVO.getId())));
+				
 				/*Lista de PerguntaVO*/
 				for(int c=0; c < quizByMateriaRg.getQuiz().size(); c++) {
 					
@@ -754,6 +812,94 @@ public class ConfigurationQuizService {
 		return ResponseEntity.status(HttpStatus.OK).body(contents);
 	}
 
+	/**
+	 * METODO VERIFICA ID E BUSCA O HISTÓRICO DE QUIZZES PARA USER CHILD
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 19 de out. de 2024
+	 * @param idUserChild
+	 * @param j 
+	 * @param month 
+	 * @return
+	 */
+	public ResponseEntity<?> getQuizzezHistory(Integer idUserChild, Integer month, Integer year) {
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'id' enviado não corresponde ao seu 'id'.");
+		
+		QuizzesByDays quizzesByDays = findQuizHistory(idUserChild, month, year);
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).body(quizzesByDays);
+	}
+
+	/**
+	 * METODO BUSCA HISTÓRICO DE QUIZ POR DIA DOS USERS CHILDS DO USER FAHTER
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 19 de out. de 2024
+	 * @param id
+	 * @return
+	 */
+	public List<QuizzesByDays> findQuizHistoryForUserFather(Integer idUserFather, Integer month, Integer year) {
+		List<QuizzesByDays> quizzesByDays = new ArrayList<>();
+		
+		/*Buscar usuários child relacionados ao pai*/
+		List<UserChild> childsOfUserFather = childRepository.findChildByFkUserPai(idUserFather);
+		
+		for(UserChild childEntity: childsOfUserFather) {
+			QuizzesByDays byDays = findQuizHistory(childEntity.getId(), month, year);
+			byDays.setId(childEntity.getId().toString());
+			byDays.setNome(childEntity.getFirstName()+" "+childEntity.getLastName());
+			
+			quizzesByDays.add(byDays);
+		}
+		
+		
+		return quizzesByDays;
+	}	
 	
+	/**
+	 * METODO BUSCA HISTÓRICO DE QUIZ POR DIA DO USER CHILD ESPECÍFICO
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 19 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	private QuizzesByDays findQuizHistory(Integer idUserChild, Integer month, Integer year) {
+		QuizzesByDays quizzesByDays = new QuizzesByDays();
+		/*Buscar quizzes do periodo*/
+		List<Quiz> queizzesEntity = quizRepository.getHistoryQuizzesByPeriod(idUserChild, month, year);
+		/*Transofrmar em VO*/
+		for(Quiz quizEntity : queizzesEntity) {
+			QuizVO quizVORegistred = getQuizVO(quizEntity);
+			FieldQuizVO fieldQuizVO = quizVORegistred.getQuiz();
+			QuizVO quizVO = new QuizVO(quizEntity, fieldQuizVO);
+			/*Adicionar a lista de retorno*/
+			quizzesByDays.addQuiz(quizVO);
+		}
+		
+		return quizzesByDays;
+	}	
 	
+	/**
+	 * METODO VERIFICA SE O USER DO TOKEM COM O ID DO USER PASSADO E BUSCA O QUIZ POR DATA
+	 * @Sice 30 de out. de 2024
+	 * @param idUserChild
+	 * @return
+	 */
+	public ResponseEntity<?> findQuizByIdUserAndDate(Integer idUserChild, Integer day, Integer month, Integer year){
+		/*Verificar token com o id do user child*/
+		if(!securityServices.verifyUserChildWithSolicitation(idUserChild) && !securityServices.verifyUserFahterWithSolicitation(idUserChild))
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("'idUserChild' enviado não está relacionado com sua conta.");
+		
+		List<QuizVO> listQuizVO = new ArrayList<>();
+		/*Verificar se existe um quiz criado na data específica*/
+		if(quizRepository.existsQuizByDateAndUser(idUserChild, day, month, year)) {
+			List<Quiz> listQuizEntity = quizRepository.findQuizByDateAndUser(idUserChild, day, month, year);
+			for(Quiz quizEntity: listQuizEntity) {
+				QuizVO quiz = getQuizVO(quizEntity);
+				listQuizVO.add(quiz);
+			}
+			return ResponseEntity.status(HttpStatus.OK).body(listQuizVO);
+		} else
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Não existe quiz para a data "+day+"/"+month+"/"+year+".");
+	}
 }

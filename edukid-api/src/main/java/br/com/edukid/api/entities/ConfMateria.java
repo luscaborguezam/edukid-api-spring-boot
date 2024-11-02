@@ -30,8 +30,7 @@ public class ConfMateria implements Serializable{
 	}
 	
 	public ConfMateria(Integer idUserChild, Integer idSubject, Integer quantityQuestions) {
-		id.setIdUserChild(idUserChild);
-		id.setIdSubject(idSubject);
+		id = new ConfMateriaId(idUserChild, idSubject);
 		this.quantityQuestions = quantityQuestions;
 		
 	}

@@ -26,9 +26,7 @@ public class ConfTema implements Serializable{
 	}
 	
 	public ConfTema(Integer idUserChild, Integer idSubject,Integer idTema) {
-		id.setIdUserChild(idUserChild);
-		id.setIdSubject(idSubject);
-		id.setIdTema(idTema);
+		id = new ConfTemaId(idUserChild, idSubject, idTema);
 	}
 
 	public ConfTemaId getId() {

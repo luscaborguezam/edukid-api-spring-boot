@@ -105,6 +105,21 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	List<Quiz> getQuizzesByPeriod(@Param("idUserChild") Integer idUserChild,@Param("startDateTime") LocalDate startDateTime, @Param("endDateTime") LocalDate endDateTime);
 	
 	/**
+	 * METODO BUSCA OS QUIZZES REALIZADOS DE UM USER CHILD NA DATA ATUAL
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 12 de out. de 2024
+	 * @param idUserChild
+	 * @param periodoInicial
+	 * @return
+	 */
+	@Query("SELECT q FROM Quiz q "
+	        + "WHERE q.isFinalized = "+Defines.QUIZ_FINALIZADO+" "
+	        + "AND FUNCTION('DATE', q.startDate) = FUNCTION('DATE', NOW())"
+	        + "AND q.idUserChild = :idUserChild")
+	List<Quiz> getQuizzesByCurrentDate(@Param("idUserChild") Integer idUserChild);
+	
+	
+	/**
 	 * METODO 
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 19 de out. de 2024
@@ -187,6 +202,23 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	    @Param("idUserChild") Integer idUserChild);
 	
 	/**
+	 * METODO ATUALIZA O REGISTRO DO QUIZ APÓS O USER CHILD ENVIAR RESPONDIDP.
+	 * @Author LUCAS BORGUEZAM
+	 * @Sice 17 de set. de 2024
+	 */
+	@Transactional
+	@Modifying
+	@Query("UPDATE Quiz q set "
+			+ "q.isFinalized =:isFinalized, "
+			+ "q.score =:scoreQuiz, "
+			+ "q.endDate = NOW() "
+			+ "where q.id = :idQuiz ")
+	void updateFinalizedByUserChild(@Param("idQuiz") Integer idQuiz,
+									@Param("isFinalized") Integer isFinalized,
+									@Param("scoreQuiz") Integer scoreQuiz			
+			);
+	
+	/**
 	 * METODO ATUALIZA O STATUS DE FINALIZAÇÃO DO QUIZ, PARA QUIZ_NAO_REALIZADO, DO QUIZ ESPECIFICADO.
 	 * @Author LUCAS BORGUEZAM
 	 * @Sice 17 de set. de 2024
@@ -199,19 +231,75 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer>{
 	void updateIsFinalizedbyId(@Param("idQuiz") Integer idQuiz);
 	
 	
+	/**
+	 * METODO CRIA UM REGISTRO INICIAL NO CAMPO QUIZ
+	 * @param isFinalized
+	 * @param idUserChild
+	 * @return
+	 */
 	@Modifying
     @Transactional
-    @Query(value = "INSERT INTO quiz (quiz, data_inicio, finalizado, id_user_filho) "
+    @Query(value = "INSERT INTO quiz (data_inicio, id_user_filho) "
     		+ "VALUES ("
-    		+ ":quiz, "
-    		+ "NOW(), "
-    		+ ":isFinalized, "
-    		+ ":idUserChild)", 
+	    		+ "NOW(), "
+	    		+ ":idUserChild"
+    		+ ")", 
             nativeQuery = true //permite consultas com querys nativas sem usar o "JPQL"
 			)
-	void insertQuizWithoutstartDate(@Param("quiz") String quiz, 
-	        @Param("isFinalized") Integer isFinalized, 
-	        @Param("idUserChild") Integer idUserChild);
+	void insertQuizWithoutstartDate(@Param("idUserChild") Integer idUserChild);
 
+	/**
+	 * BUSCA O ULTIMO QUIZ CRIADO PARA UM USER CHILD
+	 * @param idUserChild
+	 * @return
+	 */
+	@Query(value= "SELECT * FROM quiz "
+				+ "WHERE id_user_filho = :idUserChild "
+				+ "ORDER BY data_inicio DESC LIMIT 1", 
+		       nativeQuery = true)
+	Quiz findLatestQuizByUserChild(@Param("idUserChild") Integer idUserChild);
+
+	/**
+	 * MÉTODO VERIFICAR SE EXISTE UM QUIZ DE UM USUÁRIO ESPECÍFICO EM UMA DATA DEFINIDA
+	 * @Author LUCAS BORGUEZAM
+	 * @Since 30 de out. de 2024
+	 * @param idUserChild ID do usuário filho
+	 * @param day Dia do mês
+	 * @param month Mês do ano
+	 * @param year Ano
+	 * @return Verdadeiro se existir um quiz aberto nessa data para o usuário
+	 */
+	@Query("SELECT CASE WHEN COUNT(q) > 0 THEN TRUE ELSE FALSE END "
+	        + "FROM Quiz q JOIN UserChild uc ON q.idUserChild = uc.id "
+	        + "WHERE uc.id = :idUserChild "
+	        + "AND FUNCTION('DAY', q.startDate) = :day "
+	        + "AND FUNCTION('MONTH', q.startDate) = :month "
+	        + "AND FUNCTION('YEAR', q.startDate) = :year")
+	Boolean existsQuizByDateAndUser(
+	        @Param("idUserChild") Integer idUserChild, 
+	        @Param("day") Integer day, 
+	        @Param("month") Integer month, 
+	        @Param("year") Integer year);
 	
+	/**
+	 * MÉTODO BUSCA UM QUIZ DE UM USUÁRIO ESPECÍFICO EM UMA DATA DEFINIDA
+	 * @Author LUCAS BORGUEZAM
+	 * @Since 30 de out. de 2024
+	 * @param idUserChild ID do usuário filho
+	 * @param day Dia do mês
+	 * @param month Mês do ano
+	 * @param year Ano
+	 * @return Quiz
+	 */
+	@Query("SELECT q FROM Quiz q "
+			+ "JOIN UserChild uc ON q.idUserChild = uc.id "
+	        + "WHERE uc.id = :idUserChild "
+	        + "AND FUNCTION('DAY', q.startDate) = :day "
+	        + "AND FUNCTION('MONTH', q.startDate) = :month "
+	        + "AND FUNCTION('YEAR', q.startDate) = :year")
+	List<Quiz> findQuizByDateAndUser(
+	        @Param("idUserChild") Integer idUserChild, 
+	        @Param("day") Integer day, 
+	        @Param("month") Integer month, 
+	        @Param("year") Integer year);
 }

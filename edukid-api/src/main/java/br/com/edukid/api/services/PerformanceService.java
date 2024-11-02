@@ -235,31 +235,39 @@ public class PerformanceService {
 		Map<String, String> returnMap = new HashMap<>();
 		/*Verificar token com o id do user child*/
 		if(!securityServices.verifyUserChildWithSolicitation(IdUserChild) && !securityServices.verifyUserFahterWithSolicitation(IdUserChild)) {
-			returnMap.put("stausCode", "UNAUTHORIZED");
+			returnMap.put("statusCode", "UNAUTHORIZED");
 			returnMap.put("message", "'idUserChild' enviado não está relacionado com sua conta.");
 			return returnMap;
 		}        
-	        
+	     
+    	/*Verificar se os path parans não foram passados*/
+    	if(period == null || period.isEmpty() && (type == null || type.isEmpty())) {
+			returnMap.put("statusCode", "atual");
+			return returnMap;
+        }
+		
+		/*Verificar se o parametro type foi passado*/
     	if((type == null || type.isEmpty()) && period != null) {
-			returnMap.put("stausCode", "UNAUTHORIZED");
+			returnMap.put("statusCode", "UNAUTHORIZED");
 			returnMap.put("message", "Para utilizar o parâmetro 'periodo' é preciso usar o parâmetro 'tipe', exemplo '?tipo=d&periodo=7'");
 			return returnMap;
         }
-        
+    	
     	String regex = "^[1-9][0-9]*$";	
         if(!period.matches(regex)) {
-			returnMap.put("stausCode", "UNAUTHORIZED");
+			returnMap.put("statusCode", "UNAUTHORIZED");
 			returnMap.put("message", "parâmetro 'periodo' deve ser uma string numérica maior que 0 exemplo '?tipo=d&periodo=7'");
 			return returnMap;
         }
         
 		/*Verificar o tipo escolhido*/
 		if(!Defines.TYPES_PERIOD.contains(type)) {
-			returnMap.put("stausCode", "UNAUTHORIZED");
+			returnMap.put("statusCode", "UNAUTHORIZED");
 			returnMap.put("message", "'tipo' inválido, deve estar entre essas opções ['d','m','a']");
 			return returnMap;
 		}
 		returnMap.put("statusCode", "OK");
+
 		return returnMap;
 	}
 	

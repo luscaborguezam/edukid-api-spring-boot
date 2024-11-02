@@ -20,6 +20,11 @@ public class ConfMateriaId implements Serializable{
 		// TODO Auto-generated constructor stub
 	}
 	
+	public ConfMateriaId(Integer idUserChild, Integer idSubject) {
+		this.idUserChild = idUserChild;
+		this.idSubject= idSubject;
+	}
+
 	public Integer getIdUserChild() {
 		return idUserChild;
 	}

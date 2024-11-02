@@ -30,9 +30,9 @@ private static final long serialVersionUID = 1L;
 	@Column(name = "data_fim")
 	private LocalDateTime  endDate; // yyyy-MM-dd'T'HH:mm:ss exemplo: 2024-09-11T15:30:45
 	@Column(name = "finalizado")
-	private Integer isFinalized;
+	private Integer isFinalized = 0;
 	@Column(name = "score")
-	private Integer score;
+	private Integer score = 0;
 	@Column(name = "id_user_filho", nullable = false)
 	private Integer idUserChild;
 	

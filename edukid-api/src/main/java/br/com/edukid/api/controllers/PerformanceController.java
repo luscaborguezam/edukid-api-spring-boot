@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.JsonSerializable;
+
 import br.com.edukid.api.entities.Quiz;
 import br.com.edukid.api.repositorys.QuizRepository;
 import br.com.edukid.api.services.ConfigurationQuizService;
 import br.com.edukid.api.services.PerformanceService;
+import br.com.edukid.api.utils.JsonService;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -54,18 +57,24 @@ public class PerformanceController {
 		)
 	{	
 		Integer id = Integer.parseInt(idUserChild);
-		Map<String, String> verification= performanceService.verifyParamPeriod(id, type, period);
-		
+		Map<String, String> verification = performanceService.verifyParamPeriod(id, type, period);		
 		
 		if(verification.get("statusCode").equals("OK")){
 			/*Buscar periodo formatado em LocalDate*/
 			Map<String, LocalDate> periodLocalDate = performanceService.getPeriod(id, type, period);
 			/*Buscar Lista de Quizzes*/
-			List<Quiz> quizzesInPeriod = quizRepository.getQuizzesByPeriod(id, periodLocalDate.get("inicial"), periodLocalDate.get("fianl"));
+			List<Quiz> quizzesInPeriod = quizRepository.getQuizzesByPeriod(id, periodLocalDate.get("inicial"), periodLocalDate.get("final"));
 			List<QuizVO> quizzesInPeriodVO = configurationQuizService.getQuizVO(quizzesInPeriod);
 			
-			return performanceService.getPerformanceByPeriod(id, periodLocalDate.get("inicial"), periodLocalDate.get("fianl"), quizzesInPeriodVO);
-		} 
+			return performanceService.getPerformanceByPeriod(id, periodLocalDate.get("inicial"), periodLocalDate.get("final"), quizzesInPeriodVO);
+		} else if(verification.get("statusCode").equals("atual")){
+			/*Buscar Lista de Quizzes*/
+			List<Quiz> quizzesInPeriod = quizRepository.getQuizzesByCurrentDate(id);
+			List<QuizVO> quizzesInPeriodVO = configurationQuizService.getQuizVO(quizzesInPeriod);
+			/*Busacar periodo atual*/
+			return performanceService.getPerformanceByPeriod(id, LocalDate.now(), LocalDate.now(), quizzesInPeriodVO);
+			
+		}
 		
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(verification.get("message"));
 		

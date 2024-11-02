@@ -21,6 +21,12 @@ public class ConfTemaId implements Serializable{
 		// TODO Auto-generated constructor stub
 	}
 	
+	public ConfTemaId(Integer idUserChild, Integer idSubject,Integer idTema) {
+		this.idUserChild = idUserChild;
+		this.idSubject = idSubject;
+		this.idTema = idTema;
+	}
+
 	public Integer getIdUserChild() {
 		return idUserChild;
 	}
