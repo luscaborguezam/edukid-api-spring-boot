@@ -16,13 +16,13 @@ public class QuizzesByDays {
 	
 	private String id;
 	private String nome;
-	private List<QuizVO> quizzes;
+	private List<QuizVOForHystory> quizzes;
 	
 	public QuizzesByDays() {
 		quizzes = new ArrayList<>();
 	}
 	
-	public void addQuiz(QuizVO quizVO) {
+	public void addQuiz(QuizVOForHystory quizVO) {
 		quizzes.add(quizVO);
 	}
 	
@@ -44,10 +44,10 @@ public class QuizzesByDays {
 		this.nome = nome;
 	}
 
-	public List<QuizVO> getQuizzes() {
+	public List<QuizVOForHystory> getQuizzes() {
 		return quizzes;
 	}
-	public void setQuizzes(List<QuizVO> quizzes) {
+	public void setQuizzes(List<QuizVOForHystory> quizzes) {
 		this.quizzes = quizzes;
 	}
 	

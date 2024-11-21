@@ -47,7 +47,7 @@ public class PerformanceController {
 	 * @return
 	 */
 	@GetMapping(path="/{idUserChild}", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> sendEmail(
+	public ResponseEntity<?> calculatePerformance(
 		@PathVariable @Valid @NotBlank @Pattern(regexp = "^-?\\d+$", message = "'idUSerChild' deve ser uma string numérica de valor inteiro") 
 		String idUserChild,
 		@RequestParam (value = "tipo", required = false)

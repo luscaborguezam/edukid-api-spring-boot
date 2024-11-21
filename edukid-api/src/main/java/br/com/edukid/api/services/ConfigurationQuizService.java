@@ -55,6 +55,7 @@ import br.com.edukid.api.vo.v1.performance.QuizPerformanceData;
 import br.com.edukid.api.vo.v1.quiz.FieldQuizVO;
 import br.com.edukid.api.vo.v1.quiz.QuizByMateriaVO;
 import br.com.edukid.api.vo.v1.quiz.QuizVO;
+import br.com.edukid.api.vo.v1.quiz.QuizVOForHystory;
 import br.com.edukid.api.vo.v1.quiz.QuizzesByDays;
 
 @Service
@@ -869,11 +870,9 @@ public class ConfigurationQuizService {
 		List<Quiz> queizzesEntity = quizRepository.getHistoryQuizzesByPeriod(idUserChild, month, year);
 		/*Transofrmar em VO*/
 		for(Quiz quizEntity : queizzesEntity) {
-			QuizVO quizVORegistred = getQuizVO(quizEntity);
-			FieldQuizVO fieldQuizVO = quizVORegistred.getQuiz();
-			QuizVO quizVO = new QuizVO(quizEntity, fieldQuizVO);
+			QuizVOForHystory quizVORegistred = new QuizVOForHystory(quizEntity);
 			/*Adicionar a lista de retorno*/
-			quizzesByDays.addQuiz(quizVO);
+			quizzesByDays.addQuiz(quizVORegistred);
 		}
 		
 		return quizzesByDays;
